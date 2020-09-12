@@ -1,7 +1,7 @@
+all: install build
+
 install:
-	cd Other
-	npm install
+	cd Other && npm install
 
 build:
-	cd Other
-	npm run build
+	cd Other && npm run build

@@ -3,4 +3,4 @@
 # Install node modules
 
 #
-node index.ts "$@"
+node Other/build/index.js "$@"
