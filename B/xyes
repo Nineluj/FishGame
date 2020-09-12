@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# Install node modules
+
+#
+node index.ts "$@"
