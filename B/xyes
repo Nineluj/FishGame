@@ -1,6 +1,2 @@
 #!/usr/bin/env bash
-
-# Install node modules
-
-#
 node Other/build/index.js "$@"

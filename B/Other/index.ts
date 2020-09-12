@@ -1,14 +1,30 @@
-let message = "hello world"
-let limit = -1
+type Limit = number | "inf"
+const limitFlagValue = 20
 
-// main reads arguments from the command line and __
-const main = () : void => {
+/**
+ * Prints the message up to limit times or forever if it's infinite
+ * @param message The message to print to STDOUT
+ * @param limit Number of times to print
+ */
+const printMessage = (message: string, limit: Limit) : void => {
+    for (let i = 0; limit == "inf" || i !== limit; i++) {
+        console.log(message)
+    }
+}
+
+/**
+ * Reads input from argv and returns the message to print and the limit
+ */
+const parseInput = () : {message : string, limit: Limit} => {
+    let message = "hello world"
+    let limit: Limit = "inf"
+
     let args = process.argv.slice(2)
     let nArgs = args.length
 
     if (nArgs > 0) {
         if (args[0] == "-limit") {
-            limit = 20
+            limit = limitFlagValue
 
             if (nArgs > 1) {
                 message = args[1]
@@ -18,9 +34,12 @@ const main = () : void => {
         }
     }
 
-    for (let i = 0; i != limit; i++) {
-        console.log(message)
-    }
+    return {message, limit}
+}
+
+export const main = () : void => {
+    const { message, limit } = parseInput()
+    printMessage(message, limit)
 }
 
 main()
