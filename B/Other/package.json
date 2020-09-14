@@ -5,7 +5,6 @@
   "main": "index.ts",
   "scripts": {
     "build": "tsc",
-    "start": "node index.ts",
     "test": "npm run build && mocha **build/*.test.js"
   },
   "keywords": [],
