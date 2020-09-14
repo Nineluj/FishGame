@@ -2,6 +2,9 @@
 `xyes` is a shell-executable command-line program that continuously prints the
 command line arguments to STDOUT.
 
+## Install dependencies
+Run `npm install`
+
 ## Build
 Build the code with `npm run build`
 

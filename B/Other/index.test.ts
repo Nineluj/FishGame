@@ -1,14 +1,6 @@
 import { expect } from "chai"
 import { xyes, Writer } from "./index"
 
-const xyesTimeBoxed = (timeout: number, args: Array<string>, writer: Writer) : Promise<void> => {
-    return new Promise((resolve, reject) => {
-        setTimeout(reject, timeout)
-        xyes(args, writer)
-        resolve()
-    })
-}
-
 describe("xyes", () => {
     let state: Array<string> = []
 
@@ -56,17 +48,6 @@ describe("xyes", () => {
                 expect(value).equal(str)
             })
         })
-    })
-
-    it("the output grows over time when not passed limit", () => {
-        // xyesTimeBoxed(100, [], testWriter)
-        // let shortRunOutput = [...state]
-        // resetState()
-        //
-        // xyesTimeBoxed(500, [], testWriter)
-        // let longRunOutput = [...state]
-        //
-        // expect(shortRunOutput).to.have.lengthOf.at.least(longRunOutput.length)
     })
 })
 
