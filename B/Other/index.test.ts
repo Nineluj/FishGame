@@ -1,9 +1,12 @@
 import { expect } from "chai"
 import { xyes, Writer } from "./index"
 
-const xyesAsync = async (args: Array<string>, writer: Writer) : Promise<void> => {
-    xyes(args, writer)
-    return Promise.resolve()
+const xyesTimeBoxed = (timeout: number, args: Array<string>, writer: Writer) : Promise<void> => {
+    return new Promise((resolve, reject) => {
+        setTimeout(reject, timeout)
+        xyes(args, writer)
+        resolve()
+    })
 }
 
 describe("xyes", () => {
@@ -55,19 +58,15 @@ describe("xyes", () => {
         })
     })
 
-    // it("the output grows over time when not passed limit", () => {
-    //     setTimeout(() => {
-    //         xyes([], testWriter)
-    //     }, 100)
-    //     let shortRunOutput = [...state]
-    //     resetState()
-    //
-    //     setTimeout(() => {
-    //         xyes([], testWriter)
-    //     }, 500)
-    //     let longRunOutput = [...state]
-    //
-    //     expect(shortRunOutput).to.have.lengthOf.at.least(longRunOutput.length)
-    // })
+    it("the output grows over time when not passed limit", () => {
+        // xyesTimeBoxed(100, [], testWriter)
+        // let shortRunOutput = [...state]
+        // resetState()
+        //
+        // xyesTimeBoxed(500, [], testWriter)
+        // let longRunOutput = [...state]
+        //
+        // expect(shortRunOutput).to.have.lengthOf.at.least(longRunOutput.length)
+    })
 })
 
