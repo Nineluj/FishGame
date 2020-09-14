@@ -27,7 +27,7 @@ describe("xyes", () => {
         })
     })
 
-    it("prints given string 20 times when passed only limit", () => {
+    it("prints concatenation of given words 20 times when passed limit and words", () => {
         const customArgs = ["matthias", "will", "wreck", "our", "code"]
         const shouldBePrinting = "matthias will wreck our code"
         xyes(["-limit", ...customArgs], testWriter)
