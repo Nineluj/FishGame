@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
 
-PRE=$(stat /opt/rh/rh-nodejs10/enable >/dev/null 2>/dev/null && echo "source /opt/rh/rh-nodejs10/enable" || echo "true")
-PRE && node Other/build/index.js "$@"
+PRE="source /opt/rh/rh-nodejs10/enable"
+if [ ! -f "/opt/rh/rh-nodejs10/enable" ]
+then
+        PRE="true"
+fi
+
+${PRE} && node Other/build/index.js "$@"
