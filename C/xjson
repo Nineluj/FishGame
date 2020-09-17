@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
 
-NODE_EXEC="/opt/rh/rh-nodejs10/root/usr/bin/node"
-
-if [ ! -f /opt/rh/rh-nodejs10/root/usr/bin/node ]; then
-  NODE_EXEC="node"
-fi
-
-"${NODE_EXEC}" Other/build/index.js "$@"
+PRE=$(stat /opt/rh/rh-nodejs10/enable >/dev/null 2>/dev/null && echo "source /opt/rh/rh-nodejs10/enable" || echo "true")
+PRE && node Other/build/index.js "$@"
