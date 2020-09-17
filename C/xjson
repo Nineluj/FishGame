@@ -1,2 +1,9 @@
 #!/usr/bin/env bash
-node Other/build/index.js "$@"
+
+NODE_EXEC="/opt/rh/rh-nodejs10/root/usr/bin/node"
+
+if [ ! -f /opt/rh/rh-nodejs10/root/usr/bin/node ]; then
+  NODE_EXEC="node"
+fi
+
+"${NODE_EXEC}" Other/build/index.js "$@"

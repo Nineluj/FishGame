@@ -1,12 +1,11 @@
-all: enable-node-10 install build
+NPM_EXEC:=$(shell command -v /opt/rh/rh-nodejs10/root/usr/bin/npm|| echo "npm")
 
-enable-node-10:
-	-$(source /opt/rh/rh-nodejs10/enable)
+all: install build
 
 install: 
-	cd Other && npm install
+	cd Other && ${NPM_EXEC} install
 
 build:
-	cd Other && npm run build
+	cd Other && ${NPM_EXEC} run build
 
 .PHONY: all

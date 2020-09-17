@@ -16,17 +16,14 @@ p.onValue = function(val: any) {
 }
 
 stdin.on('end', () => {
-    console.log(objects.length, objects)
-})
+    // We have all the objects inside of "objects"
+    const firstObj = {
+        count: objects.length,
+        seq: objects
+    }
 
-// let data: Array<string> = []
-// stream.on('data', (chunk: string) => {
-//     data.push(chunk)
-// })
-//
-// stream.on('end', () => {
-//     const text = data.join("")
-//     text.pipe()
-//     })
-// })
-//
+    const secondObj = [objects.length, ...([...objects].reverse())]
+
+    process.stdout.write(JSON.stringify(firstObj))
+    process.stdout.write(JSON.stringify(secondObj))
+})
