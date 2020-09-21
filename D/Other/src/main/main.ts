@@ -45,6 +45,7 @@ function createWindow(): void {
 
 const panic = (msg: string) => {
     console.error(msg)
+    console.error(`usage: ./xgui positive-integer`)
     process.exit(-1)
 }
 
