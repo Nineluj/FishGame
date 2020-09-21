@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-PRE="source /opt/rh/rh-nodejs10/enable &&"
+PRE="source /opt/rh/rh-nodejs10/enable"
 if [ ! -f "/opt/rh/rh-nodejs10/enable" ]
 then
-        PRE=""
+        PRE="true"
 fi
 
-${PRE} cd Other && npm start --silent -- "$@"
+${PRE} && cd Other && npm start --silent -- "$@"
