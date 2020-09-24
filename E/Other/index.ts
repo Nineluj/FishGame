@@ -2,12 +2,7 @@ import { createServer } from "net"
 const Parser = require("jsonparse")
 
 const DEFAULT_PORT = 4567
-// TODO close connection after 3 second
-
-const server = createServer({
-    allowHalfOpen: true,
-})
-server.maxConnections = 1
+const TIMEOUT_MS = 3000
 
 const jsonParser = new Parser()
 const parsedObjects: Array<string> = []
@@ -19,6 +14,11 @@ jsonParser.onValue = function(val: any) {
         parsedObjects.push(val)
     }
 }
+
+const server = createServer({
+    allowHalfOpen: true,
+})
+server.maxConnections = 1
 
 server.on("connection", connection => {
     connection.on("data", data => {
@@ -44,14 +44,38 @@ server.on("connection", connection => {
 
         connection.destroy() // Close socket
         server.close() // Shutdown server
+        process.exit(0)
     })
 })
 
-const args = process.argv.slice(2)
-if (args.length > 1) {
-    console.error("Incorrect usage: Too many parameters")
-    console.log("usage: ./xtcp <port?>")
-}
-const port = args.length == 1 ? args[0] : DEFAULT_PORT
+/**
+ * Returns the port to listen for connections on.
+ * Exits process if an incorrect number of arguments are provided
+ */
+const getPort = (): number => {
+    const args = process.argv.slice(2)
+    if (args.length > 1) {
+        console.error("Incorrect usage: Too many parameters")
+        console.log("usage: ./xtcp <port?>")
+        process.exit(-1)
+    }
 
-server.listen(port)
+    return args.length == 1 ? parseInt(args[0]) : DEFAULT_PORT
+}
+
+// TODO jsdoc comment
+const terminateIfNoConnection = (): void => {
+    server.getConnections((error, count) => {
+        if (count === 0) {
+            server.close()
+            console.error(
+                `Timeout error: No connection within ${TIMEOUT_MS /
+                    1000} seconds`
+            )
+            process.exit(-1)
+        }
+    })
+}
+
+server.listen(getPort())
+setTimeout(terminateIfNoConnection, TIMEOUT_MS)
