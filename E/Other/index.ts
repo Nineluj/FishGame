@@ -26,7 +26,6 @@ server.on("connection", connection => {
     })
 
     connection.on("end", () => {
-        // We have all the objects inside of "objects"
         const objectsWithCount = {
             count: parsedObjects.length,
             seq: parsedObjects,
@@ -49,21 +48,41 @@ server.on("connection", connection => {
 })
 
 /**
+ * Display usage information for the program and exit with an error code
+ * @param message Custom message to display to user after terminating program
+ */
+const panic = (message: string): void => {
+    console.error(`Incorrect usage: ${message}`)
+    console.log("usage: ./xtcp <port?>")
+    process.exit(-1)
+}
+
+/**
  * Returns the port to listen for connections on.
  * Exits process if an incorrect number of arguments are provided
  */
 const getPort = (): number => {
     const args = process.argv.slice(2)
     if (args.length > 1) {
-        console.error("Incorrect usage: Too many parameters")
-        console.log("usage: ./xtcp <port?>")
-        process.exit(-1)
+        panic("Too many parameters")
     }
 
-    return args.length == 1 ? parseInt(args[0]) : DEFAULT_PORT
+    if (args.length === 1) {
+        const parsedPort = parseInt(args[0])
+        if (isNaN(parsedPort)) {
+            panic("Port must be a positive number")
+        } else if (parsedPort <= 0) {
+            panic("Port must be a positive number")
+        }
+        return parsedPort
+    }
+
+    return DEFAULT_PORT
 }
 
-// TODO jsdoc comment
+/**
+ * Checks if the server has any active connections, if not, terminates the server and program.
+ */
 const terminateIfNoConnection = (): void => {
     server.getConnections((error, count) => {
         if (count === 0) {
