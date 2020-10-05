@@ -8,7 +8,6 @@ import * as path from "path"
 import * as url from "url"
 
 let mainWindow: Electron.BrowserWindow | null
-let hexSize: number
 
 /**
  * Display the main window
@@ -24,13 +23,11 @@ function createWindow(): void {
         },
     })
 
+    // Can use query here to pass data to app
     const windowUrl = url.format({
         pathname: path.join(__dirname, "./index.html"),
         protocol: "file:",
         slashes: true,
-        query: {
-            size: 200,
-        },
     })
 
     // and load the index.html of the app.
