@@ -8,25 +8,30 @@ interface Props {
     clickHandler?: (event: any) => void
 }
 
-const size = 50
+const TILE_SIZE = 50
 
 /**
- * Draws a single hexagon
- * @param size Size of the sides of the hexagon in pixels
- * @param clickHandler Callback function for when the hexagon is clicked
+ * Draws a Tile
+ * @param className The styling class that the component should use for drawing
+ * @param fish The number of fish to show on top of the tile, currently limited to 5
+ * @param clickHandler Function that will get called when the tile is clicked
  */
 const Tile: React.FC<Props> = ({ className, fish, clickHandler }) => {
     let fishSprites: Array<any> = []
     for (let i = 0; i < fish; i++) {
-        fishSprites.push(<img alt="Icon for a fish" src={fishSvg} />)
+        fishSprites.push(
+            // clickHandler also passed here since the fish are rendered on top of
+            // the hexagons and might therefore be clicked
+            <img alt="Icon for a fish" onClick={clickHandler} src={fishSvg} />
+        )
     }
 
     return (
         <div
             className={className}
             style={{
-                height: size * 2,
-                width: size * 3,
+                height: TILE_SIZE * 2,
+                width: TILE_SIZE * 3,
             }}
         >
             <svg
