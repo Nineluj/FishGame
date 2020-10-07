@@ -92,7 +92,7 @@ const defaultCreateBoardOptions = {
  * Creates a board with at least minTiles number of tiles all containing one
  * fish and with holes at the given position. The initial tile will be placed at 0,0
  * @param minTiles The minimum number of tiles in the board
- * @param holes The list of points to place holes at on the board. If the position is not on the generated board, the point is ignored
+ * @param options Additional configuration parameters that can be specified to further customize the generated board: holes, an array of coordinates, and numFishPerTile, the number of fish per tile
  * @throws IllegalArgumentError
  */
 const createBoard = (

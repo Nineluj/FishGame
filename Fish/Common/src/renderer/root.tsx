@@ -1,6 +1,7 @@
 import * as React from "react"
 import * as electron from "electron"
-import Hexagon from "@/renderer/hexagon/hexagon"
+import Hexagon from "@/renderer/tile/tile"
+import { Board } from "./board/board"
 
 /**
  * Draws the main view
@@ -16,7 +17,7 @@ const Root: React.FC = () => {
 
     return (
         <div className="center">
-            <Hexagon size={200} clickHandler={closeApp} />
+            <Board data={[]} />
         </div>
     )
 }
