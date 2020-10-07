@@ -6,4 +6,4 @@ then
         PRE="true"
 fi
 
-${PRE} && cd Common && npm start --silent -- "$@"
+${PRE} && npm start --silent -- "$@"

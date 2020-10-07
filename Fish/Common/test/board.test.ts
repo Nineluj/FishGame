@@ -8,6 +8,8 @@ describe("the board", () => {
     it("can be created without holes", () => {
         let board = createBoard(10, [])
         expect(board.has({ x: 0, y: 0 })).is.true
+        expect(board.length()).to.be.at.least(10)
+        expect(board.getNumberOfTiles()).to.be.at.least(10)
     })
 
     it("cannot be created with negative number of tiles", () => {
@@ -17,7 +19,14 @@ describe("the board", () => {
         )
     })
 
-    it("can be created with holes outside of ___", () => {
-        expect(true).to.be.false
+    it("can be created with holes outside of the board", () => {
+        let board = createBoard(10, [{ x: 100, y: 100 }])
+        expect(board.getNumberOfTiles()).to.be.at.least(10)
+    })
+
+    it("can be created with a hole on the board", () => {
+        let board = createBoard(10, [{ x: 0, y: 0 }])
+        expect(board.get({ x: 0, y: 0 })).to.equal("hole")
+        expect(board.getNumberOfTiles()).to.be.at.least(10)
     })
 })

@@ -3,9 +3,9 @@ PRE :=$(shell stat /opt/rh/rh-nodejs10/enable >/dev/null 2>/dev/null && echo "so
 all: install build
 
 install:
-	${PRE} cd Common && npm install
+	${PRE} npm install
 
 build:
-	${PRE} cd Common && npm run prod
+	${PRE} npm run prod
 
 .PHONY: all
