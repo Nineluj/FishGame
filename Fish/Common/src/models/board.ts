@@ -3,11 +3,12 @@ import { Hole, TileType, ActualTile } from "@models/tile"
 import { IllegalArgumentError } from "@models/errors/illegalArgument"
 
 const MIN_NUM_TILES = 0
+const MIN_NUM_FISH_PER_TILE = 0
 
 /**
  * Represents a board from the Fish game
  */
-class BoardMap {
+class Board {
     data: Map<string, TileType>
 
     constructor() {
@@ -59,6 +60,19 @@ class BoardMap {
 
         return count
     }
+
+    /**
+     * Returns the contents of the board an 2d array. Mutating the return value of this function will not mutate the board
+     */
+    to2DArray(): Array<{ x: number; y: number; tile: TileType }> {
+        const output: Array<{ x: number; y: number; tile: TileType }> = []
+        this.data.forEach((value, key) => {
+            const { x, y } = JSON.parse(key)
+            output.push({ x, y, tile: value })
+        })
+
+        return output
+    }
 }
 
 /**
@@ -69,6 +83,11 @@ class BoardMap {
 const containsPosition = (arr: Array<PointType>, needle: PointType): boolean =>
     arr.some((p) => p.x === needle.x && p.y === needle.y)
 
+// Default option configuration for creating a board with createBoard
+const defaultCreateBoardOptions = {
+    holes: [],
+    numFishPerTile: 1,
+}
 /**
  * Creates a board with at least minTiles number of tiles all containing one
  * fish and with holes at the given position. The initial tile will be placed at 0,0
@@ -76,25 +95,39 @@ const containsPosition = (arr: Array<PointType>, needle: PointType): boolean =>
  * @param holes The list of points to place holes at on the board. If the position is not on the generated board, the point is ignored
  * @throws IllegalArgumentError
  */
-const createBoard = (minTiles: number, holes: Array<PointType>): BoardMap => {
+const createBoard = (
+    minTiles: number,
+    options?: {
+        holes?: Array<PointType>
+        numFishPerTile?: number
+    }
+): Board => {
+    // Overwrite default options with user provided options
+    const aggregatedOptions = { ...defaultCreateBoardOptions, ...options }
+
+    const { holes, numFishPerTile } = aggregatedOptions
     if (minTiles < MIN_NUM_TILES) {
         throw new IllegalArgumentError(
             `number of tiles must be at least ${MIN_NUM_TILES}, given ${minTiles}`
         )
     }
 
-    let board = new BoardMap()
-    // TODO: should we make the board bigger to "fit" holes?
+    if (numFishPerTile < MIN_NUM_FISH_PER_TILE) {
+        throw new IllegalArgumentError(
+            `number of fish per tile must be at least ${MIN_NUM_FISH_PER_TILE}, given ${numFishPerTile}`
+        )
+    }
+
+    let board = new Board()
+    // We ignore holes that are outside of the bounds of the board so long as we have met or exceeded the minTiles
     let sideLength = Math.ceil(Math.sqrt(minTiles + holes.length))
 
     for (let y = 0; y < sideLength; y++) {
         for (let x = 0; x < sideLength; x++) {
             if (containsPosition(holes, { x, y })) {
-                // TODO: find a more intuitive way to do this
                 board.set({ x, y }, "hole")
             } else {
-                // TODO: can put random number of fish
-                board.set({ x, y }, { fish: 1 })
+                board.set({ x, y }, { fish: numFishPerTile })
             }
         }
     }
