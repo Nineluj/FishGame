@@ -14,28 +14,7 @@ interface Props {
  * @param data Board data to draw
  */
 const Board: React.FC<Props> = ({ data }) => {
-    const [columns, setColumns] = useState(getTileDataByColumn(data))
-
-    /**
-     * Changes the tile in column colI and row rowI to be a hole
-     * @param colI Column index
-     * @param rowI Row index
-     */
-    const removeTile = (colI: number, rowI: number) => {
-        setColumns(
-            update(columns, {
-                [colI]: {
-                    tiles: {
-                        [rowI]: {
-                            tile: {
-                                $set: "hole",
-                            },
-                        },
-                    },
-                },
-            })
-        )
-    }
+    const columns = getTileDataByColumn(data)
 
     return (
         <div className="container">
@@ -46,7 +25,6 @@ const Board: React.FC<Props> = ({ data }) => {
                             fish={tile.tile === "hole" ? 0 : tile.tile.fish}
                             className="tile"
                             hole={tile.tile === "hole"}
-                            onClick={() => removeTile(columnIndex, rowIndex)}
                         />
                     ))}
                 </div>

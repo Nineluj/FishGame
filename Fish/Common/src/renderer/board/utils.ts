@@ -11,6 +11,11 @@ interface Column {
     tiles: Array<TileData>
 }
 
+/**
+ * Aggregate the tiles based on their column in sorted order both in terms of
+ * columns and in terms of tiles in each column
+ * @param data The tiles to group together, shouldn't contain missing data points
+ */
 export const getTileDataByColumn = (data: Array<TileData>): Array<Column> => {
     const map = new Map<number, Array<TileData>>()
     data.forEach((tile) => {
@@ -32,9 +37,11 @@ export const getTileDataByColumn = (data: Array<TileData>): Array<Column> => {
     return output
 }
 
-export const sortColumnInAscendingOrder = (
-    data: Array<TileData>
-): Array<TileData> => {
+/**
+ * Sort the tiles based on their y coordinates
+ * @param data Tiles to sort
+ */
+const sortColumnInAscendingOrder = (data: Array<TileData>): Array<TileData> => {
     const clonedData = [...data]
     return clonedData.sort((a, b) => {
         return a.y - b.y

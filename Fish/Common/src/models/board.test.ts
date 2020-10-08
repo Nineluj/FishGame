@@ -4,8 +4,6 @@ import { expect } from "chai"
 import { ActualTile } from "@/models/tile"
 
 describe("the board", () => {
-    beforeEach(() => {})
-
     it("can be created without holes", () => {
         let board = createBoard(10)
         expect(board.has({ x: 0, y: 0 })).is.true

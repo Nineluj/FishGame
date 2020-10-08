@@ -66,9 +66,26 @@ class Board {
      */
     toTileArray(): Array<{ x: number; y: number; tile: TileType }> {
         const output: Array<{ x: number; y: number; tile: TileType }> = []
-        this.data.forEach((value, key) => {
-            const { x, y } = JSON.parse(key)
-            output.push({ x, y, tile: value })
+        this.data.forEach((tile, pos) => {
+            const { x, y } = JSON.parse(pos)
+            output.push({ x, y, tile })
+        })
+
+        return output
+    }
+
+    // TODO: do we include the tile itself?
+    reachableTiles(
+        origin: PointType
+    ): Array<{ x: number; y: number; tile: TileType }> {
+        const output: Array<{ x: number; y: number; tile: TileType }> = []
+
+        this.data.forEach((tile, pos) => {
+            const { x, y } = JSON.parse(pos)
+            if (x == origin.x && y == origin.y) {
+            }
+
+            if (x == origin.x || y == origin.y) output.push({ x, y, tile })
         })
 
         return output
@@ -88,6 +105,7 @@ const defaultCreateBoardOptions = {
     holes: [],
     numFishPerTile: 1,
 }
+
 /**
  * Creates a board with at least minTiles number of tiles all containing one
  * fish and with holes at the given position. The initial tile will be placed at 0,0
@@ -102,6 +120,7 @@ const createBoard = (
         numFishPerTile?: number
     }
 ): Board => {
+    // TODO: enforce max 5 fish
     // Overwrite default options with user provided options
     const aggregatedOptions = { ...defaultCreateBoardOptions, ...options }
 
