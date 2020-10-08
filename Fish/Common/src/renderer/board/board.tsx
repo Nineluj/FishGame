@@ -17,7 +17,7 @@ const Board: React.FC<Props> = ({ data }) => {
                 <div className="column">
                     {column.tiles.map((tile) => (
                         <Tile
-                            fish={(tile.tile as ActualTile).fish}
+                            fish={tile.tile === "hole" ? 0 : tile.tile.fish}
                             className="tile"
                             hole={tile.tile === "hole"}
                         />
