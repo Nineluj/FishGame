@@ -64,7 +64,7 @@ class Board {
     /**
      * Returns the contents of the board an 2d array. Mutating the return value of this function will not mutate the board
      */
-    to2DArray(): Array<{ x: number; y: number; tile: TileType }> {
+    toTileArray(): Array<{ x: number; y: number; tile: TileType }> {
         const output: Array<{ x: number; y: number; tile: TileType }> = []
         this.data.forEach((value, key) => {
             const { x, y } = JSON.parse(key)

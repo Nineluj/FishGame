@@ -2,6 +2,7 @@ import * as React from "react"
 import * as electron from "electron"
 import Hexagon from "@/renderer/tile/tile"
 import { Board } from "./board/board"
+import { createBoard } from "@/models/board"
 
 /**
  * Draws the main view
@@ -15,9 +16,16 @@ const Root: React.FC = () => {
         electron.ipcRenderer.send("close-me")
     }
 
+    const board = createBoard(15, {
+        holes: [
+            { x: 1, y: 1 },
+            { x: 2, y: 1 },
+        ],
+    })
+
     return (
         <div className="center">
-            <Board data={[]} />
+            <Board data={board.toTileArray()} />
         </div>
     )
 }

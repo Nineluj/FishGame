@@ -5,7 +5,8 @@ import "./tile.css"
 interface Props {
     className?: string
     fish: number
-    clickHandler?: (event: any) => void
+    hole: boolean
+    onClick?: (event: any) => void
 }
 
 const TILE_SIZE = 50
@@ -16,13 +17,24 @@ const TILE_SIZE = 50
  * @param fish The number of fish to show on top of the tile, currently limited to 5
  * @param clickHandler Function that will get called when the tile is clicked
  */
-const Tile: React.FC<Props> = ({ className, fish, clickHandler }) => {
+const Tile: React.FC<Props> = ({ className, fish, hole, onClick }) => {
+    if (hole) {
+        return (
+            <div
+                className={className}
+                style={{
+                    height: TILE_SIZE * 2,
+                    width: TILE_SIZE * 3,
+                }}
+            />
+        )
+    }
     let fishSprites: Array<any> = []
     for (let i = 0; i < fish; i++) {
         fishSprites.push(
             // clickHandler also passed here since the fish are rendered on top of
             // the hexagons and might therefore be clicked
-            <img alt="Icon for a fish" onClick={clickHandler} src={fishSvg} />
+            <img alt="Icon for a fish" onClick={onClick} src={fishSvg} />
         )
     }
 
@@ -42,7 +54,7 @@ const Tile: React.FC<Props> = ({ className, fish, clickHandler }) => {
                 viewBox="0 0 3 2"
             >
                 <polygon
-                    onClick={clickHandler}
+                    onClick={onClick}
                     points="0,1 1,2 2,2 3,1 2,0 1,0 0,1"
                     fill="orange"
                 />
