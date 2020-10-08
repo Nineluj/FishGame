@@ -74,19 +74,24 @@ class Board {
         return output
     }
 
-    // TODO: do we include the tile itself?
+    /**
+     * Find all the tiles in the board that are reachable from the given position,
+     * not including the tile itself and not including holes
+     * @param origin Position
+     */
     reachableTiles(
         origin: PointType
     ): Array<{ x: number; y: number; tile: TileType }> {
         const output: Array<{ x: number; y: number; tile: TileType }> = []
 
-        this.data.forEach((tile, pos) => {
-            const { x, y } = JSON.parse(pos)
-            if (x == origin.x && y == origin.y) {
-            }
-
-            if (x == origin.x || y == origin.y) output.push({ x, y, tile })
-        })
+        // this.data.forEach((tile, pos) => {
+        //     const { x, y } = JSON.parse(pos)
+        //     if (x != origin.x && y != origin.y) {
+        //         if (x == origin.x || y == origin.y) {
+        //             output.push({ x, y, tile })
+        //         }
+        //     }
+        // })
 
         return output
     }
@@ -120,7 +125,6 @@ const createBoard = (
         numFishPerTile?: number
     }
 ): Board => {
-    // TODO: enforce max 5 fish
     // Overwrite default options with user provided options
     const aggregatedOptions = { ...defaultCreateBoardOptions, ...options }
 

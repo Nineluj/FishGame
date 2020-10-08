@@ -1,4 +1,4 @@
-import * as React from "react"
+import React, { useState } from "react"
 import * as electron from "electron"
 import Hexagon from "@/renderer/tile/tile"
 import { Board } from "./board/board"
@@ -16,16 +16,25 @@ const Root: React.FC = () => {
         electron.ipcRenderer.send("close-me")
     }
 
-    const board = createBoard(15, {
-        holes: [
-            { x: 1, y: 1 },
-            { x: 2, y: 1 },
-        ],
-    })
+    const [board] = useState(
+        createBoard(15, {
+            holes: [
+                { x: 1, y: 1 },
+                { x: 2, y: 1 },
+            ],
+        })
+    )
+
+    const [tiles, setTiles] = useState(board.toTileArray())
+
+    const removeTile = (x: number, y: number): void => {
+        board.set({ x, y }, "hole")
+        setTiles(board.toTileArray())
+    }
 
     return (
         <div className="center">
-            <Board data={board.toTileArray()} />
+            <Board removeTile={removeTile} data={tiles} />
         </div>
     )
 }
