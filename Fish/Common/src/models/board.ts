@@ -105,21 +105,10 @@ class Board {
 
         movementIncrements.forEach((increment) => {
             // For each increment, determine the initial neighbor to the origin tile
-            let currentPosn: PointType = {
-                x:
-                    origin.x +
-                    (origin.x % 2 === 0 ? increment.even.x : increment.odd.x),
-                y:
-                    origin.y +
-                    (origin.x % 2 === 0 ? increment.even.y : increment.odd.y),
-            }
-
-            let currentTile = this.get(currentPosn)
+            let currentPosn: PointType = { x: origin.x, y: origin.y }
 
             // Continue moving in this direction until we hit a hole or the end of the board, adding each tile encountered to the output
-            while (currentTile !== "hole" && currentTile !== undefined) {
-                output.push({ ...currentPosn, tile: currentTile as TileType })
-
+            while (true) {
                 const xIncrement =
                     currentPosn.x % 2 === 0 ? increment.even.x : increment.odd.x
                 const yIncrement =
@@ -129,7 +118,13 @@ class Board {
                     x: currentPosn.x + xIncrement,
                     y: currentPosn.y + yIncrement,
                 }
-                currentTile = this.get(currentPosn)
+                let currentTile = this.get(currentPosn)
+
+                if (currentTile !== "hole" && currentTile !== undefined) {
+                    output.push({ ...currentPosn, tile: currentTile })
+                } else {
+                    break
+                }
             }
         })
 
