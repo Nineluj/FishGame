@@ -64,7 +64,7 @@ class Board {
     }
 
     /**
-     * Returns the contents of the board an 2d array. Mutating the return value of this function will not mutate the board
+     * Returns a flat Array of tiles and their coordinates on the grid to be consumed by a view
      */
     toTileArray(): Array<{ x: number; y: number; tile: TileType }> {
         const output: Array<{ x: number; y: number; tile: TileType }> = []
