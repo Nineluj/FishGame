@@ -7,6 +7,8 @@ const MIN_NUM_FISH_PER_TILE = 0
 
 /**
  * Represents a board from the Fish game
+ * Coordinate system based on the 4th model on https://www.redblobgames.com/grids/hexagons/#coordinates-offset
+ *
  */
 class Board {
     data: Map<string, TileType>
@@ -77,21 +79,59 @@ class Board {
     /**
      * Find all the tiles in the board that are reachable from the given position,
      * not including the tile itself and not including holes
+     *
      * @param origin Position
      */
-    reachableTiles(
+    getReachableTilesFrom(
         origin: PointType
     ): Array<{ x: number; y: number; tile: TileType }> {
         const output: Array<{ x: number; y: number; tile: TileType }> = []
 
-        // this.data.forEach((tile, pos) => {
-        //     const { x, y } = JSON.parse(pos)
-        //     if (x != origin.x && y != origin.y) {
-        //         if (x == origin.x || y == origin.y) {
-        //             output.push({ x, y, tile })
-        //         }
-        //     }
-        // })
+        // Contains the different increments you can move to get to a neighboring tile for tiles in even and odd columns
+        // https://www.redblobgames.com/grids/hexagons/#neighbors-offset
+        const movementIncrements = [
+            { even: { x: 0, y: -1 }, odd: { x: 0, y: -1 } },
+            { even: { x: 1, y: 0 }, odd: { x: 1, y: -1 } },
+            { even: { x: 1, y: 1 }, odd: { x: 1, y: 0 } },
+            { even: { x: 0, y: 1 }, odd: { x: 0, y: 1 } },
+            { even: { x: -1, y: 1 }, odd: { x: -1, y: 0 } },
+            { even: { x: -1, y: 0 }, odd: { x: -1, y: -1 } },
+        ]
+
+        // If the starting point is not an ActualTile, return an empty array
+        if (this.get(origin) === undefined || this.get(origin) === "hole") {
+            return []
+        }
+
+        movementIncrements.forEach((increment) => {
+            // For each increment, determine the initial neighbor to the origin tile
+            let currentPosn: PointType = {
+                x:
+                    origin.x +
+                    (origin.x % 2 === 0 ? increment.even.x : increment.odd.x),
+                y:
+                    origin.y +
+                    (origin.x % 2 === 0 ? increment.even.y : increment.odd.y),
+            }
+
+            let currentTile = this.get(currentPosn)
+
+            // Continue moving in this direction until we hit a hole or the end of the board, adding each tile encountered to the output
+            while (currentTile !== "hole" && currentTile !== undefined) {
+                output.push({ ...currentPosn, tile: currentTile as TileType })
+
+                const xIncrement =
+                    currentPosn.x % 2 === 0 ? increment.even.x : increment.odd.x
+                const yIncrement =
+                    currentPosn.x % 2 === 0 ? increment.even.y : increment.odd.y
+
+                currentPosn = {
+                    x: currentPosn.x + xIncrement,
+                    y: currentPosn.y + yIncrement,
+                }
+                currentTile = this.get(currentPosn)
+            }
+        })
 
         return output
     }
