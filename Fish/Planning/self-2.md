@@ -9,22 +9,24 @@ Under each of the following elements below, indicate below where your
 TAs can find:
 
 - the data description of tiles, including an interpretation:
+  - [Fish/Common/src/models/tile.ts:4](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/f450ea021eadd7f5350098e81cdbc122f0ecdf36/Fish/Common/src/models/tile.ts#L4) - It describes the data type of pieces on the board, and how both tiles and holes are defined.
 
 - the data description of boards, include an interpretation:
+  - [Fish/Common/src/models/board.ts:9](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/f450ea021eadd7f5350098e81cdbc122f0ecdf36/Fish/Common/src/models/board.ts#L9) - The board is stored in a map accessed by hashed coordinates, and the coordinate system used is linked in the class description
 
 - the functionality for removing a tile:
-  - purpose:
+  - purpose: [Fish/Common/src/models/board.ts:37](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/f450ea021eadd7f5350098e81cdbc122f0ecdf36/Fish/Common/src/models/board.ts#L37) - The set method can be used to set a position on the board to be a hole
   
-  - signature:
+  - signature: [Fish/Common/src/models/board.ts:41](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/f450ea021eadd7f5350098e81cdbc122f0ecdf36/Fish/Common/src/models/board.ts#L41) - The signature is included with types in the method header, since it is written in TypeScript
   
-  - unit tests:
+  - unit tests: [Fish/Common/src/models/board.test.ts:56](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/f450ea021eadd7f5350098e81cdbc122f0ecdf36/Fish/Common/src/models/board.test.ts#L56) - This unit test sets a position to be a hole in order to test the getReachableTiles functionality.
 
-- the functiinality for reaching other tiles on the board:
-  - purpose:
+- the functionality for reaching other tiles on the board:
+  - purpose: [Fish/Common/src/models/board.ts:85](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/f450ea021eadd7f5350098e81cdbc122f0ecdf36/Fish/Common/src/models/board.ts#L85) - This method returns a list of all of the tiles reachable from any given position on the board
   
-  - signature:
+  - signature: [Fish/Common/src/models/board.ts:87](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/f450ea021eadd7f5350098e81cdbc122f0ecdf36/Fish/Common/src/models/board.ts#L87) - The signature of this function (with types) is included in the function header since it is written in TypeScript
   
-  - unit tests:
+  - unit tests: [Fish/Common/src/models/board.test.ts:56](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/f450ea021eadd7f5350098e81cdbc122f0ecdf36/Fish/Common/src/models/board.test.ts#L56) - This unit test sets up the board with some holes and pieces, and verifies that the correct set of tiles are returned
 
 The ideal feedback is a GitHub perma-link to the range of lines in specific
 file or a collection of files for each of the above bullet points.
