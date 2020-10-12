@@ -58,21 +58,20 @@ describe("the board", () => {
         board.set({ x: 2, y: 2 }, { fish: 1 })
         board.set({ x: 2, y: 1 }, { fish: 1 })
         board.set({ x: 2, y: 0 }, { fish: 1 })
-        board.set({ x: 3, y: 3 }, { fish: 1 })
-        board.set({ x: 4, y: 3 }, { fish: 1 })
+        board.set({ x: 3, y: 2 }, { fish: 1 })
+        board.set({ x: 4, y: 4 }, { fish: 1 })
         board.set({ x: 2, y: 4 }, { fish: 1 })
         board.set({ x: 2, y: 3 }, "hole")
-        board.set({ x: 1, y: 3 }, { fish: 1 })
+        board.set({ x: 1, y: 2 }, { fish: 1 })
 
         const reachableTiles = board.getReachableTilesFrom({ x: 2, y: 2 })
-        expect(reachableTiles).to.be.of.length(5)
+        expect(reachableTiles).to.be.of.length(4)
 
         const expected = [
             { x: 2, y: 1, tile: { fish: 1 } },
             { x: 2, y: 0, tile: { fish: 1 } },
-            { x: 3, y: 3, tile: { fish: 1 } },
-            { x: 4, y: 3, tile: { fish: 1 } },
-            { x: 1, y: 3, tile: { fish: 1 } },
+            { x: 3, y: 2, tile: { fish: 1 } },
+            { x: 1, y: 2, tile: { fish: 1 } },
         ]
         expect(isDeepStrictEqual(reachableTiles, expected)).to.be.true
     })
@@ -80,11 +79,11 @@ describe("the board", () => {
     it("returns no moves when getReachableTilesFrom is invoked on an isolated tile", () => {
         const board = createBoard(16, {
             holes: [
+                { x: 1, y: 1 },
                 { x: 1, y: 2 },
-                { x: 1, y: 3 },
                 { x: 2, y: 3 },
-                { x: 3, y: 3 },
                 { x: 3, y: 2 },
+                { x: 3, y: 1 },
                 { x: 2, y: 1 },
             ],
         })

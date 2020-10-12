@@ -7,8 +7,8 @@ const MIN_NUM_FISH_PER_TILE = 0
 
 /**
  * Represents a board from the Fish game
- * Coordinate system based on the 4th model on https://www.redblobgames.com/grids/hexagons/#coordinates-offset
- *
+ * Coordinate system based on the 3rd model (odd-q) from:
+ * https://www.redblobgames.com/grids/hexagons/#coordinates-offset
  */
 class Board {
     data: Map<string, TileType>
@@ -87,15 +87,17 @@ class Board {
     ): Array<{ x: number; y: number; tile: TileType }> {
         const output: Array<{ x: number; y: number; tile: TileType }> = []
 
-        // Contains the different increments you can move to get to a neighboring tile for tiles in even and odd columns
+        // Contains the different increments you can move to get to a
+        // neighboring tile for tiles in even and odd columns.
+        // See odd-q increments here:
         // https://www.redblobgames.com/grids/hexagons/#neighbors-offset
         const movementIncrements = [
-            { even: { x: 0, y: -1 }, odd: { x: 0, y: -1 } },
-            { even: { x: 1, y: 0 }, odd: { x: 1, y: -1 } },
-            { even: { x: 1, y: 1 }, odd: { x: 1, y: 0 } },
-            { even: { x: 0, y: 1 }, odd: { x: 0, y: 1 } },
-            { even: { x: -1, y: 1 }, odd: { x: -1, y: 0 } },
-            { even: { x: -1, y: 0 }, odd: { x: -1, y: -1 } },
+            { odd: { x: 0, y: -1 }, even: { x: 0, y: -1 } },
+            { odd: { x: 1, y: 0 }, even: { x: 1, y: -1 } },
+            { odd: { x: 1, y: 1 }, even: { x: 1, y: 0 } },
+            { odd: { x: 0, y: 1 }, even: { x: 0, y: 1 } },
+            { odd: { x: -1, y: 1 }, even: { x: -1, y: 0 } },
+            { odd: { x: -1, y: 0 }, even: { x: -1, y: -1 } },
         ]
 
         // If the starting point is not an ActualTile, return an empty array
