@@ -5,7 +5,7 @@ import {
     createBoard,
     getNumberOfTilesOnBoard,
     getReachableTilesFrom,
-} from "@models/board"
+} from "@/models/board/board"
 import { IllegalArgumentError } from "@models/errors/illegalArgument"
 import { Tile } from "@models/tile"
 import { expect } from "chai"
@@ -77,38 +77,84 @@ describe("the board", () => {
                                     boardSet(
                                         createBoard(0),
                                         { x: 2, y: 2 },
-                                        { fish: 1 }
+                                        { fish: 1, occupied: false }
                                     ),
                                     { x: 2, y: 1 },
-                                    { fish: 1 }
+                                    { fish: 1, occupied: false }
                                 ),
                                 { x: 2, y: 0 },
-                                { fish: 1 }
+                                { fish: 1, occupied: false }
                             ),
                             { x: 3, y: 2 },
-                            { fish: 1 }
+                            { fish: 1, occupied: false }
                         ),
                         { x: 4, y: 4 },
-                        { fish: 1 }
+                        { fish: 1, occupied: false }
                     ),
                     { x: 2, y: 4 },
-                    { fish: 1 }
+                    { fish: 1, occupied: false }
                 ),
                 { x: 2, y: 3 },
                 "hole"
             ),
             { x: 1, y: 2 },
-            { fish: 1 }
+            { fish: 1, occupied: false }
         )
 
         const reachableTiles = getReachableTilesFrom(board, { x: 2, y: 2 })
         expect(reachableTiles).to.be.of.length(4)
 
         const expected = [
-            { x: 2, y: 1, tile: { fish: 1 } },
-            { x: 2, y: 0, tile: { fish: 1 } },
-            { x: 3, y: 2, tile: { fish: 1 } },
-            { x: 1, y: 2, tile: { fish: 1 } },
+            { x: 2, y: 1, tile: { fish: 1, occupied: false } },
+            { x: 2, y: 0, tile: { fish: 1, occupied: false } },
+            { x: 3, y: 2, tile: { fish: 1, occupied: false } },
+            { x: 1, y: 2, tile: { fish: 1, occupied: false } },
+        ]
+        expect(isDeepStrictEqual(reachableTiles, expected)).to.be.true
+    })
+
+    it("returns valid moves when getReachableTilesFrom is invoked on a tile with neighboring tiles that have occupants", () => {
+        let board = boardSet(
+            boardSet(
+                boardSet(
+                    boardSet(
+                        boardSet(
+                            boardSet(
+                                boardSet(
+                                    boardSet(
+                                        createBoard(0),
+                                        { x: 2, y: 2 },
+                                        { fish: 1, occupied: false }
+                                    ),
+                                    { x: 2, y: 1 },
+                                    { fish: 1, occupied: false }
+                                ),
+                                { x: 2, y: 0 },
+                                { fish: 1, occupied: true }
+                            ),
+                            { x: 3, y: 2 },
+                            { fish: 1, occupied: false }
+                        ),
+                        { x: 4, y: 4 },
+                        { fish: 1, occupied: false }
+                    ),
+                    { x: 2, y: 4 },
+                    { fish: 1, occupied: false }
+                ),
+                { x: 2, y: 3 },
+                "hole"
+            ),
+            { x: 1, y: 2 },
+            { fish: 1, occupied: false }
+        )
+
+        const reachableTiles = getReachableTilesFrom(board, { x: 2, y: 2 })
+        expect(reachableTiles).to.be.of.length(3)
+
+        const expected = [
+            { x: 2, y: 1, tile: { fish: 1, occupied: false } },
+            { x: 3, y: 2, tile: { fish: 1, occupied: false } },
+            { x: 1, y: 2, tile: { fish: 1, occupied: false } },
         ]
         expect(isDeepStrictEqual(reachableTiles, expected)).to.be.true
     })

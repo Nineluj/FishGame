@@ -1,4 +1,4 @@
-import { Board } from "@models/board"
+import { Board } from "@/models/board/board"
 import React from "react"
 import Tile from "../tile/tile"
 import "./board.css"

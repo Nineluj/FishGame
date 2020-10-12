@@ -1,4 +1,4 @@
-import { containsPoint, Point } from "@models/point"
+import { containsPoint, Point } from "@/models/point"
 import { Hole, Tile } from "@models/tile"
 import { IllegalArgumentError } from "@models/errors/illegalArgument"
 import update from "immutability-helper"
@@ -130,7 +130,11 @@ const getReachableTilesFrom = (
 
             let currentTile = boardGet(board, currentPosn)
 
-            if (currentTile !== "hole" && currentTile !== undefined) {
+            if (
+                currentTile !== "hole" &&
+                currentTile !== undefined &&
+                !currentTile.occupied
+            ) {
                 output.push({ ...currentPosn, tile: currentTile })
             } else {
                 break
@@ -187,7 +191,11 @@ const createBoard = (
             if (containsPoint(holes, { x, y })) {
                 board = boardSet(board, { x, y }, "hole")
             } else {
-                board = boardSet(board, { x, y }, { fish: numFishPerTile })
+                board = boardSet(
+                    board,
+                    { x, y },
+                    { fish: numFishPerTile, occupied: false }
+                )
             }
         }
     }
