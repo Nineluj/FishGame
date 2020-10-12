@@ -10,6 +10,8 @@ const MIN_NUM_FISH_PER_TILE = 0
  * Represents a board from the Fish game
  * Coordinate system based on the 3rd model (odd-q) from:
  * https://www.redblobgames.com/grids/hexagons/#coordinates-offset
+ *
+ * The board contains columns that contains rows
  */
 type Board = Array<Array<Tile | Hole>>
 
@@ -194,6 +196,7 @@ const createBoard = (
 }
 
 export {
+    Board,
     createBoard,
     boardHas,
     boardGet,

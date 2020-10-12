@@ -1,10 +1,10 @@
+import { Board } from "@models/board"
 import React from "react"
 import Tile from "../tile/tile"
 import "./board.css"
-import { getTileDataByColumn, RenderableTileData } from "./utils"
 
 interface Props {
-    data: Array<RenderableTileData>
+    data: Board
     removeTile: (x: number, y: number) => void
 }
 
@@ -14,17 +14,15 @@ interface Props {
  * @param removeTile
  */
 const Board: React.FC<Props> = ({ data, removeTile }) => {
-    const columns = getTileDataByColumn(data)
-
     return (
         <div className="container">
-            {columns.map((column, x) => (
+            {data.map((column, x) => (
                 <div className="column">
-                    {column.tiles.map((tile, y) => (
+                    {column.map((tile, y) => (
                         <Tile
-                            fish={tile.tile === "hole" ? 0 : tile.tile.fish}
+                            fish={tile === "hole" ? 0 : tile.fish}
                             className="tile"
-                            hole={tile.tile === "hole"}
+                            hole={tile === "hole"}
                             onClick={() => removeTile(x, y)}
                         />
                     ))}
