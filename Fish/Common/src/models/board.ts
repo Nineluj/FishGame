@@ -1,6 +1,7 @@
-import { PointType } from "@models/point"
-import { Hole, TileType, ActualTile } from "@models/tile"
+import { containsPoint, Point } from "@models/point"
+import { Hole, Tile } from "@models/tile"
 import { IllegalArgumentError } from "@models/errors/illegalArgument"
+import update from "immutability-helper"
 
 const MIN_NUM_TILES = 0
 const MIN_NUM_FISH_PER_TILE = 0
@@ -10,137 +11,133 @@ const MIN_NUM_FISH_PER_TILE = 0
  * Coordinate system based on the 3rd model (odd-q) from:
  * https://www.redblobgames.com/grids/hexagons/#coordinates-offset
  */
-class Board {
-    data: Map<string, TileType>
+type Board = Array<Array<Tile | Hole>>
 
-    constructor() {
-        this.data = new Map<string, TileType>()
+/**
+ * Does the board have a tile at the given point?
+ * @param board The game board
+ * @param point Coordinate on the board
+ */
+const boardHas = (board: Board, point: Point) => {
+    if (point.x >= board.length) {
+        return false
     }
 
-    /**
-     * Does this collection contain the given point?
-     * @param point a point on the board
-     */
-    has(point: PointType) {
-        return this.data.has(JSON.stringify({ x: point.x, y: point.y }))
-    }
-
-    /**
-     * Get the tile at the given point
-     * @param point the point on the board
-     */
-    get(point: PointType): ActualTile | Hole | undefined {
-        return this.data.get(JSON.stringify({ x: point.x, y: point.y }))
-    }
-
-    /**
-     * Put the given tile at the given point
-     * @param point Where to place the tile
-     * @param tile What tile to place
-     */
-    set(point: PointType, tile: TileType) {
-        this.data.set(JSON.stringify({ x: point.x, y: point.y }), tile)
-    }
-
-    /**
-     * Gets the number of holes and tiles on the board
-     */
-    length(): number {
-        return this.data.size
-    }
-
-    /**
-     * Gets the number of tiles on the board, not including holes.
-     */
-    getNumberOfTiles(): number {
-        let count = 0
-        this.data.forEach((value, key) => {
-            if (value !== "hole") {
-                count++
-            }
-        })
-
-        return count
-    }
-
-    /**
-     * Returns a flat Array of tiles and their coordinates on the grid to be consumed by a view
-     */
-    toTileArray(): Array<{ x: number; y: number; tile: TileType }> {
-        const output: Array<{ x: number; y: number; tile: TileType }> = []
-        this.data.forEach((tile, pos) => {
-            const { x, y } = JSON.parse(pos)
-            output.push({ x, y, tile })
-        })
-
-        return output
-    }
-
-    /**
-     * Find all the tiles in the board that are reachable from the given position,
-     * not including the tile itself and not including holes
-     *
-     * @param origin Position
-     */
-    getReachableTilesFrom(
-        origin: PointType
-    ): Array<{ x: number; y: number; tile: TileType }> {
-        const output: Array<{ x: number; y: number; tile: TileType }> = []
-
-        // Contains the different increments you can move to get to a
-        // neighboring tile for tiles in even and odd columns.
-        // See odd-q increments here:
-        // https://www.redblobgames.com/grids/hexagons/#neighbors-offset
-        const movementIncrements = [
-            { odd: { x: 0, y: -1 }, even: { x: 0, y: -1 } },
-            { odd: { x: 1, y: 0 }, even: { x: 1, y: -1 } },
-            { odd: { x: 1, y: 1 }, even: { x: 1, y: 0 } },
-            { odd: { x: 0, y: 1 }, even: { x: 0, y: 1 } },
-            { odd: { x: -1, y: 1 }, even: { x: -1, y: 0 } },
-            { odd: { x: -1, y: 0 }, even: { x: -1, y: -1 } },
-        ]
-
-        // If the starting point is not an ActualTile, return an empty array
-        if (this.get(origin) === undefined || this.get(origin) === "hole") {
-            return []
-        }
-
-        movementIncrements.forEach((increment) => {
-            let currentPosn: PointType = { x: origin.x, y: origin.y }
-
-            // Move in the direction defined by the increment until we hit a hole
-            // or the end of the board, adding each tile encountered to the output
-            while (true) {
-                const xIncrement =
-                    currentPosn.x % 2 === 0 ? increment.even.x : increment.odd.x
-                const yIncrement =
-                    currentPosn.x % 2 === 0 ? increment.even.y : increment.odd.y
-
-                currentPosn = {
-                    x: currentPosn.x + xIncrement,
-                    y: currentPosn.y + yIncrement,
-                }
-                let currentTile = this.get(currentPosn)
-
-                if (currentTile !== "hole" && currentTile !== undefined) {
-                    output.push({ ...currentPosn, tile: currentTile })
-                } else {
-                    break
-                }
-            }
-        })
-
-        return output
-    }
+    let content = board[point.x][point.y]
+    return content !== undefined && content !== "hole"
 }
 
 /**
- * Does the array contain the given position?
- * @param arr Array to search
- * @param needle Position to find
+ * Get the tile at the given point
+ * @param board The game board
+ * @param point the point on the board
  */
-const containsPosition = (arr: Array<PointType>, needle: PointType): boolean =>
-    arr.some((p) => p.x === needle.x && p.y === needle.y)
+const boardGet = (board: Board, point: Point): Tile | Hole | undefined => {
+    return board[point.x][point.y]
+}
+
+/**
+ * Returns a new board with the given tile at the given point
+ * @param board The game board
+ * @param point Where to place the tile
+ * @param val Tile or hole to place
+ */
+const boardSet = (board: Board, point: Point, val: Tile | Hole): Board => {
+    // Need to create the column for the value that we're trying to insert
+    // if it is not already there
+    if (board[point.x] == undefined) {
+        // create a copy of the board
+        board = [...board]
+        board[point.x] = []
+    }
+
+    // update creates a new version of board without mutation
+    return update(board, {
+        [point.x]: {
+            [point.y]: {
+                $set: val,
+            },
+        },
+    })
+}
+
+/**
+ * Gets the number of tiles on the board, not including holes.
+ * @param board The game board
+ */
+const getNumberOfTilesOnBoard = (board: Board): number => {
+    let count = 0
+
+    board.forEach((column) => {
+        column.forEach((tile) => {
+            if (tile !== "hole" && tile !== undefined) {
+                count++
+            }
+        })
+    })
+
+    return count
+}
+
+/**
+ * Find all the tiles in the board that are reachable from the given position,
+ * not including the tile itself and not including holes
+ *
+ * @param board The game board
+ * @param origin Position
+ */
+const getReachableTilesFrom = (
+    board: Board,
+    origin: Point
+): Array<{ x: number; y: number; tile: Tile }> => {
+    const output: Array<{ x: number; y: number; tile: Tile }> = []
+
+    // Contains the different increments you can move to get to a
+    // neighboring tile for tiles in even and odd columns.
+    // See odd-q increments here:
+    // https://www.redblobgames.com/grids/hexagons/#neighbors-offset
+    const movementIncrements = [
+        { odd: { x: 0, y: -1 }, even: { x: 0, y: -1 } },
+        { odd: { x: 1, y: 0 }, even: { x: 1, y: -1 } },
+        { odd: { x: 1, y: 1 }, even: { x: 1, y: 0 } },
+        { odd: { x: 0, y: 1 }, even: { x: 0, y: 1 } },
+        { odd: { x: -1, y: 1 }, even: { x: -1, y: 0 } },
+        { odd: { x: -1, y: 0 }, even: { x: -1, y: -1 } },
+    ]
+
+    // Check that the origin point is a tile
+    if (!boardHas(board, origin)) {
+        return []
+    }
+
+    movementIncrements.forEach((increment) => {
+        let currentPosn: Point = { x: origin.x, y: origin.y }
+
+        // Move in the direction defined by the increment until we hit a hole
+        // or the end of the board, adding each tile encountered to the output
+        while (true) {
+            const xIncrement =
+                currentPosn.x % 2 === 0 ? increment.even.x : increment.odd.x
+            const yIncrement =
+                currentPosn.x % 2 === 0 ? increment.even.y : increment.odd.y
+
+            currentPosn = {
+                x: currentPosn.x + xIncrement,
+                y: currentPosn.y + yIncrement,
+            }
+
+            let currentTile = boardGet(board, currentPosn)
+
+            if (currentTile !== "hole" && currentTile !== undefined) {
+                output.push({ ...currentPosn, tile: currentTile })
+            } else {
+                break
+            }
+        }
+    })
+
+    return output
+}
 
 // Default option configuration for creating a board with createBoard
 const defaultCreateBoardOptions = {
@@ -158,7 +155,7 @@ const defaultCreateBoardOptions = {
 const createBoard = (
     minTiles: number,
     options?: {
-        holes?: Array<PointType>
+        holes?: Array<Point>
         numFishPerTile?: number
     }
 ): Board => {
@@ -178,16 +175,17 @@ const createBoard = (
         )
     }
 
-    let board = new Board()
+    let board: Board = [[]]
+
     // We ignore holes that are outside of the bounds of the board so long as we have met or exceeded the minTiles
     let sideLength = Math.ceil(Math.sqrt(minTiles + holes.length))
 
     for (let y = 0; y < sideLength; y++) {
         for (let x = 0; x < sideLength; x++) {
-            if (containsPosition(holes, { x, y })) {
-                board.set({ x, y }, "hole")
+            if (containsPoint(holes, { x, y })) {
+                board = boardSet(board, { x, y }, "hole")
             } else {
-                board.set({ x, y }, { fish: numFishPerTile })
+                board = boardSet(board, { x, y }, { fish: numFishPerTile })
             }
         }
     }
@@ -195,4 +193,11 @@ const createBoard = (
     return board
 }
 
-export { createBoard }
+export {
+    createBoard,
+    boardHas,
+    boardGet,
+    boardSet,
+    getReachableTilesFrom,
+    getNumberOfTilesOnBoard,
+}

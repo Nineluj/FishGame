@@ -19,7 +19,8 @@
         "noImplicitThis": true,
         "strictNullChecks": true,
         "sourceMap": true,
-        "target": "esnext"
+        "target": "esnext",
+        "strict": true
     },
     "exclude": ["node_modules"],
     "include": ["custom.d.ts", "src/"]

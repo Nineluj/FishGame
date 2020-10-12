@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import * as electron from "electron"
 import Hexagon from "@/renderer/tile/tile"
 import { Board } from "./board/board"
-import { createBoard } from "@/models/board"
+import { boardSet, createBoard } from "@/models/board"
 
 /**
  * Draws the main view
@@ -25,11 +25,10 @@ const Root: React.FC = () => {
         })
     )
 
-    const [tiles, setTiles] = useState(board.toTileArray())
+    const [tiles, setTiles] = useState(board)
 
     const removeTile = (x: number, y: number): void => {
-        board.set({ x, y }, "hole")
-        setTiles(board.toTileArray())
+        setTiles(boardSet(board, { x, y }, "hole"))
     }
 
     return (

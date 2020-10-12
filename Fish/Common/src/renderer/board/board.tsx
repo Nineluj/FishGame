@@ -1,10 +1,10 @@
 import React from "react"
 import Tile from "../tile/tile"
 import "./board.css"
-import { getTileDataByColumn, TileData } from "./utils"
+import { getTileDataByColumn, RenderableTileData } from "./utils"
 
 interface Props {
-    data: Array<TileData>
+    data: Array<RenderableTileData>
     removeTile: (x: number, y: number) => void
 }
 
