@@ -23,4 +23,4 @@ const sortPlayersByAgeAsc = (players: Array<Player>): Array<Player> => {
     })
 }
 
-export { Player }
+export { Player, sortPlayersByAgeAsc }
