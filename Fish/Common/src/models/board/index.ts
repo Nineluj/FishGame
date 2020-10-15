@@ -8,6 +8,8 @@ import {
     getNumberOfTilesOnBoard,
 } from "./board"
 
+import { makeBoardWithTiles } from "./utils"
+
 export {
     Board,
     createBoard,
@@ -16,4 +18,5 @@ export {
     boardSet,
     getReachableTilesFrom,
     getNumberOfTilesOnBoard,
+    makeBoardWithTiles,
 }
