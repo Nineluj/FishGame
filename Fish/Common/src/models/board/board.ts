@@ -1,6 +1,6 @@
 import { containsPoint, Point } from "../point"
 import { Hole, Tile } from "../tile"
-import { IllegalArgumentError } from "../errors/illegalArgument"
+import { IllegalArgumentError } from "../errors/illegalArgumentError"
 import update from "immutability-helper"
 
 const MIN_NUM_TILES = 0
