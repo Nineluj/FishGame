@@ -48,7 +48,7 @@ The data representation for player looks like:
 
 ## External Interface
 
-These are the methods that can be used to access and manipulate the game state
+These are the methods that can be used to access and update a game state 
 
 ```typescript
 /**
@@ -60,34 +60,34 @@ createGame(boardSize: number, holes: Array<Position>, players: Array<Players>): 
 /**
  * Gets a read only model of the players in the game ordered by their age in ascending order
  */
-getPlayerInformation(): Array<ReadOnlyPlayer>
+getPlayerInformation(gs: GameState): Array<ReadOnlyPlayer>
 
 
 /**
  * Returns the current turn number 
  */
-getTurnNumber(): number
+getTurnNumber(gs: GameState): number
 
 /**
  * Gets a readonly copy of the board 
  */
-describeBoard(): ReadOnlyBoard
+describeBoard(gs: GameState): ReadOnlyBoard
 
 /**
  * Tries to make a move by moving a penguin from position from to position to
  * throws an exception if the move is invalid
  */
-makeMove(pid: playerId, from: Position, to: Position): GameState
+makeMove(gs: GameState, pid: playerId, from: Position, to: Position): GameState
 
 /**
  * Can the player with the given playerId currently play?
  */
-canPlay(playerId: number): boolean
+canPlay(gs: GameState, playerId: number): boolean
 
 /**
  * Is the current game over?
  */
-isGameOver(): boolean
+isGameOver(gs: GameState): boolean
 ```
 
 These methods will be needed by the referee:
@@ -95,15 +95,15 @@ These methods will be needed by the referee:
 /**
  * Is the path from the origin to the destination points valid
  */ 
-isValidPath(origin: Position, dst: Position): boolean
+isValidPath(gs: GameState, origin: Position, dst: Position): boolean
 
 /**
  * Put down a penguin for the given player at the given position
  */ 
-placePenguin(playerId: number, pos: Position)
+placePenguin(gs: GameState, playerId: number, pos: Position)
 
 /**
  * Updates the game state
  */
-updateGamePhase(gamePhase: GamePhase) : GameState
+updateGamePhase(gs: GameState, gamePhase: GamePhase) : GameState
 ```

@@ -72,7 +72,7 @@ createLedger(gs: GameState): GameLedger
 // the action is invalid (i.e: player tries to make a move outside of their turn)
 makeAction(game: GameLedger, action: GameAction): GameLedger
 
-// Get the previous state
+// Get the previous state. Throws an exception if the ledger is a BaseLedger
 undoAction(game: GameLedger): GameLedger
 
 // Generates all the possible states in which the game could find itself in
