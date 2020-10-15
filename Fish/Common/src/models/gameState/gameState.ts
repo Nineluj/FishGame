@@ -8,6 +8,7 @@ import {
 } from "@models/board"
 import { IllegalArgumentError } from "@models/errors/illegalArgument"
 import { InvalidMoveError } from "@models/errors/invalidMoveError"
+import { changePenguinPosition } from "@/models/player"
 import { containsPoint, Point } from "@models/point"
 import { Tile } from "@models/tile"
 import update from "immutability-helper"
@@ -72,8 +73,14 @@ const placePenguin = (
     }
 }
 
-const getPlayerWhoseTurnItIs = (gameState: GameState): Player => {
-    return gameState.players[gameState.turn % gameState.players.length]
+/**
+ * Get the player who's turn it currently is, along with their index in the
+ * player array.
+ * @param gameState State from which you want to find the current player
+ */
+const getPlayerWhoseTurnItIs = (gameState: GameState): [Player, number] => {
+    const turnIndex = gameState.turn % gameState.players.length
+    return [gameState.players[turnIndex], turnIndex]
 }
 
 /**
@@ -100,10 +107,9 @@ const movePenguin = (
         throw new InvalidMoveError(failReason)
     }
 
+    // Get the required information to update the state
     const dstTile = boardGet(gameState.board, dst) as Tile
-    // Bogus data, TODO: finish writing function
-    const playerIndex = -1
-    const currentMovePlayer = { score: 0 }
+    const [player, playerIndex] = getPlayerWhoseTurnItIs(gameState)
 
     // New board created by setting the old tile to be a hole and setting the new
     // tile to be occupied
@@ -112,17 +118,24 @@ const movePenguin = (
         fish: 0,
     })
 
+    // Update the player by changing position of the penguin
+    let newPlayer = changePenguinPosition(player, origin, dst)
+    // Next update the player's score
+    newPlayer = {
+        ...newPlayer,
+        score: newPlayer.score + dstTile.fish,
+    }
+
+    // update and return the new game state
     return update(gameState, {
         board: {
             $set: newBoard,
         },
-        turn: { $set: gameState.turn + 1 },
-        phase: { $set: "penguinPlacement" },
+        turn: { $apply: (turn) => turn + 1 },
+        phase: { $set: "playing" },
         players: {
             [playerIndex]: {
-                score: {
-                    $set: currentMovePlayer.score + dstTile.fish,
-                },
+                $set: newPlayer,
             },
         },
     })
@@ -142,7 +155,7 @@ const canMovePenguin = (
     dst: Point
 ): [boolean, string] => {
     // Check if it's an out of turn move
-    const currentMovePlayer = getPlayerWhoseTurnItIs(gameState)
+    const [currentMovePlayer, _] = getPlayerWhoseTurnItIs(gameState)
 
     if (currentMovePlayer.id !== playerId) {
         return [
