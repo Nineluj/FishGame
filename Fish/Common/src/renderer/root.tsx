@@ -30,7 +30,7 @@ const Root: React.FC = () => {
 
     return (
         <div className="center">
-            <Board removeTile={removeTile} data={board} />
+            <Board removeTile={removeTile} boardData={board} />
         </div>
     )
 }

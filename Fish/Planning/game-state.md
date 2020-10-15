@@ -2,22 +2,47 @@
 
 ## State Representation
 
-We want to the model for the game state to be similar to what players would be able to see
-and need to know to play the Fish game in person. The state also needs to hold enough information
-for a supervising person/entity to judge if a move that is tried is valid.
-
-Tiles are stored in a Map of `(x, y) -> Tile`. They are converted into an Array of `{x, y, TileData}` to be consumed by the view
-
-A Tile is defined as the following
-
+The game state is represented with a `GameState` object that has these fields:
 ```typescript
 {
-  x: number,
-  y: number,
-  TileData: {
-    fish: number,
-    playerId?: number,
-  } | "hole"
+    // Immutable object representing the state of the board
+    board: Board
+    // Represents the current turn
+    // Starts at 0 and gets incremented by one at the end of each player's turn
+    turn: number
+    // One of "penguinPlacement" | "playing" | "over"
+    phase: GamePhase
+    // The players participating in the game, ordered by age in ascending order
+    players: Array<Player>
+}
+```
+
+The board is an `Array<Array<Tile | Hole>>`, with a hole being `"hole"` and a Tile:
+```typescript
+{
+    // Is there a penguin on this tile?
+    occupied: boolean
+    // The number of fish on this tile
+    fish: number
+}
+```
+The coordinate system used is [odd-q](https://www.redblobgames.com/grids/hexagons/#coordinates). The position of the Tile
+or hole in the Array represents what x and y coordinate that tile or hole has on the board with the given coordinate system.
+The board type provides functions to create new versions of the boards without mutating the data of the given board.
+
+The data representation for player looks like:
+```typescript
+{
+    // unique identifier for this player
+    id: number
+    // The age of the player
+    age: number
+    // The color of the penguins that this player places
+    color: AvatorColor
+    // Position contains two natural numbers for x and y
+    penguins: Array<Position>
+    // The score that the player has in the current game
+    score: number
 }
 ```
 
@@ -27,27 +52,58 @@ These are the methods that can be used to access and manipulate the game state
 
 ```typescript
 /**
- * Given a player id and a valid location on the board, set the players current location to that tile
+ * Create a game with a board of at least the given size and with the holes specified and the given players
+ * as participants
  */
-setPlayerLocation(playerId: number, destination: Point): void
+createGame(boardSize: number, holes: Array<Position>, players: Array<Players>): GameState
 
 /**
- * Removes a tile from the board given the coordinates of a valid tile and replaces it with a hole
+ * Gets a read only model of the players in the game ordered by their age in ascending order
  */
-removeTile(coordinates: Point): void
+getPlayerInformation(): Array<ReadOnlyPlayer>
+
 
 /**
- * Returns a flat Array of tiles and their coordinates on the grid to be consumed by a view
+ * Returns the current turn number 
  */
-toTileArray(): Array<{x: Point, y: Point, tile: TileData}>
+getTurnNumber(): number
 
 /**
- * Returns a list of the players and associated information about them such as their current score and location
+ * Gets a readonly copy of the board 
  */
-getPlayers(): Array<Player>
+describeBoard(): ReadOnlyBoard
 
 /**
- * Returns the player whos turn it is right now
+ * Tries to make a move by moving a penguin from position from to position to
+ * throws an exception if the move is invalid
  */
-getPlayerWhosTurnItIsRightNow(): Player
+makeMove(pid: playerId, from: Position, to: Position): GameState
+
+/**
+ * Can the player with the given playerId currently play?
+ */
+canPlay(playerId: number): boolean
+
+/**
+ * Is the current game over?
+ */
+isGameOver(): boolean
+```
+
+These methods will be needed by the referee:
+```typescript
+/**
+ * Is the path from the origin to the destination points valid
+ */ 
+isValidPath(origin: Position, dst: Position): boolean
+
+/**
+ * Put down a penguin for the given player at the given position
+ */ 
+placePenguin(playerId: number, pos: Position)
+
+/**
+ * Updates the game state
+ */
+updateGamePhase(gamePhase: GamePhase) : GameState
 ```

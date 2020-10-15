@@ -4,7 +4,7 @@ import Tile from "../tile/tile"
 import "./board.css"
 
 interface Props {
-    data: Board
+    boardData: Board
     removeTile: (x: number, y: number) => void
 }
 
@@ -13,10 +13,10 @@ interface Props {
  * @param data Board data to draw
  * @param removeTile
  */
-const Board: React.FC<Props> = ({ data, removeTile }) => {
+const Board: React.FC<Props> = ({ boardData, removeTile }) => {
     return (
         <div className="container">
-            {data.map((column, x) => (
+            {boardData.map((column, x) => (
                 <div className="column">
                     {column.map((tile, y) => (
                         <Tile
