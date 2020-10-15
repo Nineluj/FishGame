@@ -26,7 +26,7 @@ The game state is modeled like a FSM as follows:
       |        |                 |      |
       |        |                 |      |
       +--------+                 +------+
-      putPenguin                movePenguin
+      placePenguin              movePenguin
                                 OR skipTurn
 
 During penguinPlacement, GameState needs enough putPenguin calls until the
@@ -66,20 +66,15 @@ const MAX_PLAYER_COUNT = 4
  * @param players List of players playing the game
  */
 const createGameState = (players: Array<Player>): GameState => {
-    if (
-        players.length < MIN_PLAYER_COUNT ||
-        players.length > MAX_PLAYER_COUNT
-    ) {
-        throw new IllegalArgumentError(
-            `Expecting 2-4 players to create a game, got ${players.length}`
-        )
-    }
-    return {
-        board: createBoard(DEFAULT_MIN_TILES),
-        phase: "penguinPlacement",
-        players: sortPlayersByAgeAsc(players),
-        turn: 0,
-    }
+    return createGameStateCustomBoard(players, createBoard(DEFAULT_MIN_TILES))
+}
+
+/**
+ * How many penguins each player must place to advance to the playing phase
+ * @param gs The state
+ */
+const getNumberOfPenguinsToPlacePerPlayer = (gs: GameState): number => {
+    return PENGUIN_PLACEMENTS_NEEDED_PER_PLAYER - gs.players.length
 }
 
 const createGameStateCustomBoard = (
@@ -113,9 +108,10 @@ const placePenguin = (
     playerId: string,
     dst: Point
 ): GameState => {
+    // check the phase
     if (gameState.phase !== "penguinPlacement") {
         throw new GameStateActionError(
-            `placePenguin excepted penguinPlacement phase, got ${gameState.phase}`
+            `placePenguin expected penguinPlacement phase, got ${gameState.phase}`
         )
     }
 
@@ -124,7 +120,7 @@ const placePenguin = (
 
     if (dstTile === "hole" || dstTile === undefined || dstTile.occupied) {
         throw new IllegalArgumentError(
-            `cannot place penguin on tile ${dstTile}`
+            `cannot place penguin on tile ${JSON.stringify(dstTile)}`
         )
     }
 
@@ -142,6 +138,17 @@ const placePenguin = (
         )
     }
     const player = gameState.players[playerIndex]
+
+    // check that the player isn't trying to place too many penguins
+    if (
+        player.penguins.length >= getNumberOfPenguinsToPlacePerPlayer(gameState)
+    ) {
+        throw new GameStateActionError(
+            `cannot place more than ${getNumberOfPenguinsToPlacePerPlayer(
+                gameState
+            )} penguins per player`
+        )
+    }
 
     // Create the new player by adding a new penguin for them and giving them
     // points for the fish that were on the tile
@@ -191,7 +198,7 @@ const movePenguin = (
 ): GameState => {
     if (gameState.phase !== "playing") {
         throw new GameStateActionError(
-            `movePenguin excepted playing phase, got ${gameState.phase}`
+            `movePenguin expected playing phase, got ${gameState.phase}`
         )
     }
 
@@ -255,7 +262,7 @@ const canMovePenguin = (
     if (gameState.phase !== "playing") {
         return {
             validMove: false,
-            errorMessage: `canMovePenguin excepted playing phase, got ${gameState.phase}`,
+            errorMessage: `canMovePenguin expected playing phase, got ${gameState.phase}`,
         }
     }
 
@@ -298,7 +305,7 @@ const canMovePenguin = (
 const skipTurn = (gameState: GameState): GameState => {
     if (gameState.phase !== "playing") {
         throw new GameStateActionError(
-            `skipTurn excepted playing phase, got ${gameState.phase}`
+            `skipTurn expected playing phase, got ${gameState.phase}`
         )
     }
 
@@ -326,11 +333,10 @@ const advancePhase = (gameState: GameState): GameState => {
         gameState.players.forEach((player) => {
             if (
                 player.penguins.length !==
-                PENGUIN_PLACEMENTS_NEEDED_PER_PLAYER - numPlayers
+                getNumberOfPenguinsToPlacePerPlayer(gameState)
             ) {
                 throw new GameStateActionError(
-                    `player ${player.id} has not placed 
-                    the required number of penguins`
+                    `player ${player.id} has not placed the required number of penguins`
                 )
             }
         })
@@ -366,7 +372,7 @@ export {
     GameState,
     createGameState,
     createGameStateCustomBoard,
-    putPenguin,
+    placePenguin,
     movePenguin,
     getPlayerWhoseTurnItIs,
     advancePhase,

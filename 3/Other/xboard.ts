@@ -1,11 +1,5 @@
-import { readdir } from "fs";
-import {
-  Board,
-  boardSet,
-  getReachableTilesFrom
-} from "../../Fish/Common/src/models/board";
+import { Board, boardSet } from "../../Fish/Common/src/models/board";
 import { Point } from "../../Fish/Common/src/models/point";
-import chalk from "chalk";
 
 const isEven = (num: number): boolean => {
   return num % 2 === 0;
