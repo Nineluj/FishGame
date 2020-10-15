@@ -9,6 +9,6 @@ build:
 	${PRE} cd Common && npm run prod
 
 test:
-	${PRE} cd Common && npm test
+	${PRE} cd Common && npm test --silent
 
 .PHONY: all

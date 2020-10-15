@@ -17,17 +17,17 @@ import update from "immutability-helper"
 /*
 The game state is modeled like a FSM as follows:
 
-                    advancePhase           advancePhase
-
- +------------------+         +------------+         +--------+
- | penguinPlacement +-------->+  playing   +-------->+  over  |
- +----+--------+----+         +--+------+--+         +--------+
-      ^        |                 ^      |
-      |        |                 |      |
-      |        |                 |      |
-      +--------+                 +------+
-      placePenguin              movePenguin
-                                OR skipTurn
+       each player has placed 6 - N penguins
+                                            no players can make a move
+ +------------------+             +------------+                 +--------+
+ | penguinPlacement +------------>+  playing   +---------------->+  over  |
+ +----+--------+----+             +--+------+--+                 +--------+
+      ^        |                     ^      |
+      |        |                     |      |
+      |        |                     |      |
+      +--------+                     +------+
+      placePenguin                  movePenguin
+                                    OR skipTurn
 
 During penguinPlacement, GameState needs enough putPenguin calls until the
 GameState has 6 - N penguins per player. After that, advancePhase will
@@ -160,6 +160,10 @@ const placePenguin = (
     // Create the new board in which the tile where the penguin was placed is occupied
     const newBoard = boardSet(gameState.board, dst, { fish: 0, occupied: true })
 
+    const newPhase: GamePhase = canAdvanceToPlaying(gameState)
+        ? "playing"
+        : "penguinPlacement"
+
     // Use update to get a new version of the game state without mutating anything
     return update(gameState, {
         players: {
@@ -169,6 +173,9 @@ const placePenguin = (
         },
         board: {
             $set: newBoard,
+        },
+        phase: {
+            $set: newPhase,
         },
     })
 }
@@ -232,6 +239,8 @@ const movePenguin = (
         score: newPlayer.score + dstTile.fish,
     }
 
+    const newState: GamePhase = canAdvanceToOver(gameState) ? "over" : "playing"
+
     // update and return the new game state
     return update(gameState, {
         board: {
@@ -242,6 +251,9 @@ const movePenguin = (
             [playerIndex]: {
                 $set: newPlayer,
             },
+        },
+        phase: {
+            $set: newState,
         },
     })
 }
@@ -300,7 +312,8 @@ const canMovePenguin = (
 }
 
 /**
- *
+ * Skip the current player's turn
+ * @param gameState The state
  */
 const skipTurn = (gameState: GameState): GameState => {
     if (gameState.phase !== "playing") {
@@ -309,63 +322,53 @@ const skipTurn = (gameState: GameState): GameState => {
         )
     }
 
+    const newState: GamePhase = canAdvanceToOver(gameState) ? "over" : "playing"
+
     return {
         ...gameState,
         turn: gameState.turn + 1,
+        phase: newState,
     }
 }
 
 /**
- * Ensures that the conditions to move to the next phase are satisfied and
- * then returns a new gameState that is at the next phase
- * @param gameState
+ * TODO: write JSDoc
  */
-const advancePhase = (gameState: GameState): GameState => {
-    if (gameState.phase === "over") {
-        throw new GameStateActionError("cannot advance past the over state")
+const canAdvanceToOver = (gs: GameState): boolean => {
+    if (gs.phase !== "playing") {
+        return false
     }
 
-    if (gameState.phase === "penguinPlacement") {
-        // check that all the players have placed
-        // PENGUIN_PLACEMENTS_NEEDED_PER_PLAYER - N penguins
-        const numPlayers = gameState.players.length
-
-        gameState.players.forEach((player) => {
-            if (
-                player.penguins.length !==
-                getNumberOfPenguinsToPlacePerPlayer(gameState)
-            ) {
-                throw new GameStateActionError(
-                    `player ${player.id} has not placed the required number of penguins`
-                )
+    // verify that no player can make a move
+    for (let player of gs.players) {
+        for (let pos of player.penguins) {
+            if (getReachableTilesFrom(gs.board, pos).length !== 0) {
+                return false
             }
-        })
-
-        return {
-            ...gameState,
-            phase: "playing",
         }
     }
 
-    if (gameState.phase === "playing") {
-        // verify that no player can make a move
-        gameState.players.forEach((player) => {
-            player.penguins.forEach((pos) => {
-                if (getReachableTilesFrom(gameState.board, pos).length !== 0) {
-                    throw new GameStateActionError(
-                        "cannot end game while player can make a move"
-                    )
-                }
-            })
-        })
+    return true
+}
 
-        return {
-            ...gameState,
-            phase: "over",
+/**
+ * TODO: write JSDoc
+ */
+const canAdvanceToPlaying = (gs: GameState): boolean => {
+    if (gs.phase !== "penguinPlacement") {
+        return false
+    }
+
+    // check that all the players have placed the neccessary number of penguins
+    for (let player of gs.players) {
+        if (
+            player.penguins.length !== getNumberOfPenguinsToPlacePerPlayer(gs)
+        ) {
+            return false
         }
     }
 
-    throw new GameStateActionError("unexpected game state")
+    return true
 }
 
 export {
@@ -375,5 +378,4 @@ export {
     placePenguin,
     movePenguin,
     getPlayerWhoseTurnItIs,
-    advancePhase,
 }
