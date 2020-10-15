@@ -1,4 +1,4 @@
-import { Board, boardSet } from "@models/board/board"
+import { Board, boardSet } from "../board"
 
 /**
  * Creates a board with tiles at all the given positions. Used for testing.
