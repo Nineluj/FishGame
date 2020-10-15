@@ -1,7 +1,16 @@
 import { Player, sortPlayersByAgeAsc } from "@/models/player"
-import { Board, createBoard } from "@models/board"
+import {
+    Board,
+    boardGet,
+    boardSet,
+    createBoard,
+    getReachableTilesFrom,
+} from "@models/board"
 import { IllegalArgumentError } from "@models/errors/illegalArgument"
-import { Point } from "@models/point"
+import { InvalidMoveError } from "@models/errors/invalidMoveError"
+import { containsPoint, Point } from "@models/point"
+import { Tile } from "@models/tile"
+import update from "immutability-helper"
 
 type GamePhase = "penguinPlacement" | "playing" | "over"
 
@@ -63,44 +72,103 @@ const placePenguin = (
     }
 }
 
+const getPlayerWhoseTurnItIs = (gameState: GameState): Player => {
+    return gameState.players[gameState.turn % gameState.players.length]
+}
+
 /**
  * Moves a penguin on behalf of the specified player, if it is their turn
  * @param gameState The current GameState
  * @param playerId The player who is attempting the move
+ * @param origin The coordinate that penguin is currently on
  * @param dst The coordinates that penguin is moving to
  */
 const movePenguin = (
     gameState: GameState,
     playerId: string,
+    origin: Point,
     dst: Point
 ): GameState => {
-    return {
-        board: [[]],
-        phase: "penguinPlacement",
-        players: [],
-        turn: 0,
+    const [validMove, failReason] = canMovePenguin(
+        gameState,
+        playerId,
+        origin,
+        dst
+    )
+
+    if (!validMove) {
+        throw new InvalidMoveError(failReason)
     }
+
+    const dstTile = boardGet(gameState.board, dst) as Tile
+    // Bogus data, TODO: finish writing function
+    const playerIndex = -1
+    const currentMovePlayer = { score: 0 }
+
+    // New board created by setting the old tile to be a hole and setting the new
+    // tile to be occupied
+    const newBoard = boardSet(boardSet(gameState.board, origin, "hole"), dst, {
+        occupied: true,
+        fish: 0,
+    })
+
+    return update(gameState, {
+        board: {
+            $set: newBoard,
+        },
+        turn: { $set: gameState.turn + 1 },
+        phase: { $set: "penguinPlacement" },
+        players: {
+            [playerIndex]: {
+                score: {
+                    $set: currentMovePlayer.score + dstTile.fish,
+                },
+            },
+        },
+    })
 }
 
 /**
  * Determines whether a penguin can be moved between a src and dst spot
  * @param gameState The current GameState
  * @param playerId The playerID of the player attempting the move
- * @param src The current location of the penguin
+ * @param origin The current location of the penguin
  * @param dst The target location of the penguin
  */
 const canMovePenguin = (
     gameState: GameState,
     playerId: string,
-    src: Point,
+    origin: Point,
     dst: Point
-): GameState => {
-    return {
-        board: [[]],
-        phase: "penguinPlacement",
-        players: [],
-        turn: 0,
+): [boolean, string] => {
+    // Check if it's an out of turn move
+    const currentMovePlayer = getPlayerWhoseTurnItIs(gameState)
+
+    if (currentMovePlayer.id !== playerId) {
+        return [
+            false,
+            `cannot play out of order, expecting 
+        ${currentMovePlayer.id} to play and not ${playerId} `,
+        ]
     }
+
+    // Make sure that the player has a penguin at the origin position
+    if (!containsPoint(currentMovePlayer.penguins, origin)) {
+        return [
+            false,
+            `player must have a penguin at the origin
+        position to make a move`,
+        ]
+    }
+
+    // Check if the move to dst is valid
+    const possibleMoves = getReachableTilesFrom(gameState.board, origin)
+
+    if (!containsPoint(possibleMoves, dst)) {
+        return [false, `move from ${origin} to ${dst} is not valid`]
+    }
+
+    return [true, ""]
 }
 
 export { GameState, createGameState }
