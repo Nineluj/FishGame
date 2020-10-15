@@ -370,4 +370,5 @@ export {
     movePenguin,
     getPlayerWhoseTurnItIs,
     advancePhase,
+    placePenguin,
 }
