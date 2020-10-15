@@ -1,6 +1,6 @@
-import { containsPoint, Point } from "@/models/point"
-import { Hole, Tile } from "@models/tile"
-import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
+import { containsPoint, Point } from "../point"
+import { Hole, Tile } from "../tile"
+import { IllegalArgumentError } from "../errors/illegalArgumentError"
 import update from "immutability-helper"
 
 const MIN_NUM_TILES = 0
@@ -35,7 +35,7 @@ const boardHas = (board: Board, point: Point) => {
  * @param point the point on the board
  */
 const boardGet = (board: Board, point: Point): Tile | Hole | undefined => {
-    return board[point.x][point.y]
+    return (board[point.x] && board[point.x][point.y]) || undefined
 }
 
 /**
