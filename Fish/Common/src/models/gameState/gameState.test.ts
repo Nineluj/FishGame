@@ -1,8 +1,8 @@
 import { expect } from "chai"
-import { Player, sortPlayersByAgeAsc } from "@models/player"
+import { Player, putPenguin, sortPlayersByAgeAsc } from "@models/player"
 import { isDeepStrictEqual } from "util"
 import { createGameState } from "./gameState"
-import { IllegalArgumentError } from "@models/errors/illegalArgument"
+import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
 
 describe("GameState creation", () => {
     const player1: Player = {
@@ -99,4 +99,6 @@ describe("GameState playing", () => {
     it("can move a penguin", () => {
         const state = createGameState([player1, player2, player3])
     })
+
+    it("can't move a penguin for a player out of turn", () => {})
 })

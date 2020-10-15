@@ -1,3 +1,8 @@
-import { Player, sortPlayersByAgeAsc, changePenguinPosition } from "./player"
+import {
+    Player,
+    sortPlayersByAgeAsc,
+    changePenguinPosition,
+    putPenguin,
+} from "./player"
 
-export { Player, sortPlayersByAgeAsc, changePenguinPosition }
+export { Player, sortPlayersByAgeAsc, changePenguinPosition, putPenguin }

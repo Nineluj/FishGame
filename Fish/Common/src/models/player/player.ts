@@ -37,6 +37,18 @@ const changePenguinPosition = (
 }
 
 /**
+ * Get a new player that includes a penguin at the given position
+ * @param p Base player
+ * @param dst Location of new penguin
+ */
+const putPenguin = (p: Player, dst: Point): Player => {
+    return {
+        ...p,
+        penguins: [...p.penguins, dst],
+    }
+}
+
+/**
  * Returns a copy of the list that is sorted in age order ascending
  * @param players list of players to sort
  */
@@ -46,4 +58,4 @@ const sortPlayersByAgeAsc = (players: Array<Player>): Array<Player> => {
     })
 }
 
-export { Player, sortPlayersByAgeAsc, changePenguinPosition }
+export { Player, sortPlayersByAgeAsc, changePenguinPosition, putPenguin }

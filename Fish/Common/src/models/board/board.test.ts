@@ -6,7 +6,7 @@ import {
     getNumberOfTilesOnBoard,
     getReachableTilesFrom,
 } from "@/models/board/board"
-import { IllegalArgumentError } from "@models/errors/illegalArgument"
+import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
 import { Tile } from "@models/tile"
 import { expect } from "chai"
 import { isDeepStrictEqual } from "util"
