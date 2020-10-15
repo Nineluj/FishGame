@@ -62,7 +62,7 @@ const MIN_PLAYER_COUNT = 2
 const MAX_PLAYER_COUNT = 4
 
 /**
- * Creates a new gamestate object for the given players and generates a board for the game
+ * Creates a new GameState object for the given players and generates a board for the game
  * @param players List of players playing the game
  */
 const createGameState = (players: Array<Player>): GameState => {
@@ -76,6 +76,26 @@ const createGameState = (players: Array<Player>): GameState => {
     }
     return {
         board: createBoard(DEFAULT_MIN_TILES),
+        phase: "penguinPlacement",
+        players: sortPlayersByAgeAsc(players),
+        turn: 0,
+    }
+}
+
+const createGameStateCustomBoard = (
+    players: Array<Player>,
+    board: Board
+): GameState => {
+    if (
+        players.length < MIN_PLAYER_COUNT ||
+        players.length > MAX_PLAYER_COUNT
+    ) {
+        throw new IllegalArgumentError(
+            `Expecting 2-4 players to create a game, got ${players.length}`
+        )
+    }
+    return {
+        board: board,
         phase: "penguinPlacement",
         players: sortPlayersByAgeAsc(players),
         turn: 0,
@@ -322,16 +342,32 @@ const advancePhase = (gameState: GameState): GameState => {
     }
 
     if (gameState.phase === "playing") {
-        // TODO: write logic for finding out when a game is over
+        // verify that no player can make a move
+        gameState.players.forEach((player) => {
+            player.penguins.forEach((pos) => {
+                if (getReachableTilesFrom(gameState.board, pos).length !== 0) {
+                    throw new GameStateActionError(
+                        "cannot end game while player can make a move"
+                    )
+                }
+            })
+        })
+
+        return {
+            ...gameState,
+            phase: "over",
+        }
     }
 
-    throw new GameStateActionError("unexcepted game state")
+    throw new GameStateActionError("unexpected game state")
 }
 
 export {
     GameState,
     createGameState,
+    createGameStateCustomBoard,
     putPenguin,
     movePenguin,
     getPlayerWhoseTurnItIs,
+    advancePhase,
 }
