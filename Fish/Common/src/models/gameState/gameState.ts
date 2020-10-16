@@ -124,20 +124,7 @@ const placePenguin = (
         )
     }
 
-    // See if we can find a player with the given id, throw exception if not found
-    let playerIndex = -1
-    gameState.players.forEach((player, i) => {
-        if (player.id === playerId) {
-            playerIndex = i
-        }
-    })
-
-    if (playerIndex === -1) {
-        throw new IllegalArgumentError(
-            `cannot find player with id ${playerId} in game`
-        )
-    }
-    const player = gameState.players[playerIndex]
+    const [player, playerIndex] = getPlayerWhoseTurnItIs(gameState)
 
     // check that the player isn't trying to place too many penguins
     if (
@@ -153,19 +140,14 @@ const placePenguin = (
     // Create the new player by adding a new penguin for them and giving them
     // points for the fish that were on the tile
     const newPlayer = {
-        ...putPenguin(gameState.players[playerIndex], dst),
+        ...putPenguin(player, dst),
         score: player.score + dstTile.fish,
     }
 
     // Create the new board in which the tile where the penguin was placed is occupied
     const newBoard = boardSet(gameState.board, dst, { fish: 0, occupied: true })
 
-    const newPhase: GamePhase = canAdvanceToPlaying(gameState)
-        ? "playing"
-        : "penguinPlacement"
-
-    // Use update to get a new version of the game state without mutating anything
-    return update(gameState, {
+    const newGameState = update(gameState, {
         players: {
             [playerIndex]: {
                 $set: newPlayer,
@@ -174,10 +156,20 @@ const placePenguin = (
         board: {
             $set: newBoard,
         },
-        phase: {
-            $set: newPhase,
+        turn: {
+            $apply: (turn) => turn + 1,
         },
     })
+
+    const newPhase: GamePhase = canAdvanceToPlaying(gameState)
+        ? "playing"
+        : "penguinPlacement"
+
+    // Use update to get a new version of the game state without mutating anything
+    return {
+        ...newGameState,
+        phase: newPhase,
+    }
 }
 
 /**
