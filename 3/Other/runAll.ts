@@ -1,5 +1,8 @@
 import { makeBoardFromTestInput, convertToBoardLocation } from "./xboard";
-import { getReachableTilesFrom } from "../../Fish/Common/src/models/board";
+import {
+  getReachableTilesFrom,
+  boardGet
+} from "../../Fish/Common/src/models/board";
 import chalk from "chalk";
 import { readdir } from "fs";
 
