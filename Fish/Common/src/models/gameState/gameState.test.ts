@@ -76,26 +76,37 @@ describe("GameState creation", () => {
 })
 
 /**
- * Helper function for placing multiple penguins for a single player
- * Used to write tests that aren't 200 lines long
+ * Helper function for placing multiple penguins players in consecutive order
+ * starting with the first player. Used for testing.
  * @param gs The base game state
  * @param positions Position at which penguins should be placed
- * @param playerId Id of the player for which penguins should be placed
+ * @param playerIds Ids of the players who will be placing, ordered by their turn order
  */
 const placeMultiple = (
     gs: GameState,
     positions: Array<[number, number]>,
-    playerId: string
+    playerIds: Array<string>
 ): GameState => {
-    if (positions.length === 0) {
-        return gs
+    const helper = (
+        gs: GameState,
+        positions: Array<[number, number]>,
+        playerIds: Array<string>,
+        currIndex: number
+    ): GameState => {
+        if (positions.length === 0) {
+            return gs
+        }
+
+        const newState = placePenguin(
+            gs,
+            playerIds[currIndex % playerIds.length],
+            { x: positions[0][0], y: positions[0][1] }
+        )
+
+        return helper(newState, positions.slice(1), playerIds, currIndex + 1)
     }
 
-    return placePenguin(
-        placeMultiple(gs, positions.slice(1), playerId),
-        playerId,
-        { x: positions[0][0], y: positions[0][1] }
-    )
+    return helper(gs, positions, playerIds, 0)
 }
 
 describe("GameState", () => {
@@ -120,15 +131,6 @@ describe("GameState", () => {
         penguins: [],
         score: 0,
     }
-    const player4: Player = {
-        age: 4,
-        id: "p4",
-        penguinColor: "white",
-        penguins: [],
-        score: 0,
-    }
-    /*
-     */
 
     const board = makeBoardWithTiles([
         [0, 0],
@@ -158,39 +160,85 @@ describe("GameState", () => {
         const [player, playerIndex] = getPlayerWhoseTurnItIs(gs)
         expect(playerIndex).to.equal(0)
         expect(player.id).to.be.equal("p1")
+
+        const newState = placeMultiple(
+            gs,
+            [
+                [0, 0],
+                [0, 1],
+                [0, 2],
+                [5, 1],
+            ],
+            ["p1", "p2", "p3"]
+        )
+
+        const [newPlayer, newPlayerIndex] = getPlayerWhoseTurnItIs(newState)
+        expect(newPlayerIndex).to.equal(1)
+        expect(newPlayer.id).to.equal("p2")
     })
 
     /* Tests to check behavior in the placePenguinPhase */
+    it("can't place a penguin for a player out of turn", () => {
+        expect(() => {
+            placePenguin(gs, "p2", { x: 1, y: 0 })
+        }).to.throw(GameStateActionError, "cannot play out of order")
+    })
+
     it("is possible to place a penguin for a player", () => {
         const placePos = { x: 2, y: 1 }
-        const newState = placePenguin(gs, "p3", placePos)
+        const newState = placePenguin(gs, "p1", placePos)
 
         expect((boardGet(newState.board, placePos) as Tile).occupied).to.be.true
-        expect(containsPoint(newState.players[2].penguins, placePos)).to.be.true
+        expect(containsPoint(newState.players[0].penguins, placePos)).to.be.true
     })
 
     it("is not possible to place a penguin on another", () => {
         const placePos = { x: 2, y: 1 }
-        const newState = placePenguin(gs, "p3", placePos)
+        const newState = placePenguin(gs, "p1", placePos)
 
         expect(() => {
-            placePenguin(newState, "p1", placePos)
+            placePenguin(newState, "p2", placePos)
         }).to.throw("cannot place penguin on tile")
     })
 
-    it("is not possible to place more than the allowed number of penguins", () => {
+    it("changes to the playing state after enough penguins are placed", () => {
+        const placedAllPenguins = placeMultiple(
+            gs,
+            [
+                [0, 0],
+                [0, 1],
+                [0, 2],
+                [3, 1],
+                [4, 2],
+                [4, 0],
+                [2, 1],
+                [3, 0],
+                [2, 2],
+            ],
+            ["p1", "p2", "p3"]
+        )
+        expect(placedAllPenguins.phase).to.equal("playing")
+    })
+
+    it("prevents too many penguins from being placed", () => {
         expect(() => {
             placeMultiple(
                 gs,
                 [
                     [0, 0],
-                    [1, 1],
                     [0, 1],
+                    [0, 2],
+                    [3, 1],
+                    [4, 2],
+                    [4, 0],
+                    [2, 1],
+                    [3, 0],
                     [2, 2],
+                    [5, 1],
                 ],
-                "p2"
+                ["p1", "p2", "p3"]
             )
-        }).to.throw(GameStateActionError, "cannot place more than")
+        }).to.throw(GameStateActionError, "expected penguinPlacement phase")
     })
 
     it("can't move penguin in placePenguin phase", () => {
@@ -198,32 +246,4 @@ describe("GameState", () => {
             movePenguin(gs, "p1", { x: 0, y: 0 }, { x: 1, y: 0 })
         }).to.throw(GameStateActionError, "expected playing phase")
     })
-
-    // it("can't advanced when not enough penguins have been placed", () => {
-    //     const newState = placeMultiple(
-    //         placeMultiple(
-    //             placeMultiple(
-    //                 gs,
-    //                 [
-    //                     [0, 0],
-    //                     [3, 0],
-    //                     [4, 0],
-    //                 ],
-    //                 "p1"
-    //             ),
-    //             [
-    //                 [1, 0],
-    //                 [2, 1],
-    //                 [0, 2],
-    //             ],
-    //             "p2"
-    //         ),
-    //         [[5, 0]],
-    //         "p3"
-    //     )
-    // })
-
-    it("can't a penguin", () => {})
-
-    it("can't move a penguin for a player out of turn", () => {})
 })
