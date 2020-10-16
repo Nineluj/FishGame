@@ -29,6 +29,9 @@ The game state is modeled like a FSM as follows:
       placePenguin                  movePenguin
                                     OR skipTurn
 
+(note: placePenguin, movePeguin and skipTurn need to be called by the player
+whose turn it is. Out of order actions will result in an exception being thrown)
+
 During penguinPlacement, GameState needs enough putPenguin calls until the
 GameState has 6 - N penguins per player. After that, advancePhase will
 change the phase to playing during which players can either use movePenguin
@@ -126,6 +129,11 @@ const placePenguin = (
 
     const [player, playerIndex] = getPlayerWhoseTurnItIs(gameState)
 
+    if (player.id !== playerId) {
+        throw new GameStateActionError(`cannot play out of order, expecting
+            ${player.id} to play and not ${playerId}`)
+    }
+
     // check that the player isn't trying to place too many penguins
     if (
         player.penguins.length >= getNumberOfPenguinsToPlacePerPlayer(gameState)
@@ -161,7 +169,7 @@ const placePenguin = (
         },
     })
 
-    const newPhase: GamePhase = canAdvanceToPlaying(gameState)
+    const newPhase: GamePhase = canAdvanceToPlaying(newGameState)
         ? "playing"
         : "penguinPlacement"
 
