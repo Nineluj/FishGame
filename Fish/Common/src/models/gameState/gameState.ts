@@ -332,7 +332,7 @@ const skipTurn = (gameState: GameState): GameState => {
 }
 
 /**
- * TODO: write JSDoc
+ * Can the GameState's phase be advanced to the playing phase?
  */
 const canAdvanceToOver = (gs: GameState): boolean => {
     if (gs.phase !== "playing") {
@@ -352,7 +352,7 @@ const canAdvanceToOver = (gs: GameState): boolean => {
 }
 
 /**
- * TODO: write JSDoc
+ * Can the GameState's phase be advanced to the over phase?
  */
 const canAdvanceToPlaying = (gs: GameState): boolean => {
     if (gs.phase !== "penguinPlacement") {

@@ -14,6 +14,7 @@ import {
     getPlayerWhoseTurnItIs,
 } from "./gameState"
 import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
+import { InvalidMoveError } from "../errors/invalidMoveError"
 
 describe("GameState creation", () => {
     const player1: Player = {
@@ -201,6 +202,13 @@ describe("GameState", () => {
         }).to.throw("cannot place penguin on tile")
     })
 
+    it("can't move penguin in placePenguin phase", () => {
+        expect(() => {
+            movePenguin(gs, "p1", { x: 0, y: 0 }, { x: 1, y: 0 })
+        }).to.throw(GameStateActionError, "expected playing phase")
+    })
+
+    /* Tests for the transition from penguinPlacement and playing */
     it("changes to the playing state after enough penguins are placed", () => {
         const placedAllPenguins = placeMultiple(
             gs,
@@ -241,9 +249,81 @@ describe("GameState", () => {
         }).to.throw(GameStateActionError, "expected penguinPlacement phase")
     })
 
-    it("can't move penguin in placePenguin phase", () => {
+    /* Tests for the playing phase  */
+    /**
+     * Helper for getting a game state that is actively being played
+     */
+    const getPlayingState = (gs: GameState): GameState => {
+        return placeMultiple(
+            gs,
+            [
+                [0, 0],
+                [0, 1],
+                [0, 2],
+                [3, 1],
+                [4, 2],
+                [4, 0],
+                [2, 1],
+                [3, 0],
+                [2, 2],
+            ],
+            ["p1", "p2", "p3"]
+        )
+    }
+
+    it("prevents a player from playing out of turn", () => {
+        gs = getPlayingState(gs)
+
+        expect(() =>
+            movePenguin(gs, "p2", { x: 0, y: 1 }, { x: 1, y: 1 })
+        ).to.throw(InvalidMoveError, "cannot play out of order")
+    })
+
+    it("allows correct player to move their penguin", () => {
+        gs = getPlayingState(gs)
+        const newState = movePenguin(gs, "p1", { x: 0, y: 0 }, { x: 1, y: 0 })
+
+        // check that the player has the new penguin pos
+        expect(containsPoint(newState.players[0].penguins, { x: 1, y: 0 })).to
+            .be.true
+        // check that the player no longer has the old penguin pos
+        expect(containsPoint(newState.players[0].penguins, { x: 0, y: 0 })).to
+            .be.false
+
+        // the right number of points are added to the player
+        expect(newState.players[0].score).to.equal(gs.players[0].score + 2)
+
+        // the destination tile is marked as occupied
+        expect((boardGet(newState.board, { x: 1, y: 0 }) as Tile).occupied).to
+            .be.true
+    })
+
+    it("prevents player from moving other player's penguin", () => {
+        gs = movePenguin(
+            getPlayingState(gs),
+            "p1",
+            { x: 0, y: 0 },
+            { x: 1, y: 0 }
+        )
+
         expect(() => {
-            movePenguin(gs, "p1", { x: 0, y: 0 }, { x: 1, y: 0 })
-        }).to.throw(GameStateActionError, "expected playing phase")
+            movePenguin(gs, "p2", { x: 0, y: 2 }, { x: 1, y: 1 })
+        }).to.throw(
+            InvalidMoveError,
+            "player must have a penguin at the origin"
+        )
+    })
+
+    it("prevents player from moving a penguin outside of their turn", () => {
+        gs = movePenguin(
+            getPlayingState(gs),
+            "p1",
+            { x: 0, y: 0 },
+            { x: 1, y: 0 }
+        )
+
+        expect(() => {
+            movePenguin(gs, "p3", { x: 0, y: 2 }, { x: 1, y: 1 })
+        }).to.throw(InvalidMoveError, "cannot play out of order")
     })
 })
