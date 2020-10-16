@@ -12,6 +12,7 @@ import {
 } from "@/models/gameState/gameState"
 import { Point } from "@/models/point"
 import { getViewBoard } from "./utils"
+import { Players } from "./players/players"
 
 /**
  * Draws the main view
@@ -43,8 +44,8 @@ const Root: React.FC = () => {
             },
             {
                 age: 25,
-                id: "baz",
-                penguinColor: "red",
+                id: "foo",
+                penguinColor: "black",
                 penguins: [],
                 score: 0,
             },
@@ -67,16 +68,22 @@ const Root: React.FC = () => {
         if (!selectedPenguin) {
             setErrorMessage("You must select the penguin you want to move")
         } else {
-            setGameState(
-                movePenguin(
-                    gameState,
-                    getPlayerWhoseTurnItIs(gameState)[0].id,
-                    selectedPenguin,
-                    { x, y }
+            try {
+                setGameState(
+                    movePenguin(
+                        gameState,
+                        getPlayerWhoseTurnItIs(gameState)[0].id,
+                        selectedPenguin,
+                        { x, y }
+                    )
                 )
-            )
+            } catch (e) {
+                setErrorMessage(e.message)
+            }
         }
     }
+
+    console.log(getPlayerWhoseTurnItIs(gameState))
 
     const onTileClick = (x: number, y: number) => {
         if (gameState.phase === "playing") {
@@ -89,29 +96,39 @@ const Root: React.FC = () => {
     }
 
     const onPenguinClick = (x: number, y: number) => {
+        if (
+            selectedPenguin &&
+            selectedPenguin.x === x &&
+            selectedPenguin.y === y
+        ) {
+            setSelectedPenguin(undefined)
+        }
         setSelectedPenguin({ x, y })
     }
 
+    console.log(gameState)
     return (
-        <div className="center">
-            {/* TODO maybe make this its own component? */}
-            <Snackbar
-                open={errorMessage !== null}
-                autoHideDuration={4000}
-                onClose={() => {
-                    setErrorMessage(null)
-                }}
-            >
-                <MuiAlert elevation={6} variant="filled" severity="error">
-                    {errorMessage}
-                </MuiAlert>
-            </Snackbar>
-            <Board
-                onPenguinClick={onPenguinClick}
-                onTileClick={onTileClick}
-                board={getViewBoard(gameState)}
-            />
-        </div>
+        <>
+            <Players gameState={gameState} />
+            <div className="center">
+                <Snackbar
+                    open={errorMessage !== null}
+                    autoHideDuration={4000}
+                    onClose={() => {
+                        setErrorMessage(null)
+                    }}
+                >
+                    <MuiAlert elevation={6} variant="filled" severity="error">
+                        {errorMessage}
+                    </MuiAlert>
+                </Snackbar>
+                <Board
+                    onPenguinClick={onPenguinClick}
+                    onTileClick={onTileClick}
+                    board={getViewBoard(gameState)}
+                />
+            </div>
+        </>
     )
 }
 

@@ -73,11 +73,19 @@ const Tile: React.FC<Props> = ({
                 {fishSprites}
             </div>
             {penguinColor && (
-                <div className="penguin" style={{ position: "relative" }}>
+                <div
+                    className="penguin"
+                    onClick={onPenguinClick}
+                    style={{
+                        position: "relative",
+                        border: `2px solid ${penguinColor}`,
+                    }}
+                >
                     <img
                         alt="Icon for a penguin"
                         onClick={onPenguinClick}
                         src={penguinSvg}
+                        style={{ border: `2 px solid ${penguinColor}` }}
                     />
                 </div>
             )}
