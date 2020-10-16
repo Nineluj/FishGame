@@ -1,12 +1,15 @@
 import React from "react"
 import fishSvg from "@assets/fish.svg"
+import penguinSvg from "@assets/penguin.svg"
 import "./tile.css"
 
 interface Props {
     className?: string
     fish: number
     hole: boolean
-    onClick?: (event: any) => void
+    onTileClick?: (event: any) => void
+    onPenguinClick?: (event: any) => void
+    penguinColor?: string
 }
 
 const TILE_SIZE = 50
@@ -17,7 +20,14 @@ const TILE_SIZE = 50
  * @param fish The number of fish to show on top of the tile, currently limited to 5
  * @param clickHandler Function that will get called when the tile is clicked
  */
-const Tile: React.FC<Props> = ({ className, fish, hole, onClick }) => {
+const Tile: React.FC<Props> = ({
+    className,
+    fish,
+    hole,
+    onTileClick,
+    onPenguinClick,
+    penguinColor,
+}) => {
     if (hole) {
         return (
             <div
@@ -34,7 +44,7 @@ const Tile: React.FC<Props> = ({ className, fish, hole, onClick }) => {
         fishSprites.push(
             // clickHandler also passed here since the fish are rendered on top of
             // the hexagons and might therefore be clicked
-            <img alt="Icon for a fish" onClick={onClick} src={fishSvg} />
+            <img alt="Icon for a fish" onClick={onTileClick} src={fishSvg} />
         )
     }
 
@@ -54,7 +64,7 @@ const Tile: React.FC<Props> = ({ className, fish, hole, onClick }) => {
                 viewBox="0 0 3 2"
             >
                 <polygon
-                    onClick={onClick}
+                    onClick={onTileClick}
                     points="0,1 1,2 2,2 3,1 2,0 1,0 0,1"
                     fill="orange"
                 />
@@ -62,6 +72,23 @@ const Tile: React.FC<Props> = ({ className, fish, hole, onClick }) => {
             <div className="fishy" style={{ position: "relative" }}>
                 {fishSprites}
             </div>
+            {penguinColor && (
+                <div
+                    className="penguin"
+                    onClick={onPenguinClick}
+                    style={{
+                        position: "relative",
+                        border: `2px solid ${penguinColor}`,
+                    }}
+                >
+                    <img
+                        alt="Icon for a penguin"
+                        onClick={onPenguinClick}
+                        src={penguinSvg}
+                        style={{ border: `2 px solid ${penguinColor}` }}
+                    />
+                </div>
+            )}
         </div>
     )
 }
