@@ -6,12 +6,12 @@ import { expect } from "chai"
 import { Player, putPenguin, sortPlayersByAgeAsc } from "@models/player"
 import { isDeepStrictEqual } from "util"
 import {
-    advancePhase,
     createGameState,
     createGameStateCustomBoard,
     GameState,
     movePenguin,
     placePenguin,
+    getPlayerWhoseTurnItIs,
 } from "./gameState"
 import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
 
@@ -98,7 +98,7 @@ const placeMultiple = (
     )
 }
 
-describe("GameState FSM", () => {
+describe("GameState", () => {
     const player1: Player = {
         age: 1,
         id: "p1",
@@ -154,6 +154,12 @@ describe("GameState FSM", () => {
         gs = createGameStateCustomBoard([player1, player2, player3], board)
     })
 
+    it("gets the correct player whose turn it is", () => {
+        const [player, playerIndex] = getPlayerWhoseTurnItIs(gs)
+        expect(playerIndex).to.equal(0)
+        expect(player.id).to.be.equal("p1")
+    })
+
     /* Tests to check behavior in the placePenguinPhase */
     it("is possible to place a penguin for a player", () => {
         const placePos = { x: 2, y: 1 }
@@ -193,38 +199,29 @@ describe("GameState FSM", () => {
         }).to.throw(GameStateActionError, "expected playing phase")
     })
 
-    it("can't advance phase when no penguins have been placed", () => {
-        expect(() => {
-            advancePhase(gs)
-        }).to.throw(
-            GameStateActionError,
-            "placed the required number of penguins"
-        )
-    })
-
-    it("can't advanced when not enough penguins have been placed", () => {
-        const newState = placeMultiple(
-            placeMultiple(
-                placeMultiple(
-                    gs,
-                    [
-                        [0, 0],
-                        [3, 0],
-                        [4, 0],
-                    ],
-                    "p1"
-                ),
-                [
-                    [1, 0],
-                    [2, 1],
-                    [0, 2],
-                ],
-                "p2"
-            ),
-            [[5, 0]],
-            "p3"
-        )
-    })
+    // it("can't advanced when not enough penguins have been placed", () => {
+    //     const newState = placeMultiple(
+    //         placeMultiple(
+    //             placeMultiple(
+    //                 gs,
+    //                 [
+    //                     [0, 0],
+    //                     [3, 0],
+    //                     [4, 0],
+    //                 ],
+    //                 "p1"
+    //             ),
+    //             [
+    //                 [1, 0],
+    //                 [2, 1],
+    //                 [0, 2],
+    //             ],
+    //             "p2"
+    //         ),
+    //         [[5, 0]],
+    //         "p3"
+    //     )
+    // })
 
     it("can't a penguin", () => {})
 
