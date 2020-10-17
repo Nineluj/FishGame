@@ -3,21 +3,21 @@
 Under each of the following elements below, indicate below where your
 TAs can find:
 
-- the data description of states, including an interpretation:
-  [https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/b2b090702d7da07cf12739e331e271695bf8fbbd/Fish/Common/src/models/gameState/gameState.ts#L48](link)
+- the data description of states, including an interpretation --
+  [link](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/b2b090702d7da07cf12739e331e271695bf8fbbd/Fish/Common/src/models/gameState/gameState.ts#L48)
 
-- a signature/purpose statement of functionality that creates states
-  [https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/b2b090702d7da07cf12739e331e271695bf8fbbd/Fish/Common/src/models/gameState/gameState.ts#L71](link)
+- a signature/purpose statement of functionality that creates states --
+  [link](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/b2b090702d7da07cf12739e331e271695bf8fbbd/Fish/Common/src/models/gameState/gameState.ts#L71)
   Creates a state for a certain number of players
 
-- unit tests for functionality of taking a turn
-  [https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/b2b090702d7da07cf12739e331e271695bf8fbbd/Fish/Common/src/models/gameState/gameState.ts#L71](link)
+- unit tests for functionality of taking a turn --
+  [link](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/b2b090702d7da07cf12739e331e271695bf8fbbd/Fish/Common/src/models/gameState/gameState.ts#L71)
 
-- unit tests for functionality of placing an avatar
-  [https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/b2b090702d7da07cf12739e331e271695bf8fbbd/Fish/Common/src/models/gameState/gameState.test.ts#L188](link)
+- unit tests for functionality of placing an avatar --
+  [link](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/b2b090702d7da07cf12739e331e271695bf8fbbd/Fish/Common/src/models/gameState/gameState.test.ts#L188)
 
-- unit tests for functionality of final-state test
-  [https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/b2b090702d7da07cf12739e331e271695bf8fbbd/Fish/Common/src/models/gameState/gameState.test.ts#L212](link)
+- unit tests for functionality of final-state test --
+  [link](https://github.ccs.neu.edu/CS4500-F20/sunnyvale/blob/b2b090702d7da07cf12739e331e271695bf8fbbd/Fish/Common/src/models/gameState/gameState.test.ts#L212)
   Tests that the when enough penguins are placed the state of the game reaches the final stage of the penguinPlacement phase and moves onto the playing phase.
 
 The ideal feedback is a GitHub perma-link to the range of lines in specific
