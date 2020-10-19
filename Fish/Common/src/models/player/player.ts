@@ -15,7 +15,8 @@ interface Player {
 
 /**
  * Changes the position of the player's penguin at origin to be at dst
- * The player must have a penguin at the origin position
+ * The player must have a penguin at the origin position. The resulting
+ * player will have their penguins in the original order.
  * @param p The player for which the penguin should be moved
  * @param origin The old position of the penguin
  * @param dst The new position of the penguin
