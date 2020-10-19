@@ -45,7 +45,7 @@ type GamePhase = "penguinPlacement" | "playing" | "over"
 /**
  * Represents the state necessary for an entire game of Fish
  */
-interface GameState {
+export interface GameState {
     /** The collection of tiles and holes that make up the board */
     board: Board
     /** Current phase of the game, operations on game state may be prohibited based on phase */
