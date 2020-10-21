@@ -228,7 +228,7 @@ const movePenguin = (
     // tile to be occupied
     const newBoard = boardSet(boardSet(gameState.board, origin, "hole"), dst, {
         occupied: true,
-        fish: 0,
+        fish: dstTile.fish,
     })
 
     // Update the player by changing position of the penguin
@@ -315,10 +315,17 @@ const canMovePenguin = (
  * Skip the current player's turn
  * @param gameState The state
  */
-const skipTurn = (gameState: GameState): GameState => {
+const skipTurn = (gameState: GameState, playerId: string): GameState => {
     if (gameState.phase !== "playing") {
         throw new GameStateActionError(
             `skipTurn expected playing phase, got ${gameState.phase}`
+        )
+    }
+
+    const nextPlayer = getPlayerWhoseTurnItIs(gameState)
+    if (playerId !== nextPlayer[0].id) {
+        throw new IllegalArgumentError(
+            `cannot skip turn of ${playerId}, expecting ${nextPlayer[0].id} to play`
         )
     }
 
@@ -377,5 +384,6 @@ export {
     createGameStateCustomBoard,
     placePenguin,
     movePenguin,
+    skipTurn,
     getPlayerWhoseTurnItIs,
 }

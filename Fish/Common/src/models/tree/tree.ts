@@ -2,6 +2,7 @@ import { GameState } from "@models/gameState"
 import { Action } from "@models/action"
 import { getPlayerWhoseTurnItIs, movePenguin } from "../gameState/gameState"
 import { getReachableTilesFrom } from "../board"
+import { createSkipTurnAction, createMoveAction } from "../action/action"
 
 /**
  * Applies the action to the gamestate and returns the result
@@ -12,20 +13,28 @@ export const getNextState = (gs: GameState, action: Action): GameState => {
     return action.apply(gs)
 }
 
+/**
+ * Get the possible states one turn from now
+ */
 const getAllPossibleMovesForTurn = (gs: GameState): Array<GameState> => {
+    // Holds the possible direct next states
     const futureStates: Array<GameState> = []
+
     // Get current player turn
-    //TODO also generate turn using a skipturn action
     const currentPlayer = getPlayerWhoseTurnItIs(gs)[0]
+
+    // The player moves one of their penguins
     currentPlayer.penguins.forEach((penguin) => {
         const tiles = getReachableTilesFrom(gs.board, penguin)
         tiles.forEach((tile) => {
-            // TODO maybe this can throw an error?
-            //TODO change this to an action
-            const nextState = movePenguin(gs, currentPlayer.id, penguin, tile)
-            futureStates.push(nextState)
+            futureStates.push(
+                createMoveAction(currentPlayer.id, penguin, tile)(gs)
+            )
         })
     })
+
+    // The player skips their turn
+    futureStates.push(createSkipTurnAction(currentPlayer.id)(gs))
 
     return futureStates
 }
