@@ -2,25 +2,43 @@ import { GameState } from "@models/gameState"
 import { Action } from "@models/action"
 import { getPlayerWhoseTurnItIs } from "../gameState/gameState"
 import { getReachableTilesFrom } from "../board"
-import { createSkipTurnAction, createMoveAction } from "../action/action"
+import {
+    createIdentityAction,
+    createSkipTurnAction,
+    createMoveAction,
+    actionsEqual,
+} from "../action/action"
+import { GameStateActionError } from "../errors/gameStateActionError"
 
 /*
- * GameNode represents . It has two fields:
+ * GameNode represents a possible GameState with . It has two fields:
  * - gs is the state of the game
  * -
  */
 interface GameNode {
+    /** The action that led to this node. Can be unset only for the top level GameNode */
+    action: Action
+    /** The state of the game at this point */
     gs: GameState
+    /** The future states reachable from this node */
     children: () => Array<GameNode>
 }
 
 /**
- * Applies the action to the gamestate and returns the result
- * @param gs GameState to apply action on
- * @param action Action to apply to gamestate
+ * Tries to complete the given action from this GameNode, otherwise signals error
  */
-export const getNextState = (gs: GameState, action: Action): GameState => {
-    return action.apply(gs)
+const completeAction = (gameNode: GameNode, action: Action): GameNode => {
+    const possibleResults = gameNode.children()
+
+    for (const res of possibleResults) {
+        if (actionsEqual(action, res.action)) {
+            return res
+        }
+    }
+
+    throw new GameStateActionError(
+        "could not make the given move, it is not valid"
+    )
 }
 
 /**
@@ -37,19 +55,24 @@ const getAllPossibleMovesForTurn = (gs: GameState): Array<GameNode> => {
     currentPlayer.penguins.forEach((penguin) => {
         const tiles = getReachableTilesFrom(gs.board, penguin)
         tiles.forEach((tile) => {
-            const newGs = createMoveAction(currentPlayer.id, penguin, tile)(gs)
+            const action = createMoveAction(currentPlayer.id, penguin, tile)
+            const resultingState = action.apply(gs)
+
             futureStates.push({
-                gs: newGs,
-                children: () => getAllPossibleMovesForTurn(newGs),
+                action: action,
+                gs: resultingState,
+                children: () => getAllPossibleMovesForTurn(resultingState),
             })
         })
     })
 
     // The player skips their turn
-    const skipGs = createSkipTurnAction(currentPlayer.id)(gs)
+    const skipAction = createSkipTurnAction(currentPlayer.id)
+    const resultingState = skipAction.apply(gs)
     futureStates.push({
-        gs: skipGs,
-        children: () => getAllPossibleMovesForTurn(skipGs),
+        action: skipAction,
+        gs: resultingState,
+        children: () => getAllPossibleMovesForTurn(resultingState),
     })
 
     return futureStates
@@ -61,6 +84,7 @@ const getAllPossibleMovesForTurn = (gs: GameState): Array<GameNode> => {
  * @param gs Starting gamestate
  */
 const getPossibleFutureStates = (gs: GameState): GameNode => ({
+    action: createIdentityAction(),
     gs: gs,
     children: () => getAllPossibleMovesForTurn(gs),
 })
