@@ -1,8 +1,18 @@
 import { GameState } from "@models/gameState"
 import { Action } from "@models/action"
-import { getPlayerWhoseTurnItIs, movePenguin } from "../gameState/gameState"
+import { getPlayerWhoseTurnItIs } from "../gameState/gameState"
 import { getReachableTilesFrom } from "../board"
 import { createSkipTurnAction, createMoveAction } from "../action/action"
+
+/*
+ * GameNode represents . It has two fields:
+ * - gs is the state of the game
+ * -
+ */
+interface GameNode {
+    gs: GameState
+    children: () => Array<GameNode>
+}
 
 /**
  * Applies the action to the gamestate and returns the result
@@ -16,9 +26,9 @@ export const getNextState = (gs: GameState, action: Action): GameState => {
 /**
  * Get the possible states one turn from now
  */
-const getAllPossibleMovesForTurn = (gs: GameState): Array<GameState> => {
+const getAllPossibleMovesForTurn = (gs: GameState): Array<GameNode> => {
     // Holds the possible direct next states
-    const futureStates: Array<GameState> = []
+    const futureStates: Array<GameNode> = []
 
     // Get current player turn
     const currentPlayer = getPlayerWhoseTurnItIs(gs)[0]
@@ -27,44 +37,45 @@ const getAllPossibleMovesForTurn = (gs: GameState): Array<GameState> => {
     currentPlayer.penguins.forEach((penguin) => {
         const tiles = getReachableTilesFrom(gs.board, penguin)
         tiles.forEach((tile) => {
-            futureStates.push(
-                createMoveAction(currentPlayer.id, penguin, tile)(gs)
-            )
+            const newGs = createMoveAction(currentPlayer.id, penguin, tile)(gs)
+            futureStates.push({
+                gs: newGs,
+                children: () => getAllPossibleMovesForTurn(newGs),
+            })
         })
     })
 
     // The player skips their turn
-    futureStates.push(createSkipTurnAction(currentPlayer.id)(gs))
+    const skipGs = createSkipTurnAction(currentPlayer.id)(gs)
+    futureStates.push({
+        gs: skipGs,
+        children: () => getAllPossibleMovesForTurn(skipGs),
+    })
 
     return futureStates
 }
 
 /**
- * Generates a tree from the starting gamestate of all possible paths that
- * lead to no more moves left on the board
+ * Creates a GameNode with the given starting state that can be used to find
+ * the possible future states.
  * @param gs Starting gamestate
  */
-function* getPossibleFutureStates(
-    gs: GameState
-): Generator<GameState, void, void> {
-    const futureStates = getAllPossibleMovesForTurn(gs)
-    for (let state of futureStates) {
-        yield state
-        yield* getPossibleFutureStates(state)
-    }
-}
+const getPossibleFutureStates = (gs: GameState): GameNode => ({
+    gs: gs,
+    children: () => getAllPossibleMovesForTurn(gs),
+})
 
 /**
- * Applies a function to all of the states reachable in the next turn
- * @param gs Gamestate to start with
- * @param applyFunction A function that consumes a gamestate and returns T
- * @returns The array of results from applyFunction
+ * Returns the result of applying the given function to all of the states reachable in the next turn
+ * @param gameNode Tree node
+ * @param applyFunction The operation to be applied
  */
 const applyToAllFutureStates = <T>(
-    gs: GameState,
+    gameNode: GameNode,
     applyFunction: (value: GameState) => T
 ): Array<T> => {
-    const futureStates = getAllPossibleMovesForTurn(gs)
-
-    return futureStates.map(applyFunction)
+    return gameNode
+        .children()
+        .map((gameNode) => gameNode.gs)
+        .map(applyFunction)
 }
