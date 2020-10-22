@@ -1,17 +1,17 @@
-import { Player, putPenguin, sortPlayersByAgeAsc } from "@/models/player"
+import { Player, putPenguin, sortPlayersByAgeAsc } from "../player"
 import {
     Board,
     boardGet,
     boardSet,
     createBoard,
     getReachableTilesFrom,
-} from "@models/board"
-import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
-import { GameStateActionError } from "@models/errors/gameStateActionError"
-import { InvalidMoveError } from "@models/errors/invalidMoveError"
-import { changePenguinPosition } from "@/models/player"
-import { containsPoint, Point } from "@models/point"
-import { Tile } from "@models/tile"
+} from "../board"
+import { IllegalArgumentError } from "../errors/illegalArgumentError"
+import { GameStateActionError } from "../errors/gameStateActionError"
+import { InvalidMoveError } from "../errors/invalidMoveError"
+import { changePenguinPosition } from "../player"
+import { containsPoint, Point } from "../point"
+import { Tile } from "../tile"
 import update from "immutability-helper"
 
 /*

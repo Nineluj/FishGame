@@ -52,8 +52,16 @@ const findSuitableMove = (gs: GameState): GameState | false => {
 }
 
 const runTest = (input: TestData) => {
-    const board = makeBoardFromTestInput(input.board)
     const players = makePlayersFromTestInput(input.players)
+
+    let occupiedTiles = []
+    for (const pl of players) {
+        for (const peng of pl.penguins) {
+            occupiedTiles.push(peng)
+        }
+    }
+
+    const board = makeBoardFromTestInput(input.board, occupiedTiles)
 
     const gs: GameState = {
         board,
@@ -63,18 +71,16 @@ const runTest = (input: TestData) => {
     }
 
     const result = findSuitableMove(gs)
+    const print = (data: any) => console.log(JSON.stringify(data, null, 2))
 
     if (result === false) {
-        console.log(JSON.stringify(false))
-        return
-    }
-
-    console.log(
-        JSON.stringify({
+        print(false)
+    } else {
+        print({
             board: toOutputBoard(result.board),
             players: toOutputPlayer(result.players),
         })
-    )
+    }
 }
 
 /**

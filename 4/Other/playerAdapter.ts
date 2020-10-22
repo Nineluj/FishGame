@@ -2,7 +2,7 @@
 import { Player as ExternalPlayer } from "./index"
 // InternalPlayer is the representation of the player by our project
 import { Player as InternalPlayer } from "../../Fish/Common/src/models/player"
-import { convertToBoardLocation } from "./boardAdapter"
+import { convertToBoardLocation, convertToOutputLocation } from "./boardAdapter"
 
 export const makePlayersFromTestInput = (
     players: Array<ExternalPlayer>
@@ -24,5 +24,5 @@ export const toOutputPlayer = (
     players.map((p) => ({
         color: p.penguinColor,
         score: p.score,
-        places: p.penguins,
+        places: p.penguins.map((pos) => convertToOutputLocation(pos.x, pos.y)),
     }))

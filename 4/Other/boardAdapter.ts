@@ -1,12 +1,5 @@
-import { readdir } from "fs"
-import {
-    Board,
-    boardSet,
-    getReachableTilesFrom,
-    boardGet,
-} from "../../Fish/Common/src/models/board"
-import { Point } from "../../Fish/Common/src/models/point"
-import chalk from "chalk"
+import { Board, boardSet } from "../../Fish/Common/src/models/board"
+import { Point, containsPoint } from "../../Fish/Common/src/models/point"
 
 const isEven = (num: number): boolean => {
     return num % 2 === 0
@@ -21,19 +14,31 @@ const isEven = (num: number): boolean => {
  *  (2,0)  (2,1)  (2,2)  (2,3)          (0,1)  (2,1)  (4,1)  (6,1)
  *     (3,0)  (3,1)  (3,2)                 (1,1)  (3,1)  (5,1)
  *
- * @param row the X coordinate of the position in the original coordinate system
- * @param col the Y coordinate of the position in the original coordinate system
+ * @param y0 the X coordinate of the position in the original coordinate system
+ * @param x0 the Y coordinate of the position in the original coordinate system
  */
-const convertToBoardLocation = (row: number, col: number): Point => {
-    const newY = Math.floor(row / 2)
-    let newX
-    if (isEven(row)) {
-        newX = col * 2
+export const convertToBoardLocation = (y0: number, x0: number): Point => {
+    const y1 = Math.floor(y0 / 2)
+    let x1
+    if (isEven(y0)) {
+        x1 = x0 * 2
     } else {
-        newX = col * 2 + 1
+        x1 = x0 * 2 + 1
     }
 
-    return { x: newX, y: newY }
+    return { x: x1, y: y1 }
+}
+
+/**
+ * Converts the given position from the internal representation to a
+ * position in the external representation
+ */
+export const convertToOutputLocation = (
+    y0: number,
+    x0: number
+): [number, number] => {
+    const newPos = convertToBoardLocation(y0, x0)
+    return [newPos.x, newPos.y]
 }
 
 /**
@@ -43,7 +48,8 @@ const convertToBoardLocation = (row: number, col: number): Point => {
  * and any positive number is the number of fish on the tile
  */
 export const makeBoardFromTestInput = (
-    boardData: Array<Array<number>>
+    boardData: Array<Array<number>>,
+    occupiedTiles: Array<Point>
 ): Board => {
     let board: Board = [[]]
 
@@ -53,24 +59,21 @@ export const makeBoardFromTestInput = (
             const numFish = row[j]
             const newCoordinates = convertToBoardLocation(i, j)
             const tile =
-                numFish === 0 ? "hole" : { fish: numFish, occupied: false }
+                numFish === 0
+                    ? "hole"
+                    : {
+                          fish: numFish,
+                          occupied: containsPoint(
+                              occupiedTiles,
+                              newCoordinates
+                          ),
+                      }
+
             board = boardSet(board, newCoordinates, tile)
         }
     }
 
     return board
-}
-
-const convertToOutputLocation = (row: number, col: number): Point => {
-    const newY = Math.floor(row / 2)
-    let newX
-    if (isEven(row)) {
-        newX = col / 2
-    } else {
-        newX = (col - 1) / 2
-    }
-
-    return { x: newX, y: newY }
 }
 
 export const toOutputBoard = (board: Board): Array<Array<number>> => {
@@ -86,7 +89,12 @@ export const toOutputBoard = (board: Board): Array<Array<number>> => {
             }
 
             const newCoordinates = convertToOutputLocation(i, j)
-            output[newCoordinates.y][newCoordinates.x] = numFish
+
+            if (output[newCoordinates[0]] === undefined) {
+                output[newCoordinates[0]] = []
+            }
+
+            output[newCoordinates[0]][newCoordinates[1]] = numFish
         }
     }
     return output
