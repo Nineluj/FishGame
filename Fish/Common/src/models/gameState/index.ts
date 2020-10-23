@@ -1,3 +1,3 @@
-import { GameState } from "./gameState"
+import { GameState, placePenguin } from "./gameState"
 
-export { GameState }
+export { GameState, placePenguin }

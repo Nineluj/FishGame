@@ -9,6 +9,8 @@ import {
     actionsEqual,
 } from "../action/action"
 import { GameStateActionError } from "../errors/gameStateActionError"
+import { getHashes } from "crypto"
+import { GamePhaseError } from "../errors/gamePhaseError"
 
 /*
  * GameNode represents a possible GameState with . It has two fields:
@@ -27,7 +29,10 @@ interface GameNode {
 /**
  * Tries to complete the given action from this GameNode, otherwise signals error
  */
-const completeAction = (gameNode: GameNode, action: Action): GameNode => {
+export const completeAction = (
+    gameNode: GameNode,
+    action: Action
+): GameNode => {
     const possibleResults = gameNode.children()
 
     for (const res of possibleResults) {
@@ -83,18 +88,26 @@ const getAllPossibleMovesForTurn = (gs: GameState): Array<GameNode> => {
  * the possible future states.
  * @param gs Starting gamestate
  */
-const getPossibleFutureStates = (gs: GameState): GameNode => ({
-    action: createIdentityAction(),
-    gs: gs,
-    children: () => getAllPossibleMovesForTurn(gs),
-})
+export const createRootGameNode = (gs: GameState): GameNode => {
+    if (gs.phase === "penguinPlacement" || gs.phase === "over") {
+        throw new GamePhaseError(
+            "Cannot construct a game node for a game that hasn't begun or has already ended"
+        )
+    }
+
+    return {
+        action: createIdentityAction(),
+        gs: gs,
+        children: () => getAllPossibleMovesForTurn(gs),
+    }
+}
 
 /**
  * Returns the result of applying the given function to all of the states reachable in the next turn
  * @param gameNode Tree node
  * @param applyFunction The operation to be applied
  */
-const applyToAllFutureStates = <T>(
+export const applyToAllFutureStates = <T>(
     gameNode: GameNode,
     applyFunction: (value: GameState) => T
 ): Array<T> => {
