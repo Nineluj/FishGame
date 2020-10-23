@@ -1,4 +1,9 @@
-import { boardGet, boardSet, makeBoardWithTiles } from "@models/board"
+import {
+    boardGet,
+    boardSet,
+    makeBoardWithTiles,
+    getReachableTilesFrom,
+} from "@models/board"
 import { GameStateActionError } from "@models/errors/gameStateActionError"
 import { containsPoint } from "@models/point"
 import { Tile } from "@models/tile"
@@ -12,6 +17,8 @@ import {
     movePenguin,
     placePenguin,
     getPlayerWhoseTurnItIs,
+    skipTurn,
+    canAdvanceToOver,
 } from "./gameState"
 import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
 import { InvalidMoveError } from "../errors/invalidMoveError"
@@ -298,6 +305,67 @@ describe("GameState", () => {
             .be.true
     })
 
+    it("allows all players to play consecutive turns", () => {
+        let cState = getPlayingState(gs)
+        const initialScores = cState.players.map((pl) => pl.score)
+
+        const moves = [
+            { id: "p1", from: { x: 0, y: 0 }, to: { x: 1, y: 0 } },
+            { id: "p2", from: { x: 3, y: 0 }, to: { x: 2, y: 0 } },
+            { id: "p3", from: { x: 0, y: 2 }, to: { x: 1, y: 1 } },
+        ]
+
+        moves.forEach((m) => {
+            cState = movePenguin(cState, m.id, m.from, m.to)
+        })
+
+        cState.players.forEach((pl, i) =>
+            expect(pl.score).to.equal(initialScores[i] + 2)
+        )
+
+        moves.forEach((m) => {
+            expect(boardGet(cState.board, m.from)).to.equal("hole")
+            expect((boardGet(cState.board, m.to) as Tile).occupied).to.be.true
+        })
+    })
+
+    it("prevents players from playing out of turn", () => {
+        let cState = getPlayingState(gs)
+
+        const moves = [
+            { id: "p1", from: { x: 0, y: 0 }, to: { x: 1, y: 0 } },
+            { id: "p3", from: { x: 0, y: 2 }, to: { x: 1, y: 1 } },
+            { id: "p2", from: { x: 3, y: 0 }, to: { x: 2, y: 0 } },
+        ]
+
+        expect(() =>
+            moves.forEach((m) => {
+                cState = movePenguin(cState, m.id, m.from, m.to)
+            })
+        ).to.throw(InvalidMoveError, "cannot play out of order")
+    })
+
+    it("allows players to skip their turn", () => {
+        let cState = getPlayingState(gs)
+
+        const moves = [
+            { id: "p1", from: { x: 0, y: 0 }, to: { x: 1, y: 0 } },
+            { id: "p2", from: { x: 3, y: 0 }, to: { x: 2, y: 0 } },
+            { id: "p3", from: { x: 0, y: 2 }, to: { x: 1, y: 1 } },
+        ]
+
+        moves.forEach((m) => {
+            cState = movePenguin(cState, m.id, m.from, m.to)
+        })
+
+        // skip the turns
+        cState = skipTurn(cState, "p1")
+        cState = skipTurn(cState, "p2")
+
+        const currPlayer = getPlayerWhoseTurnItIs(cState)
+        expect(currPlayer[0].id).to.equal("p3")
+    })
+
     it("prevents player from moving other player's penguin", () => {
         gs = movePenguin(
             getPlayingState(gs),
@@ -314,16 +382,24 @@ describe("GameState", () => {
         )
     })
 
-    it("prevents player from moving a penguin outside of their turn", () => {
-        gs = movePenguin(
-            getPlayingState(gs),
-            "p1",
-            { x: 0, y: 0 },
-            { x: 1, y: 0 }
-        )
+    it("allows players to play until the game is over", () => {
+        let cState = getPlayingState(gs)
 
-        expect(() => {
-            movePenguin(gs, "p3", { x: 0, y: 2 }, { x: 1, y: 1 })
-        }).to.throw(InvalidMoveError, "cannot play out of order")
+        let moves = [
+            { id: "p1", from: { x: 0, y: 0 }, to: { x: 1, y: 0 } },
+            { id: "p2", from: { x: 3, y: 0 }, to: { x: 2, y: 0 } },
+            { id: "p3", from: { x: 0, y: 2 }, to: { x: 1, y: 1 } },
+            { id: "p1", from: { x: 3, y: 1 }, to: { x: 5, y: 0 } },
+            { id: "p2", from: { x: 4, y: 2 }, to: { x: 5, y: 1 } },
+        ]
+
+        moves.forEach((m) => {
+            cState = movePenguin(cState, m.id, m.from, m.to)
+        })
+
+        cState = skipTurn(cState, "p3")
+        cState = movePenguin(cState, "p1", { x: 5, y: 0 }, { x: 4, y: 1 })
+
+        expect(cState.phase).to.equal("over")
     })
 })

@@ -1,7 +1,7 @@
 import { Board, boardSet } from "../board"
 
 /**
- * Creates a board with tiles at all the given positions. Used for testing.
+ * Creates a board with tiles that have two fish at all the given positions. Used for testing.
  * @param tileLocations
  */
 const makeBoardWithTiles = (tileLocations: Array<[number, number]>): Board => {

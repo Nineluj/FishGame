@@ -1,4 +1,4 @@
-import { Point } from "@models/point"
+import { Point } from "../point"
 
 type PenguinColor = "red" | "white" | "brown" | "black"
 

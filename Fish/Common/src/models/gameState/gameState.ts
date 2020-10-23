@@ -1,17 +1,17 @@
-import { Player, putPenguin, sortPlayersByAgeAsc } from "@/models/player"
+import { Player, putPenguin, sortPlayersByAgeAsc } from "../player"
 import {
     Board,
     boardGet,
     boardSet,
     createBoard,
     getReachableTilesFrom,
-} from "@models/board"
-import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
-import { GameStateActionError } from "@models/errors/gameStateActionError"
-import { InvalidMoveError } from "@models/errors/invalidMoveError"
-import { changePenguinPosition } from "@/models/player"
-import { containsPoint, Point } from "@models/point"
-import { Tile } from "@models/tile"
+} from "../board"
+import { IllegalArgumentError } from "../errors/illegalArgumentError"
+import { GameStateActionError } from "../errors/gameStateActionError"
+import { InvalidMoveError } from "../errors/invalidMoveError"
+import { changePenguinPosition } from "../player"
+import { containsPoint, Point } from "../point"
+import { Tile } from "../tile"
 import update from "immutability-helper"
 
 /*
@@ -39,6 +39,8 @@ or skipTurn to update the state of the game. The over phase will be reachable
 once the game is in a state in which no player can make any new moves. Calling
 advancePhase at that point will result in a new GameState indicating that the
 game is over.
+
+It is the referee's responsability to skip a player's turn if they cannot play.
  */
 type GamePhase = "penguinPlacement" | "playing" | "over"
 
@@ -228,21 +230,19 @@ const movePenguin = (
     // tile to be occupied
     const newBoard = boardSet(boardSet(gameState.board, origin, "hole"), dst, {
         occupied: true,
-        fish: 0,
+        fish: dstTile.fish,
     })
 
     // Update the player by changing position of the penguin
     let newPlayer = changePenguinPosition(player, origin, dst)
+
     // Next update the player's score
     newPlayer = {
         ...newPlayer,
         score: newPlayer.score + dstTile.fish,
     }
 
-    const newState: GamePhase = canAdvanceToOver(gameState) ? "over" : "playing"
-
-    // update and return the new game state
-    return update(gameState, {
+    const updatedGameState = update(gameState, {
         board: {
             $set: newBoard,
         },
@@ -252,10 +252,21 @@ const movePenguin = (
                 $set: newPlayer,
             },
         },
-        phase: {
-            $set: newState,
-        },
     })
+
+    const newState: GamePhase = canAdvanceToOver(updatedGameState)
+        ? "over"
+        : "playing"
+
+    if (newState === "over") {
+        return {
+            ...updatedGameState,
+            phase: "over",
+        }
+    }
+
+    // update and return the new game state
+    return updatedGameState
 }
 
 /**
@@ -315,10 +326,17 @@ const canMovePenguin = (
  * Skip the current player's turn
  * @param gameState The state
  */
-const skipTurn = (gameState: GameState): GameState => {
+const skipTurn = (gameState: GameState, playerId: string): GameState => {
     if (gameState.phase !== "playing") {
         throw new GameStateActionError(
             `skipTurn expected playing phase, got ${gameState.phase}`
+        )
+    }
+
+    const nextPlayer = getPlayerWhoseTurnItIs(gameState)
+    if (playerId !== nextPlayer[0].id) {
+        throw new IllegalArgumentError(
+            `cannot skip turn of ${playerId}, expecting ${nextPlayer[0].id} to play`
         )
     }
 
@@ -334,7 +352,7 @@ const skipTurn = (gameState: GameState): GameState => {
 /**
  * Can the GameState's phase be advanced to the playing phase?
  */
-const canAdvanceToOver = (gs: GameState): boolean => {
+export const canAdvanceToOver = (gs: GameState): boolean => {
     if (gs.phase !== "playing") {
         return false
     }
@@ -377,5 +395,6 @@ export {
     createGameStateCustomBoard,
     placePenguin,
     movePenguin,
+    skipTurn,
     getPlayerWhoseTurnItIs,
 }
