@@ -1,4 +1,4 @@
-import { boardGet, makeBoardWithTiles } from "@models/board"
+import { boardGet } from "@models/board"
 import { GameStateActionError } from "@models/errors/gameStateActionError"
 import { containsPoint } from "@models/point"
 import { Tile } from "@models/tile"
@@ -19,6 +19,7 @@ import {
 } from "../testHelpers"
 import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
 import { InvalidMoveError } from "../errors/invalidMoveError"
+import { getOverState } from "../testHelpers/testHelpers"
 
 describe("Game State", () => {
     describe("#creation", () => {
@@ -294,22 +295,7 @@ describe("Game State", () => {
         })
 
         it("allows players to play until the game is over", () => {
-            let cState = getPlayingState()
-
-            let moves = [
-                { id: "p1", from: { x: 0, y: 0 }, to: { x: 1, y: 0 } },
-                { id: "p2", from: { x: 3, y: 0 }, to: { x: 2, y: 0 } },
-                { id: "p3", from: { x: 0, y: 2 }, to: { x: 1, y: 1 } },
-                { id: "p1", from: { x: 3, y: 1 }, to: { x: 5, y: 0 } },
-                { id: "p2", from: { x: 4, y: 2 }, to: { x: 5, y: 1 } },
-            ]
-
-            moves.forEach((m) => {
-                cState = movePenguin(cState, m.id, m.from, m.to)
-            })
-
-            cState = skipTurn(cState, "p3")
-            cState = movePenguin(cState, "p1", { x: 5, y: 0 }, { x: 4, y: 1 })
+            const cState = getOverState()
 
             expect(cState.phase).to.equal("over")
         })

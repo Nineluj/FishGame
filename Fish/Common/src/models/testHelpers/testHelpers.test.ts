@@ -4,6 +4,7 @@ import {
     getPlayingState,
     placeMultiple,
     makeBoardWithTiles,
+    getOverState,
 } from "./testHelpers"
 import { boardGet, boardHas, getNumberOfTilesOnBoard } from "../board"
 import { Tile } from "../tile"
@@ -17,6 +18,12 @@ describe("Test helpers", () => {
     describe("#getPlayingState", () => {
         it("has the correct phase", () => {
             expect(getPlayingState().phase).to.equal("playing")
+        })
+    })
+
+    describe("#getOverState", () => {
+        it("has the correct phase", () => {
+            expect(getOverState().phase).to.equal("over")
         })
     })
 

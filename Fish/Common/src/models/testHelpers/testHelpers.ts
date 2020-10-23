@@ -2,7 +2,11 @@ import { GameState, placePenguin } from "../gameState"
 import { Player } from "../player"
 import { PenguinColor } from "../player/player"
 import { Board, boardSet } from "../board"
-import { createGameStateCustomBoard } from "../gameState/gameState"
+import {
+    createGameStateCustomBoard,
+    movePenguin,
+    skipTurn,
+} from "../gameState/gameState"
 
 const player1: Player = {
     age: 1,
@@ -89,6 +93,27 @@ export const getPlayingState = (): GameState => {
         ],
         ["p1", "p2", "p3"]
     )
+}
+
+export const getOverState = (): GameState => {
+    let cState = getPlayingState()
+
+    let moves = [
+        { id: "p1", from: { x: 0, y: 0 }, to: { x: 1, y: 0 } },
+        { id: "p2", from: { x: 3, y: 0 }, to: { x: 2, y: 0 } },
+        { id: "p3", from: { x: 0, y: 2 }, to: { x: 1, y: 1 } },
+        { id: "p1", from: { x: 3, y: 1 }, to: { x: 5, y: 0 } },
+        { id: "p2", from: { x: 4, y: 2 }, to: { x: 5, y: 1 } },
+    ]
+
+    moves.forEach((m) => {
+        cState = movePenguin(cState, m.id, m.from, m.to)
+    })
+
+    cState = skipTurn(cState, "p3")
+    cState = movePenguin(cState, "p1", { x: 5, y: 0 }, { x: 4, y: 1 })
+
+    return cState
 }
 
 /**
