@@ -1,4 +1,6 @@
 import { GameState, placePenguin } from "./gameState"
+import { Player } from "./player"
+import { PenguinColor } from "./player/player"
 
 /**
  * Helper for getting a game state that is actively being played
@@ -53,4 +55,18 @@ export const placeMultiple = (
     }
 
     return helper(gs, positions, playerIds, 0)
+}
+
+export const createPlayer = (
+    age: number,
+    color: PenguinColor,
+    id: string
+): Player => {
+    return {
+        age,
+        penguinColor: color,
+        id,
+        penguins: [],
+        score: 0,
+    }
 }
