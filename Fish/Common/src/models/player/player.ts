@@ -1,6 +1,6 @@
 import { Point } from "../point"
 
-type PenguinColor = "red" | "white" | "brown" | "black"
+export type PenguinColor = "red" | "white" | "brown" | "black"
 
 /**
  * Represents a Player that is playing in a game of Fish

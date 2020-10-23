@@ -27,7 +27,8 @@ interface GameNode {
 }
 
 /**
- * Tries to complete the given action from this GameNode, otherwise signals error
+ * Checks if given action is possible on the gameNode, and if it is, returns the resulting GameNode
+ * @throws GameStateActionError if the given action is not valid on the provided GameNode
  */
 export const completeAction = (
     gameNode: GameNode,
