@@ -37,7 +37,6 @@ describe("Game Tree", () => {
 
         it("can be created for a game that is in the playing phase", () => {
             const gameNode = createRootGameNode(getPlayingState())
-            // console.log(JSON.stringify(gameNode.children()))
             const expected = {
                 action: { data: { actionType: "identity" } },
                 gs: {
@@ -698,6 +697,16 @@ describe("Game Tree", () => {
             expect(gameNode.action.data.actionType).to.equal("identity")
             expect(isDeepStrictEqual(expected.gs, gameNode.gs)).to.equal(true)
             expect(gameNode.children().length).to.equal(7)
+
+            gameNode.children().forEach((child) => {
+                expect(
+                    isDeepStrictEqual(
+                        completeAction(gameNode, child.action).gs,
+                        child.gs
+                    )
+                ).to.equal(true)
+            })
+
             expect(isDeepStrictEqual(expected.children, gameNode.children))
         })
     })
