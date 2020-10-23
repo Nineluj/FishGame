@@ -39,6 +39,8 @@ or skipTurn to update the state of the game. The over phase will be reachable
 once the game is in a state in which no player can make any new moves. Calling
 advancePhase at that point will result in a new GameState indicating that the
 game is over.
+
+It is the referee's responsability to skip a player's turn if they cannot play.
  */
 type GamePhase = "penguinPlacement" | "playing" | "over"
 
@@ -233,16 +235,14 @@ const movePenguin = (
 
     // Update the player by changing position of the penguin
     let newPlayer = changePenguinPosition(player, origin, dst)
+
     // Next update the player's score
     newPlayer = {
         ...newPlayer,
         score: newPlayer.score + dstTile.fish,
     }
 
-    const newState: GamePhase = canAdvanceToOver(gameState) ? "over" : "playing"
-
-    // update and return the new game state
-    return update(gameState, {
+    const updatedGameState = update(gameState, {
         board: {
             $set: newBoard,
         },
@@ -252,10 +252,21 @@ const movePenguin = (
                 $set: newPlayer,
             },
         },
-        phase: {
-            $set: newState,
-        },
     })
+
+    const newState: GamePhase = canAdvanceToOver(updatedGameState)
+        ? "over"
+        : "playing"
+
+    if (newState === "over") {
+        return {
+            ...updatedGameState,
+            phase: "over",
+        }
+    }
+
+    // update and return the new game state
+    return updatedGameState
 }
 
 /**
@@ -341,7 +352,7 @@ const skipTurn = (gameState: GameState, playerId: string): GameState => {
 /**
  * Can the GameState's phase be advanced to the playing phase?
  */
-const canAdvanceToOver = (gs: GameState): boolean => {
+export const canAdvanceToOver = (gs: GameState): boolean => {
     if (gs.phase !== "playing") {
         return false
     }
