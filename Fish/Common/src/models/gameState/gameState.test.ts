@@ -1,15 +1,9 @@
-import {
-    boardGet,
-    boardSet,
-    makeBoardWithTiles,
-    getReachableTilesFrom,
-} from "@models/board"
+import { boardGet, makeBoardWithTiles } from "@models/board"
 import { GameStateActionError } from "@models/errors/gameStateActionError"
 import { containsPoint } from "@models/point"
 import { Tile } from "@models/tile"
 import { expect } from "chai"
-import { Player, putPenguin, sortPlayersByAgeAsc } from "@models/player"
-import { isDeepStrictEqual } from "util"
+import { Player } from "@models/player"
 import {
     createGameState,
     createGameStateCustomBoard,
@@ -18,7 +12,6 @@ import {
     placePenguin,
     getPlayerWhoseTurnItIs,
     skipTurn,
-    canAdvanceToOver,
 } from "./gameState"
 import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
 import { InvalidMoveError } from "../errors/invalidMoveError"

@@ -352,7 +352,7 @@ const skipTurn = (gameState: GameState, playerId: string): GameState => {
 /**
  * Can the GameState's phase be advanced to the playing phase?
  */
-export const canAdvanceToOver = (gs: GameState): boolean => {
+const canAdvanceToOver = (gs: GameState): boolean => {
     if (gs.phase !== "playing") {
         return false
     }
