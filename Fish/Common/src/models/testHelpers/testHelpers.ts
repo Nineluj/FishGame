@@ -1,7 +1,7 @@
 import { GameState, placePenguin } from "../gameState"
 import { Player } from "../player"
 import { PenguinColor } from "../player/player"
-import { makeBoardWithTiles } from "../board"
+import { Board, boardSet } from "../board"
 import { createGameStateCustomBoard } from "../gameState/gameState"
 
 const player1: Player = {
@@ -26,6 +26,24 @@ const player3: Player = {
     score: 0,
 }
 
+/**
+ * Creates a board with tiles that have two fish at all the given positions. Used for testing.
+ * @param tileLocations
+ */
+export const makeBoardWithTiles = (
+    tileLocations: Array<[number, number]>
+): Board => {
+    if (tileLocations.length === 0) {
+        return [[]]
+    }
+
+    return boardSet(
+        makeBoardWithTiles(tileLocations.slice(1)),
+        { x: tileLocations[0][0], y: tileLocations[0][1] },
+        { fish: 2, occupied: false }
+    )
+}
+
 const board = makeBoardWithTiles([
     [0, 0],
     [0, 1],
@@ -44,6 +62,10 @@ const board = makeBoardWithTiles([
     [5, 1],
 ])
 
+/**
+ * Helper for getting a game state that is in the beginning of the
+ * placement phase
+ */
 export const getPlacementState = (): GameState => {
     return createGameStateCustomBoard([player1, player2, player3], board)
 }

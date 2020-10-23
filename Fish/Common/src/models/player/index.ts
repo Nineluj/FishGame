@@ -1,8 +1,15 @@
 import {
     Player,
     sortPlayersByAgeAsc,
+    PenguinColor,
     changePenguinPosition,
     putPenguin,
 } from "./player"
 
-export { Player, sortPlayersByAgeAsc, changePenguinPosition, putPenguin }
+export {
+    Player,
+    PenguinColor,
+    sortPlayersByAgeAsc,
+    changePenguinPosition,
+    putPenguin,
+}

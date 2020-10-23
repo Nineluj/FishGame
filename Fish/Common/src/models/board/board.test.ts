@@ -6,7 +6,6 @@ import {
     getNumberOfTilesOnBoard,
     getReachableTilesFrom,
 } from "@/models/board/board"
-import { makeBoardWithTiles } from "@models/board/index"
 import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
 import { Tile } from "@models/tile"
 import { expect } from "chai"
@@ -172,30 +171,5 @@ describe("the board", () => {
             ],
         })
         expect(getReachableTilesFrom(board, { x: 2, y: 2 })).to.be.empty
-    })
-})
-
-describe("util functions", () => {
-    it("can create board with tiles at given positions", () => {
-        const positions: Array<[number, number]> = [
-            [0, 0],
-            [0, 1],
-            [1, 0],
-            [1, 1],
-            [2, 0],
-            [2, 1],
-            [2, 2],
-        ]
-        const createdBoard = makeBoardWithTiles(positions)
-
-        positions.forEach((tuplePos) => {
-            const pos = { x: tuplePos[0], y: tuplePos[1] }
-            expect(boardHas(createdBoard, pos)).to.be.true
-            expect((boardGet(createdBoard, pos) as Tile).fish).to.be.equal(2)
-        })
-
-        expect(getNumberOfTilesOnBoard(createdBoard)).to.be.equal(
-            positions.length
-        )
     })
 })
