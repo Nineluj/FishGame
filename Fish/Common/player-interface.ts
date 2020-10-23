@@ -1,4 +1,4 @@
-```typescript
+import { GameState } from "./src/models/gameState"
 interface PlayerInterface {
     /**
      *  Notify a player that the most recent move/penguin placement they attempted to make was accepted.
@@ -40,4 +40,3 @@ interface PlayerInterface {
      */
     updateState(gs: GameState): void
 }
-```
