@@ -1,7 +1,10 @@
 import React from "react"
-import { GameState, getPlayerWhoseTurnItIs } from "../../models/gameState"
+import {
+    GameState,
+    getPlayerWhoseTurnItIs,
+} from "../../../../Common/src/models/gameState"
 import { ListItem, List, ListItemText, Typography } from "@material-ui/core"
-import { Player } from "../../models/player"
+import { Player } from "../../../../Common/src/models/player"
 
 interface Props {
     gameState: GameState

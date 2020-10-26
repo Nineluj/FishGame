@@ -2,7 +2,6 @@ import { GameState } from "../gameState"
 import { movePenguin, skipTurn } from "../gameState/gameState"
 import { Point } from "../point"
 import { isDeepStrictEqual } from "util"
-import { deepStrictEqual } from "assert"
 
 /*
   Actions are a type of object that can act on a game state and can be compared for equality.

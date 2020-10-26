@@ -1,6 +1,6 @@
-import { Tile, Hole } from "../models/tile"
-import { Board } from "../models/board"
-import { GameState } from "../models/gameState/gameState"
+import { Tile, Hole } from "../../../Common/src/models/tile"
+import { Board } from "../../../Common/src/models/board"
+import { GameState } from "../../../Common/src/models/gameState/gameState"
 import update from "immutability-helper"
 
 export interface ViewTile extends Tile {
