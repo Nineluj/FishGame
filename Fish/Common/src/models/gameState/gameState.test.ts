@@ -1,9 +1,9 @@
-import { boardGet } from "@models/board"
-import { GameStateActionError } from "@models/errors/gameStateActionError"
-import { containsPoint } from "@models/point"
-import { Tile } from "@models/tile"
+import { boardGet } from "../board"
+import { GameStateActionError } from "../errors/gameStateActionError"
+import { containsPoint } from "../point"
+import { Tile } from "../tile"
 import { expect } from "chai"
-import { Player } from "@models/player"
+import { Player } from "../player"
 import {
     createGameState,
     GameState,
@@ -17,7 +17,7 @@ import {
     getPlayingState,
     getPlacementState,
 } from "../testHelpers"
-import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
+import { IllegalArgumentError } from "../errors/illegalArgumentError"
 import { InvalidMoveError } from "../errors/invalidMoveError"
 import { getOverState } from "../testHelpers/testHelpers"
 

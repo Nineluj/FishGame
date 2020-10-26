@@ -1,7 +1,8 @@
-import { GameState } from "@models/gameState"
+import { GameState } from "../gameState"
 import { movePenguin, skipTurn } from "../gameState/gameState"
 import { Point } from "../point"
 import { isDeepStrictEqual } from "util"
+import { deepStrictEqual } from "assert"
 
 /*
   Actions are a type of object that can act on a game state and can be compared for equality.
@@ -43,8 +44,8 @@ const createMoveAction = (
     data: {
         actionType: "move",
         playerId,
-        origin,
-        dst,
+        origin: { x: origin.x, y: origin.y },
+        dst: { x: dst.x, y: dst.y },
     },
     apply: (gs: GameState) => movePenguin(gs, playerId, origin, dst),
 })
@@ -61,6 +62,7 @@ const createSkipTurnAction = (playerId: string): Action => ({
 })
 
 export {
+    Action,
     actionsEqual,
     createIdentityAction,
     createMoveAction,

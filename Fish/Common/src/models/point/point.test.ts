@@ -1,4 +1,4 @@
-import { containsPoint, Point } from "@/models/point"
+import { containsPoint, Point } from "../point"
 import { expect } from "chai"
 
 describe("Point", () => {

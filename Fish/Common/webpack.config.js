@@ -18,15 +18,6 @@ const commonConfig = {
     output: { path: srcPaths("dist") },
     node: { __dirname: false, __filename: false },
     resolve: {
-        alias: {
-            "@": srcPaths("src"),
-            "@main": srcPaths("src/main"),
-            "@models": srcPaths("src/models"),
-            "@public": srcPaths("public"),
-            "@renderer": srcPaths("src/renderer"),
-            "@utils": srcPaths("src/utils"),
-            "@assets": srcPaths("assets"),
-        },
         extensions: [".js", ".json", ".ts", ".tsx"],
     },
     module: {

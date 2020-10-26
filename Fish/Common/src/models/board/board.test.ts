@@ -5,9 +5,9 @@ import {
     createBoard,
     getNumberOfTilesOnBoard,
     getReachableTilesFrom,
-} from "@/models/board/board"
-import { IllegalArgumentError } from "@models/errors/illegalArgumentError"
-import { Tile } from "@models/tile"
+} from "../board"
+import { IllegalArgumentError } from "../errors/illegalArgumentError"
+import { Tile } from "../tile"
 import { expect } from "chai"
 import { isDeepStrictEqual } from "util"
 

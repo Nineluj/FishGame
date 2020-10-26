@@ -3,6 +3,9 @@ dist/
 node_modules/
 out/
 
+# Ts build files from running ts in watch mode
+tsbuild/
+
 # Logs
 logs
 *.log

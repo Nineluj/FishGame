@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import * as electron from "electron"
-import { Board } from "@/renderer/board/board"
-import { boardSet, createBoard } from "@/models/board"
+import { Board } from "./board/board"
+import { boardSet, createBoard } from "../models/board"
 import { Snackbar } from "@material-ui/core"
 import MuiAlert from "@material-ui/lab/Alert"
 import {
@@ -9,8 +9,8 @@ import {
     movePenguin,
     getPlayerWhoseTurnItIs,
     placePenguin,
-} from "@/models/gameState/gameState"
-import { Point } from "@/models/point"
+} from "../models/gameState/gameState"
+import { Point } from "../models/point"
 import { getViewBoard } from "./utils"
 import { Players } from "./players/players"
 
