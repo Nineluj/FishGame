@@ -4,15 +4,6 @@
         "esModuleInterop": true,
         "jsx": "react",
         "baseUrl": ".",
-        "paths": {
-            "@/*": ["src/*"],
-            "@assets/*": ["assets/*"],
-            "@public/*": ["public/*"],
-            "@main/*": ["src/main/*"],
-            "@models/*": ["src/models/*"],
-            "@renderer*/": ["src/renderer/*"],
-            "@utils/*": ["src/utils/*"]
-        },
         "module": "commonjs",
         "moduleResolution": "node",
         "noImplicitAny": true,
@@ -21,7 +12,8 @@
         "sourceMap": true,
         "target": "esnext",
         "strict": true,
-        "noImplicitReturns": true
+        "noImplicitReturns": true,
+        "outDir": "tsbuild/"
     },
     "exclude": ["node_modules"],
     "include": ["custom.d.ts", "src/"]

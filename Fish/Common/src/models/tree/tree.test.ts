@@ -10,6 +10,7 @@ import { GamePhaseError } from "../errors/gamePhaseError"
 import { createPlayer, getOverState } from "../testHelpers/testHelpers"
 import { isDeepStrictEqual } from "util"
 import { GameStateActionError } from "../errors/gameStateActionError"
+import { createMoveAction } from "../action/action"
 
 describe("Game Tree", () => {
     describe("#creation", () => {
@@ -717,8 +718,8 @@ describe("Game Tree", () => {
             expect(() => {
                 completeAction(gameNode, {
                     data: "foo",
-                    action: (gs: GameState) => {
-                        return "bar"
+                    apply: (gs: GameState) => {
+                        return "bar" as any
                     },
                 })
             }).to.throw(
@@ -870,24 +871,13 @@ describe("Game Tree", () => {
                 ],
                 turn: 10,
             }
-            const actual = completeAction(gameNode, {
-                data: {
-                    actionType: "move",
-                    playerId: "p1",
-                    origin: {
-                        x: 0,
-                        y: 0,
-                    },
-                    dst: {
-                        x: 1,
-                        y: 0,
-                        tile: {
-                            fish: 2,
-                            occupied: false,
-                        },
-                    },
-                },
-            })
+
+            const moveAction = createMoveAction(
+                "p1",
+                { x: 0, y: 0 },
+                { x: 1, y: 0 }
+            )
+            const actual = completeAction(gameNode, moveAction)
             expect(isDeepStrictEqual(expected, actual.gs)).to.equal(true)
         })
         it("correctly applies a lambda action to all directly reachable GameStates when applyToAllFutureStates() is invoked", () => {

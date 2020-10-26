@@ -1,3 +1,3 @@
-import { GameState, placePenguin } from "./gameState"
+import { GameState, placePenguin, getPlayerWhoseTurnItIs } from "./gameState"
 
-export { GameState, placePenguin }
+export { GameState, placePenguin, getPlayerWhoseTurnItIs }

@@ -1,5 +1,5 @@
-import { GameState } from "@models/gameState"
-import { Action } from "@models/action"
+import { GameState } from "../gameState"
+import { Action } from "../action"
 import { getPlayerWhoseTurnItIs } from "../gameState/gameState"
 import { getReachableTilesFrom } from "../board"
 import {
