@@ -145,6 +145,25 @@ const getReachableTilesFrom = (
     return output
 }
 
+/**
+ * Returns the location of the next tile to the right, skipping holes
+ */
+const getCoordinatesOfNextUnoccupiedTileToTheRight = (
+    board: Board,
+    p: Point
+): Point | false => {
+    const boardLen = board.length
+
+    for (let i = p.x; i < boardLen; i += 2) {
+        const p2 = { x: i, y: p.y }
+        if (boardHas(board, p2) && !(boardGet(board, p2) as Tile).occupied) {
+            return p2
+        }
+    }
+
+    return false
+}
+
 // Default option configuration for creating a board with createBoard
 const defaultCreateBoardOptions = {
     holes: [],
@@ -210,5 +229,6 @@ export {
     boardGet,
     boardSet,
     getReachableTilesFrom,
+    getCoordinatesOfNextUnoccupiedTileToTheRight,
     getNumberOfTilesOnBoard,
 }

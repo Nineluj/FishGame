@@ -187,9 +187,11 @@ const placePenguin = (
  * player array.
  * @param gameState State from which you want to find the current player
  */
-const getPlayerWhoseTurnItIs = (gameState: GameState): [Player, number] => {
+const getPlayerWhoseTurnItIs = (
+    gameState: GameState
+): { player: Player; index: number } => {
     const turnIndex = gameState.turn % gameState.players.length
-    return [gameState.players[turnIndex], turnIndex]
+    return { player: gameState.players[turnIndex], index: turnIndex }
 }
 
 /**

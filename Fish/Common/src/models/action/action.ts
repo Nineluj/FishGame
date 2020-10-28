@@ -1,5 +1,5 @@
 import { GameState } from "../gameState"
-import { movePenguin, skipTurn } from "../gameState/gameState"
+import { movePenguin, skipTurn, placePenguin } from "../gameState/gameState"
 import { Point } from "../point"
 import { isDeepStrictEqual } from "util"
 
@@ -30,6 +30,19 @@ const createIdentityAction = (): Action => ({
         actionType: "identity",
     },
     apply: (gs: GameState) => ({ ...gs }),
+})
+
+/**
+ * Creates an action for placing a penguin at a given position
+ * TODO: Test
+ */
+const createPlacePenguinAction = (playerId: string, dst: Point): Action => ({
+    data: {
+        actionType: "put",
+        playerId,
+        dst: { x: dst.x, y: dst.y },
+    },
+    apply: (gs: GameState) => placePenguin(gs, playerId, dst),
 })
 
 /**
@@ -64,6 +77,7 @@ export {
     Action,
     actionsEqual,
     createIdentityAction,
+    createPlacePenguinAction,
     createMoveAction,
     createSkipTurnAction,
 }

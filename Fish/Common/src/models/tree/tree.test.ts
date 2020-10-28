@@ -1,9 +1,5 @@
 import { expect } from "chai"
-import {
-    createRootGameNode,
-    completeAction,
-    applyToAllFutureStates,
-} from "./tree"
+import { createGameNode, completeAction, applyToAllFutureStates } from "./tree"
 import { createGameState, GameState } from "../gameState/gameState"
 import { getPlayingState } from "../testHelpers"
 import { GamePhaseError } from "../errors/gamePhaseError"
@@ -16,7 +12,7 @@ describe("Game Tree", () => {
     describe("#creation", () => {
         it("cannot be created with a game that has not started yet", () => {
             expect(() => {
-                createRootGameNode(
+                createGameNode(
                     createGameState([
                         createPlayer(15, "red", "foo"),
                         createPlayer(20, "black", "bar"),
@@ -32,12 +28,12 @@ describe("Game Tree", () => {
         it("cannot be created with a game that has already ended", () => {
             const gs = getOverState()
             expect(() => {
-                createRootGameNode(gs)
+                createGameNode(gs)
             }).to.throw(GamePhaseError, "ended")
         })
 
         it("can be created for a game that is in the playing phase", () => {
-            const gameNode = createRootGameNode(getPlayingState())
+            const gameNode = createGameNode(getPlayingState())
             const expected = {
                 action: { data: { actionType: "identity" } },
                 gs: {
@@ -714,7 +710,7 @@ describe("Game Tree", () => {
 
     describe("#actions", () => {
         it("throws an error when invoking completeAction() with an invalid Action/GameNode combo", () => {
-            const gameNode = createRootGameNode(getPlayingState())
+            const gameNode = createGameNode(getPlayingState())
             expect(() => {
                 completeAction(gameNode, {
                     data: "foo",
@@ -729,7 +725,7 @@ describe("Game Tree", () => {
         })
 
         it("returns the correct gamenode when completeAction() is invoked with a valid Action/GameNode combo", () => {
-            const gameNode = createRootGameNode(getPlayingState())
+            const gameNode = createGameNode(getPlayingState())
             const expected = {
                 board: [
                     [
@@ -890,7 +886,7 @@ describe("Game Tree", () => {
             }
 
             const gs = getPlayingState()
-            const gn = createRootGameNode(gs)
+            const gn = createGameNode(gs)
             const out = applyToAllFutureStates(gn, sumScores)
 
             expect(isDeepStrictEqual(out, [20, 20, 20, 20, 20, 20, 18])).to.be

@@ -83,7 +83,7 @@ const getAllPossibleMovesForTurn = (gs: GameState): Array<GameNode> => {
  * the possible future states.
  * @param gs Starting gamestate
  */
-const createRootGameNode = (gs: GameState): GameNode => {
+const createGameNode = (gs: GameState): GameNode => {
     if (gs.phase === "penguinPlacement" || gs.phase === "over") {
         throw new GamePhaseError(
             "Cannot construct a game node for a game that hasn't begun or has already ended"
@@ -112,4 +112,4 @@ const applyToAllFutureStates = <T>(
         .map(applyFunction)
 }
 
-export { GameNode, completeAction, createRootGameNode, applyToAllFutureStates }
+export { GameNode, completeAction, createGameNode, applyToAllFutureStates }
