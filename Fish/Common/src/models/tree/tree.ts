@@ -9,13 +9,10 @@ import {
     actionsEqual,
 } from "../action/action"
 import { GameStateActionError } from "../errors/gameStateActionError"
-import { getHashes } from "crypto"
 import { GamePhaseError } from "../errors/gamePhaseError"
 
 /*
- * GameNode represents a possible GameState with . It has two fields:
- * - gs is the state of the game
- * -
+ * GameNode represents a possible GameState, the action that led to it, and potential future moves
  */
 interface GameNode {
     /** The action that led to this node. Can be unset only for the top level GameNode */
@@ -30,10 +27,7 @@ interface GameNode {
  * Checks if given action is possible on the gameNode, and if it is, returns the resulting GameNode
  * @throws GameStateActionError if the given action is not valid on the provided GameNode
  */
-export const completeAction = (
-    gameNode: GameNode,
-    action: Action
-): GameNode => {
+const completeAction = (gameNode: GameNode, action: Action): GameNode => {
     const possibleResults = gameNode.children()
 
     for (const res of possibleResults) {
@@ -89,7 +83,7 @@ const getAllPossibleMovesForTurn = (gs: GameState): Array<GameNode> => {
  * the possible future states.
  * @param gs Starting gamestate
  */
-export const createRootGameNode = (gs: GameState): GameNode => {
+const createRootGameNode = (gs: GameState): GameNode => {
     if (gs.phase === "penguinPlacement" || gs.phase === "over") {
         throw new GamePhaseError(
             "Cannot construct a game node for a game that hasn't begun or has already ended"
@@ -108,7 +102,7 @@ export const createRootGameNode = (gs: GameState): GameNode => {
  * @param gameNode Tree node
  * @param applyFunction The operation to be applied
  */
-export const applyToAllFutureStates = <T>(
+const applyToAllFutureStates = <T>(
     gameNode: GameNode,
     applyFunction: (value: GameState) => T
 ): Array<T> => {
@@ -117,3 +111,5 @@ export const applyToAllFutureStates = <T>(
         .map((gameNode) => gameNode.gs)
         .map(applyFunction)
 }
+
+export { GameNode, completeAction, createRootGameNode, applyToAllFutureStates }

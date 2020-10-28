@@ -1,9 +1,8 @@
-import { Board } from "../../models/board"
+import { Board } from "../../../../Common/src/models/board"
 import React from "react"
 import Tile from "../tile/tile"
 import "./board.css"
 import { ViewBoard } from "../utils"
-import { powerMonitor } from "electron"
 
 interface Props {
     board: ViewBoard
