@@ -89,8 +89,8 @@ describe("Game State", () => {
         })
 
         it("gets the correct player whose turn it is", () => {
-            const [player, playerIndex] = getPlayerWhoseTurnItIs(gs)
-            expect(playerIndex).to.equal(0)
+            const { player, index } = getPlayerWhoseTurnItIs(gs)
+            expect(index).to.equal(0)
             expect(player.id).to.be.equal("p1")
 
             const newState = placeMultiple(
@@ -104,9 +104,9 @@ describe("Game State", () => {
                 ["p1", "p2", "p3"]
             )
 
-            const [newPlayer, newPlayerIndex] = getPlayerWhoseTurnItIs(newState)
-            expect(newPlayerIndex).to.equal(1)
-            expect(newPlayer.id).to.equal("p2")
+            const np = getPlayerWhoseTurnItIs(newState)
+            expect(np.index).to.equal(1)
+            expect(np.player.id).to.equal("p2")
         })
 
         /* Tests to check behavior in the placePenguinPhase */
@@ -275,7 +275,7 @@ describe("Game State", () => {
             cState = skipTurn(cState, "p2")
 
             const currPlayer = getPlayerWhoseTurnItIs(cState)
-            expect(currPlayer[0].id).to.equal("p3")
+            expect(currPlayer.player.id).to.equal("p3")
         })
 
         it("prevents player from moving other player's penguin", () => {

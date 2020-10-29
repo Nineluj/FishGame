@@ -129,7 +129,7 @@ const placePenguin = (
         )
     }
 
-    const [player, playerIndex] = getPlayerWhoseTurnItIs(gameState)
+    const { player, index } = getPlayerWhoseTurnItIs(gameState)
 
     if (player.id !== playerId) {
         throw new GameStateActionError(`cannot play out of order, expecting
@@ -159,7 +159,7 @@ const placePenguin = (
 
     const newGameState = update(gameState, {
         players: {
-            [playerIndex]: {
+            [index]: {
                 $set: newPlayer,
             },
         },
@@ -226,7 +226,7 @@ const movePenguin = (
 
     // Get the required information to update the state
     const dstTile = boardGet(gameState.board, dst) as Tile
-    const [player, playerIndex] = getPlayerWhoseTurnItIs(gameState)
+    const { player, index } = getPlayerWhoseTurnItIs(gameState)
 
     // New board created by setting the old tile to be a hole and setting the new
     // tile to be occupied
@@ -250,7 +250,7 @@ const movePenguin = (
         },
         turn: { $apply: (turn) => turn + 1 },
         players: {
-            [playerIndex]: {
+            [index]: {
                 $set: newPlayer,
             },
         },
@@ -292,7 +292,7 @@ const canMovePenguin = (
     }
 
     // Check if it's an out of turn move
-    const [currentMovePlayer, _] = getPlayerWhoseTurnItIs(gameState)
+    const currentMovePlayer = getPlayerWhoseTurnItIs(gameState).player
 
     if (currentMovePlayer.id !== playerId) {
         return {
@@ -335,10 +335,10 @@ const skipTurn = (gameState: GameState, playerId: string): GameState => {
         )
     }
 
-    const nextPlayer = getPlayerWhoseTurnItIs(gameState)
-    if (playerId !== nextPlayer[0].id) {
+    const nextPlayer = getPlayerWhoseTurnItIs(gameState).player
+    if (playerId !== nextPlayer.id) {
         throw new IllegalArgumentError(
-            `cannot skip turn of ${playerId}, expecting ${nextPlayer[0].id} to play`
+            `cannot skip turn of ${playerId}, expecting ${nextPlayer.id} to play`
         )
     }
 

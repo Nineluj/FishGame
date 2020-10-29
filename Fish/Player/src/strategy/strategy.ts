@@ -81,45 +81,45 @@ const getPenguinPlacementStrategy = (fallbackStrategy: Strategy): Strategy => {
     }
 }
 
-/**
- * Creates a strategy which minimizes the target's score the next time they
- * play their turn
- */
-const getFuckOverPlayerPenguinMoveStrategy = (
-    stepsAhead: number,
-    targetId: string,
-    fallbackStrategy: Strategy
-): Strategy => ({
-    getNextAction: (gs: GameState): Action => {
-        if (gs.phase !== "playing") {
-            return fallbackStrategy.getNextAction(gs)
-        }
+// /**
+//  * Creates a strategy which minimizes the target's score the next time they
+//  * play their turn
+//  */
+// const getFuckOverPlayerPenguinMoveStrategy = (
+//     stepsAhead: number,
+//     targetId: string,
+//     fallbackStrategy: Strategy
+// ): Strategy => ({
+//     getNextAction: (gs: GameState): Action => {
+//         if (gs.phase !== "playing") {
+//             return fallbackStrategy.getNextAction(gs)
+//         }
 
-        let { player } = getPlayerWhoseTurnItIs(gs)
-        const tree = createGameNode(gs)
+//         let { player } = getPlayerWhoseTurnItIs(gs)
+//         const tree = createGameNode(gs)
 
-        const possibleMoves = tree.children()
+//         const possibleMoves = tree.children()
 
-        return ...
-    },
-})
+//         return ...
+//     },
+// })
 
-/**
- * Creates a strategy which realizes the best gain after looking ahead stepsAhead moves
- */
-const getPenguinMaxMinMoveStrategy = (
-    stepsAhead: number,
-    fallbackStrategy: Strategy
-): Strategy => ({
-    getNextAction: (gs: GameState): Action => {
-        if (gs.phase !== "playing") {
-            return fallbackStrategy.getNextAction(gs)
-        }
+// /**
+//  * Creates a strategy which realizes the best gain after looking ahead stepsAhead moves
+//  */
+// const getPenguinMaxMinMoveStrategy = (
+//     stepsAhead: number,
+//     fallbackStrategy: Strategy
+// ): Strategy => ({
+//     getNextAction: (gs: GameState): Action => {
+//         if (gs.phase !== "playing") {
+//             return fallbackStrategy.getNextAction(gs)
+//         }
 
-        let { player } = getPlayerWhoseTurnItIs(gs)
+//         let { player } = getPlayerWhoseTurnItIs(gs)
 
-        const tree = createGameNode(gs)
-        tree.children()
-        return ...
-    },
-})
+//         const tree = createGameNode(gs)
+//         tree.children()
+//         return ...
+//     },
+// })

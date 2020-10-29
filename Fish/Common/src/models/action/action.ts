@@ -34,7 +34,6 @@ const createIdentityAction = (): Action => ({
 
 /**
  * Creates an action for placing a penguin at a given position
- * TODO: Test
  */
 const createPlacePenguinAction = (playerId: string, dst: Point): Action => ({
     data: {
