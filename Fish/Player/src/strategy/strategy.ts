@@ -13,7 +13,12 @@ import {
     getCoordinatesOfNextUnoccupiedTileToTheRight,
 } from "../../../Common/src/models/board/board"
 import { Point } from "../../../Common/src/models/point"
-import { createGameNode } from "../../../Common/src/models/tree/tree"
+import {
+    applyToAllFutureStates,
+    completeAction,
+    createGameNode,
+    GameNode,
+} from "../../../Common/src/models/tree/tree"
 
 /**
  * A Strategy is a function object that returns a suggested action that
@@ -81,45 +86,104 @@ const getPenguinPlacementStrategy = (fallbackStrategy: Strategy): Strategy => {
     }
 }
 
-// /**
-//  * Creates a strategy which minimizes the target's score the next time they
-//  * play their turn
-//  */
-// const getFuckOverPlayerPenguinMoveStrategy = (
-//     stepsAhead: number,
-//     targetId: string,
-//     fallbackStrategy: Strategy
-// ): Strategy => ({
-//     getNextAction: (gs: GameState): Action => {
-//         if (gs.phase !== "playing") {
-//             return fallbackStrategy.getNextAction(gs)
-//         }
+/**
+ * Picks the move that has the lowest row number for the place from which the penguin is moved
+ * and within this row, the lowest column number. Same process occurs on the destinations
+ * if two or more moves have the same origin
+ * @param moves moveActions to evaluate
+ */
+const tiebreakMoves = (moves: Array<Action>): Action => {
+    if (moves.length === 1) {
+        return moves[0]
+    }
 
-//         let { player } = getPlayerWhoseTurnItIs(gs)
-//         const tree = createGameNode(gs)
+    throw new Error("not implemented")
 
-//         const possibleMoves = tree.children()
+    let best = {}
 
-//         return ...
-//     },
-// })
+    for (let m of moves) {
+        if (m.data.actionType !== undefined && m.data.actionType === "move") {
+        }
+    }
+}
 
-// /**
-//  * Creates a strategy which realizes the best gain after looking ahead stepsAhead moves
-//  */
-// const getPenguinMaxMinMoveStrategy = (
-//     stepsAhead: number,
-//     fallbackStrategy: Strategy
-// ): Strategy => ({
-//     getNextAction: (gs: GameState): Action => {
-//         if (gs.phase !== "playing") {
-//             return fallbackStrategy.getNextAction(gs)
-//         }
+/**
+ * Uses the minimax algorithm as described here: https://en.wikipedia.org/wiki/Minimax#Pseudocode
+ * Returns the maximized score that the player with the given ID can get in `depth` turns
+ * @param node state of game at which the current player is making a move
+ * @param depth how many turns should the maximizingPlayer still play
+ * @param maximizingPlayerId the id of the player trying to maximize their score
+ */
+const miniMax = (
+    node: GameNode,
+    depth: number,
+    maximizingPlayerId: string
+): number => {
+    if (depth == 0 || node.gs.phase !== "playing") {
+        return node.gs.players.filter((p) => p.id === maximizingPlayerId)[0]
+            .score
+    }
 
-//         let { player } = getPlayerWhoseTurnItIs(gs)
+    let { player } = getPlayerWhoseTurnItIs(node.gs)
+    if (player.id === maximizingPlayerId) {
+        // maximizingPlayer
+        let val = Number.NEGATIVE_INFINITY
 
-//         const tree = createGameNode(gs)
-//         tree.children()
-//         return ...
-//     },
-// })
+        for (let future of node.children()) {
+            val = Math.max(val, miniMax(future, depth - 1, maximizingPlayerId))
+        }
+
+        return val
+    } else {
+        // minimizing player
+        let val = Number.POSITIVE_INFINITY
+
+        for (let future of node.children()) {
+            val = Math.min(val, miniMax(future, depth, maximizingPlayerId))
+        }
+
+        return val
+    }
+}
+
+/**
+ * Creates a strategy which realizes the best gain after looking ahead stepsAhead moves
+ */
+const getPenguinMaxMinMoveStrategy = (
+    stepsAhead: number,
+    fallbackStrategy: Strategy
+): Strategy => ({
+    getNextAction: (gs: GameState): Action => {
+        if (gs.phase !== "playing") {
+            return fallbackStrategy.getNextAction(gs)
+        }
+
+        const root = createGameNode(gs)
+        let { player } = getPlayerWhoseTurnItIs(gs)
+
+        let best = {
+            actions: [createSkipTurnAction(player.id)],
+            score: Number.NEGATIVE_INFINITY,
+        }
+
+        for (let future of root.children()) {
+            const moveMinScore = miniMax(future, stepsAhead, player.id)
+
+            if (moveMinScore === best.score) {
+                best.actions.push(future.action)
+            } else if (moveMinScore > best.score) {
+                best.score = moveMinScore
+                best.actions = [future.action]
+            }
+        }
+
+        return tiebreakMoves(best.actions)
+    },
+})
+
+export {
+    tiebreakMoves,
+    getSkipTurnStrategy,
+    getPenguinMaxMinMoveStrategy,
+    getPenguinPlacementStrategy,
+}

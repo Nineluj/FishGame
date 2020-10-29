@@ -15,6 +15,7 @@ describe("Actions", () => {
         it("can create identity action", () => {
             expect(createIdentityAction)
         })
+
         it("identity actions are equal", () => {
             expect(actionsEqual(createIdentityAction(), createIdentityAction()))
                 .to.be.true
@@ -51,6 +52,7 @@ describe("Actions", () => {
                     createMoveAction("p2", point1, point2)
                 )
             ).to.be.false
+
             expect(
                 actionsEqual(
                     createMoveAction("p1", point1, point2),
@@ -66,6 +68,7 @@ describe("Actions", () => {
                     createPlacePenguinAction("p1", point2)
                 )
             ).to.be.false
+
             expect(
                 actionsEqual(
                     createPlacePenguinAction("p1", point1),
