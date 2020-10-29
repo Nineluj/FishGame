@@ -10,7 +10,7 @@ The third responsibility is to conclude games
 
 The `referee` does not get passed a list of game rules since it is the software component that is aware of the rules of Fish.
 
-### Interaction with TournamentManager
+### Use cases for TournamentManager
 
 The interaction between the `TournamentManager` and the `referee` falls in 3 different categories:
 
@@ -24,7 +24,7 @@ The interaction between the `TournamentManager` and the `referee` falls in 3 dif
 -   Reporting results of game: `TournamentManager` could use `getGamePhase` in conjuction with `getScores` to get information about the results
     of a game. However, `TournamentManager` should instead expose a `reportGameOutcome` method which `referee` would use to share game results.
 
-### Interaction with Players
+### Use cases for Players
 
 In game, players will interact with the `referee` to:
 
