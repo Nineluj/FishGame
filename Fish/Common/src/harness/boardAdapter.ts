@@ -8,12 +8,14 @@ const isEven = (num: number): boolean => {
 /**
  * Given a datapoint using a coordinate system as below, convert it to the
  * odd-q coordinate system described here: https://www.redblobgames.com/grids/hexagons/#coordinates-offset
+ *
  *      INPUT COORDINATES                   OUTPUT COORDINATES
+ * ```
  *  (0,0)  (0,1)  (0,2)  (0,3)          (0,0)  (2,0)  (4,0)  (6,0)
  *     (1,0)  (1,1)  (1,2)                 (1,0)  (3,0)  (5,0)
  *  (2,0)  (2,1)  (2,2)  (2,3)          (0,1)  (2,1)  (4,1)  (6,1)
  *     (3,0)  (3,1)  (3,2)                 (1,1)  (3,1)  (5,1)
- *                             (x,y)
+ * ```
  *
  * @param y0 the X coordinate of the position in the original coordinate system
  * @param x0 the Y coordinate of the position in the original coordinate system
@@ -77,15 +79,51 @@ export const makeBoardFromTestInput = (
     return board
 }
 
+/**
+ * Pads the input matrix with zeroes so that all rows are of equal length
+ * @param input A 2d array of numbers
+ */
+const padJaggedArray = (input: Array<Array<number>>) => {
+    const longestRowLength = input.reduce((accumulator, currentRow) => {
+        return accumulator.length > currentRow.length ? accumulator : currentRow
+    }).length
+
+    return input.map((row) => {
+        let newRow = [...row]
+        while (newRow.length < longestRowLength) {
+            newRow.push(0)
+        }
+        return newRow
+    })
+}
+
+/**
+ * Converts a board between the formats described below.
+ * **Note:** Pads each row in the output with zeroes so that the
+ * output array is not jagged.
+ *
+ * Holes are represented by zeroes in the output. Otherwise, the number
+ * represents the number of fish on each tile
+ *
+ *        OUTPUT COORDINATES                   INPUT COORDINATES
+ * ```
+ *  (0,0)  (0,1)  (0,2)  (0,3)          (0,0)  (2,0)  (4,0)  (6,0)
+ *     (1,0)  (1,1)  (1,2)  (1,3)          (1,0)  (3,0)  (5,0)
+ *  (2,0)  (2,1)  (2,2)  (2,3)          (0,1)  (2,1)  (4,1)  (6,1)
+ *     (3,0)  (3,1)  (3,2)  (3,3)          (1,1)  (3,1)  (5,1)
+ * ```
+ *
+ * @param board The board object to convert to a 2d array of numbers
+ */
 export const toOutputBoard = (board: Board): Array<Array<number>> => {
     let output: Array<Array<number>> = [[]]
     for (let i = 0; i < board.length; i++) {
         const row = board[i]
-        for (let j = 0; j < row.length; j++) {
+        for (let j = 0; j < (row && row.length) || 0; j++) {
             const tile = row[j]
             let numFish = 0
 
-            if (tile !== "hole") {
+            if (tile !== "hole" && tile !== undefined) {
                 numFish = tile.fish
             }
 
@@ -98,5 +136,5 @@ export const toOutputBoard = (board: Board): Array<Array<number>> => {
             output[newCoordinates[0]][newCoordinates[1]] = numFish
         }
     }
-    return output
+    return padJaggedArray(output)
 }

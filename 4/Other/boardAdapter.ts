@@ -76,6 +76,10 @@ export const makeBoardFromTestInput = (
     return board
 }
 
+/**
+ *
+ * @param input
+ */
 const padJaggedArray = (input: Array<Array<number>>) => {
     const longestRowLength = input.reduce((accumulator, currentRow) => {
         return accumulator.length > currentRow.length ? accumulator : currentRow

@@ -17,16 +17,16 @@ const makePlayer = (p: ExternalPlayer, age: number): InternalPlayer => {
         age: age,
         id: `${p.color}`,
         penguinColor: p.color,
-        penguins: p.places.map(pos => convertToBoardLocation(...pos)),
+        penguins: p.places.map((pos) => convertToBoardLocation(...pos)),
         score: p.score,
     }
 }
-
+// TODO sort the output players
 export const toOutputPlayer = (
     players: Array<InternalPlayer>
 ): Array<ExternalPlayer> =>
-    players.map(p => ({
+    players.map((p) => ({
         color: p.penguinColor,
         score: p.score,
-        places: p.penguins.map(pos => convertToOutputLocation(pos.x, pos.y)),
+        places: p.penguins.map((pos) => convertToOutputLocation(pos.x, pos.y)),
     }))
