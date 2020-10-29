@@ -76,15 +76,30 @@ export const makeBoardFromTestInput = (
     return board
 }
 
+const padJaggedArray = (input: Array<Array<number>>) => {
+    const longestRowLength = input.reduce((accumulator, currentRow) => {
+        return accumulator.length > currentRow.length ? accumulator : currentRow
+    }).length
+
+    return input.map(row => {
+        let newRow = [...row]
+        while (newRow.length < longestRowLength) {
+            newRow.push(0)
+        }
+        return newRow
+    })
+}
+
 export const toOutputBoard = (board: Board): Array<Array<number>> => {
     let output: Array<Array<number>> = [[]]
+    console.log(board)
     for (let i = 0; i < board.length; i++) {
         const row = board[i]
-        for (let j = 0; j < row.length; j++) {
+        for (let j = 0; j < (row && row.length) || 0; j++) {
             const tile = row[j]
             let numFish = 0
 
-            if (tile !== "hole") {
+            if (tile !== "hole" && tile != undefined) {
                 numFish = tile.fish
             }
 
@@ -97,5 +112,5 @@ export const toOutputBoard = (board: Board): Array<Array<number>> => {
             output[newCoordinates[0]][newCoordinates[1]] = numFish
         }
     }
-    return output
+    return padJaggedArray(output)
 }
