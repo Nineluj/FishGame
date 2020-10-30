@@ -19,6 +19,7 @@ import {
     createGameNode,
     GameNode,
 } from "../../../Common/src/models/tree/tree"
+import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 
 /**
  * A Strategy is a function object that returns a suggested action that
@@ -42,25 +43,28 @@ const getSkipTurnStrategy = (): Strategy => {
 }
 
 /**
+ * Gets the hex coordinate right below the given point
+ */
+const getCoordinateBelow = (board: Board, p: Point): Point | false => {
+    let newCoord: Point
+
+    if (p.x % 2 === 0) {
+        newCoord = { x: p.x + 1, y: p.y }
+    } else {
+        newCoord = { x: p.x - 1, y: p.y + 1 }
+    }
+
+    const v = boardGet(board, newCoord)
+    return v ? newCoord : false
+}
+
+/**
  * Creates a strategy in which a penguin is placed in.
  * This strategy traverses the board in a pattern going left to right
  * for each row until it finds a location that isn't a hole and that isn't occupied
  * and the places a penguin there. Invokes the fallback strategy if it can't do anything
  */
 const getPenguinPlacementStrategy = (fallbackStrategy: Strategy): Strategy => {
-    const getCoordinateBelow = (board: Board, p: Point): Point | false => {
-        let newCoord: Point
-
-        if (p.x % 2 === 0) {
-            newCoord = { x: p.x + 1, y: p.y }
-        } else {
-            newCoord = { x: p.x - 1, y: p.y + 1 }
-        }
-
-        const v = boardGet(board, newCoord)
-        return v ? newCoord : false
-    }
-
     return {
         getNextAction: (gs: GameState): Action => {
             if (gs.phase !== "penguinPlacement") {
@@ -97,14 +101,66 @@ const tiebreakMoves = (moves: Array<Action>): Action => {
         return moves[0]
     }
 
-    throw new Error("not implemented")
+    let minOriginCoord = {
+        x: Number.POSITIVE_INFINITY,
+        y: Number.POSITIVE_INFINITY,
+    }
+    let minDstCoord = {
+        x: Number.POSITIVE_INFINITY,
+        y: Number.POSITIVE_INFINITY,
+    }
 
-    let best = {}
+    let minAction = moves[0]
 
     for (let m of moves) {
-        if (m.data.actionType !== undefined && m.data.actionType === "move") {
+        if (m.data.actionType === undefined || m.data.actionType === "move") {
+            throw new IllegalArgumentError(
+                "tiebreakMoves given a non-move action"
+            )
+        }
+
+        /* offset are needed because of the board coordinate system
+         (0,0) (2,0) (4,0)
+            (1,0) (3,0)
+
+         * The offset makes it so that the even columns are lower down.
+         * The allows the points to be intepreted as
+         (0,0) (2,0) (4,0)
+          (1,0.5) (3,0.5)
+          *  and we can then compare rows
+         */
+        const mOrigin = m.data.origin as Point
+        const originYOffset = mOrigin.x % 2 == 0 ? 0 : 0.5
+        const mDst = m.data.dst as Point
+        const dstYOffset = mDst.x % 2 == 0 ? 0 : 0.5
+
+        /* Do checks in this order:
+         * origin.y
+         * origin.x
+         * dst.y
+         * dst.x
+         */
+        const update =
+            mOrigin.y + originYOffset < minOriginCoord.y ||
+            (mOrigin.y + originYOffset === minOriginCoord.y &&
+                (mOrigin.x < minOriginCoord.x ||
+                    (mOrigin.x === minOriginCoord.x &&
+                        (mDst.y + dstYOffset < minDstCoord.y ||
+                            mDst.y + dstYOffset === minDstCoord.y ||
+                            mDst.x < minDstCoord.x))))
+
+        if (update) {
+            minAction = m
+            minOriginCoord = { x: mOrigin.x, y: mOrigin.y + originYOffset }
+            minDstCoord = { x: mDst.x, y: mDst.y + dstYOffset }
         }
     }
+
+    if (minAction === undefined) {
+        throw new Error("actions given to tiebreakMoves are invalid")
+    }
+
+    return minAction
 }
 
 /**
