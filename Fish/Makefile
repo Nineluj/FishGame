@@ -1,12 +1,15 @@
 PRE :=$(shell stat /opt/rh/rh-nodejs10/enable >/dev/null 2>/dev/null && echo "source /opt/rh/rh-nodejs10/enable &&" || echo "")
 
-all: install build
+all: install
 
 install:
 	${PRE} cd Common && npm install
 	${PRE} cd Player && npm install
 
-build:
+install-view:
+	${PRE} cd View && npm install
+
+build: install-view
 	${PRE} cd View && npm run prod
 
 test:
