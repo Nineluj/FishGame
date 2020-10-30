@@ -1,8 +1,16 @@
 import { expect } from "chai"
-import { createSkipTurnAction } from "../../../Common/src/models/action/action"
-import { createMoveAction } from "../../../Common/src/models/action/flycheck_action"
+import {
+    createSkipTurnAction,
+    createMoveAction,
+} from "../../../Common/src/models/action/action"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
-import { tiebreakMoves } from "./strategy"
+import { getPlayingState } from "../../../Common/src/models/testHelpers"
+import { getOverState } from "../../../Common/src/models/testHelpers/testHelpers"
+import {
+    getPenguinMaxMinMoveStrategy,
+    getSkipTurnStrategy,
+    tiebreakMoves,
+} from "./strategy"
 
 describe("Player Strategy", () => {
     describe("#tiebreakMoves", () => {
@@ -54,5 +62,34 @@ describe("Player Strategy", () => {
         it("handles row offset edge case for destination coordinate", () => {
             expect(tiebreakMoves([a22_60, a22_50])).to.equal(a22_60)
         })
+    })
+
+    describe("#getSkipTurnStrategy", () => {
+        it("creates a skipTurnAction", () => {
+            const gs = getPlayingState()
+            const sts = getSkipTurnStrategy()
+            const action = sts.getNextAction(gs)
+
+            expect(action.data.actionType).to.equal("skipTurn")
+            expect(action.data.playerId).to.equal("p1")
+        })
+    })
+
+    describe("#getPlacePenguinStrategy", () => {})
+
+    describe("#getPenguinMaxMinMoveStrategy", () => {
+        const gs = getPlayingState()
+
+        it("returns a the backup strategy (skipTurn) when the game is over", () => {
+            const overGs = getOverState()
+            expect(
+                getPenguinMaxMinMoveStrategy(
+                    3,
+                    getSkipTurnStrategy()
+                ).getNextAction(overGs).data.actionType
+            ).to.equal("skipTurn")
+        })
+
+        it("handles depth greater than the number of turns left in the game", () => {})
     })
 })
