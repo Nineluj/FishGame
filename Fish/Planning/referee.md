@@ -19,7 +19,7 @@ The interaction between the `TournamentManager` and the `referee` falls in 3 dif
     referee can authenticate the player making the move.
 -   Reporting status of game: `TournamentManager` may use `getScores()`, `getGamePhase` and `getMaximumTurnsLeftInGame` to get information
     about the ongoing game. `getGamePhase` is only used by the tournament manager since information about the game state can be obtained by
-    the players with `refreshGameState`. The tournament manager mayuse this method and `getMaximumTurnsLeftInGame` to estimate when
+    the players with `refreshGameState`. The tournament manager may use this method and `getMaximumTurnsLeftInGame` to estimate when
     the game will finish for scheduling purposes.
 -   Reporting results of game: `TournamentManager` could use `getGamePhase` in conjuction with `getScores` to get information about the results
     of a game. However, `TournamentManager` should instead expose a `reportGameOutcome` method which `referee` would use to share game results.
