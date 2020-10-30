@@ -7,7 +7,7 @@ install:
 	${PRE} cd Player && npm install
 
 build:
-	${PRE} cd Common && npm run prod
+	${PRE} cd View && npm run prod
 
 test:
 	@echo "Running tests in Common/"

@@ -1,6 +1,12 @@
-import { convertToBoardLocation, convertToOutputLocation } from "./boardAdapter"
+import {
+    convertToBoardLocation,
+    convertToOutputLocation,
+    makeBoardFromTestInput,
+    toOutputBoard,
+} from "./boardAdapter"
 import { expect } from "chai"
 import { isDeepStrictEqual } from "util"
+import { Board } from "src/models/board"
 
 describe("Board Adapter", () => {
     describe("#convertToBoardLocation", () => {
@@ -46,6 +52,109 @@ describe("Board Adapter", () => {
             expect(convertToOutputLocation(0, 1)).to.have.length(2)
             expect(convertToOutputLocation(0, 1)[0]).to.equal(2)
             expect(convertToOutputLocation(0, 1)[1]).to.equal(0)
+        })
+    })
+
+    describe("#makeBoardFromTestInput", () => {
+        it("Makes a correct board", () => {
+            const inputBoard = [
+                [1, 1, 1, 0],
+                [1, 0, 0, 0],
+                [1, 1, 1, 1],
+            ]
+            const occupiedPositions = [
+                { x: 0, y: 0 },
+                { x: 2, y: 1 },
+            ]
+
+            const expected = [
+                [
+                    { fish: 1, occupied: true },
+                    { fish: 1, occupied: false },
+                ],
+                [{ fish: 1, occupied: false }],
+                [
+                    { fish: 1, occupied: false },
+                    { fish: 1, occupied: true },
+                ],
+                ["hole"],
+                [
+                    { fish: 1, occupied: false },
+                    { fish: 1, occupied: false },
+                ],
+                ["hole"],
+                ["hole", { fish: 1, occupied: false }],
+                ["hole"],
+            ]
+
+            const board = makeBoardFromTestInput(inputBoard, occupiedPositions)
+
+            expect(isDeepStrictEqual(board, expected)).to.be.true
+        })
+    })
+
+    describe("#toOutputBoard", () => {
+        it("Makes a correct output board", () => {
+            const board: Board = [
+                [
+                    { fish: 1, occupied: true },
+                    { fish: 1, occupied: false },
+                ],
+                [{ fish: 1, occupied: false }],
+                [
+                    { fish: 1, occupied: false },
+                    { fish: 1, occupied: true },
+                ],
+                ["hole"],
+                [
+                    { fish: 1, occupied: false },
+                    { fish: 1, occupied: false },
+                ],
+                ["hole"],
+                ["hole", { fish: 1, occupied: false }],
+                ["hole"],
+            ]
+
+            const expected = [
+                [1, 1, 1, 0],
+                [1, 0, 0, 0],
+                [1, 1, 1, 1],
+            ]
+
+            const output = toOutputBoard(board)
+
+            expect(isDeepStrictEqual(output, expected)).to.be.true
+        })
+
+        it("Pads rows evenly", () => {
+            const board: Board = [
+                [
+                    { fish: 1, occupied: true },
+                    { fish: 1, occupied: false },
+                ],
+                [{ fish: 1, occupied: false }],
+                [
+                    { fish: 1, occupied: false },
+                    { fish: 1, occupied: true },
+                ],
+                ["hole"],
+                [
+                    { fish: 1, occupied: false },
+                    { fish: 1, occupied: false },
+                ],
+                ["hole"],
+                ["hole", { fish: 1, occupied: false }],
+            ]
+
+            const expected = [
+                [1, 1, 1, 0],
+                [1, 0, 0, 0],
+                [1, 1, 1, 1],
+            ]
+
+            const output = toOutputBoard(board)
+
+            expect(isDeepStrictEqual(output, expected)).to.be.true
         })
     })
 })

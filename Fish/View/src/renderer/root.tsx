@@ -56,10 +56,14 @@ const Root: React.FC = () => {
 
     const onTileClickPenguinPlacement = (x: number, y: number) => {
         setGameState(
-            placePenguin(gameState, getPlayerWhoseTurnItIs(gameState)[0].id, {
-                x,
-                y,
-            })
+            placePenguin(
+                gameState,
+                getPlayerWhoseTurnItIs(gameState).player.id,
+                {
+                    x,
+                    y,
+                }
+            )
         )
     }
 
@@ -71,7 +75,7 @@ const Root: React.FC = () => {
                 setGameState(
                     movePenguin(
                         gameState,
-                        getPlayerWhoseTurnItIs(gameState)[0].id,
+                        getPlayerWhoseTurnItIs(gameState).player.id,
                         selectedPenguin,
                         { x, y }
                     )
