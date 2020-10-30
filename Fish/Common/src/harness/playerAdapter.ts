@@ -21,6 +21,7 @@ const makePlayer = (p: ExternalPlayer, age: number): InternalPlayer => {
         score: p.score,
     }
 }
+
 // TODO sort the output players
 export const toOutputPlayer = (
     players: Array<InternalPlayer>

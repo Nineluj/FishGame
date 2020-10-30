@@ -13,17 +13,12 @@ import {
     getCoordinatesOfNextUnoccupiedTileToTheRight,
 } from "../../../Common/src/models/board/board"
 import { Point } from "../../../Common/src/models/point"
-import {
-    applyToAllFutureStates,
-    completeAction,
-    createGameNode,
-    GameNode,
-} from "../../../Common/src/models/tree/tree"
+import { createGameNode, GameNode } from "../../../Common/src/models/tree/tree"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 
 /**
  * A Strategy is a function object that returns a suggested action that
- * a player should take based on a game state
+ * a player should take based on a game state.
  */
 interface Strategy {
     /* Comes up with the next action to take */
@@ -97,7 +92,11 @@ const getPenguinPlacementStrategy = (fallbackStrategy: Strategy): Strategy => {
  * @param moves moveActions to evaluate
  */
 const tiebreakMoves = (moves: Array<Action>): Action => {
-    if (moves.length === 1) {
+    if (moves.length === 0) {
+        throw new IllegalArgumentError(
+            "tiebreakMoves needs to be given at least one action"
+        )
+    } else if (moves.length === 1) {
         return moves[0]
     }
 
@@ -113,7 +112,7 @@ const tiebreakMoves = (moves: Array<Action>): Action => {
     let minAction = moves[0]
 
     for (let m of moves) {
-        if (m.data.actionType === undefined || m.data.actionType === "move") {
+        if (m.data.actionType === undefined || m.data.actionType !== "move") {
             throw new IllegalArgumentError(
                 "tiebreakMoves given a non-move action"
             )
@@ -154,10 +153,6 @@ const tiebreakMoves = (moves: Array<Action>): Action => {
             minOriginCoord = { x: mOrigin.x, y: mOrigin.y + originYOffset }
             minDstCoord = { x: mDst.x, y: mDst.y + dstYOffset }
         }
-    }
-
-    if (minAction === undefined) {
-        throw new Error("actions given to tiebreakMoves are invalid")
     }
 
     return minAction
