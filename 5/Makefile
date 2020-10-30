@@ -3,7 +3,7 @@ PRE :=$(shell stat /opt/rh/rh-nodejs10/enable >/dev/null 2>/dev/null && echo "so
 all: install
 
 install:
-	${PRE} cd ../Fish/Common && npm install
+	${PRE} cd ../Fish && make
 	${PRE} cd Other && npm install
 
 

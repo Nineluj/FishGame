@@ -17,6 +17,8 @@ import {
     createMoveAction,
     Action,
 } from "../../Fish/Common/src/models/action/action"
+import { tiebreakMoves } from "../../Fish/Player/src/strategy/strategy"
+import { pointsEqual } from "../../Fish/Common/src/models/point/point"
 
 interface Player {
     color: "red" | "white" | "brown" | "black"
@@ -71,7 +73,6 @@ const findSuitableMove = (
     gs: GameState,
     targetLocation: Point
 ): false | Action => {
-    const players = gs.players
     const neighbors = getNeighboringPoints(targetLocation)
 
     const potentialMoves: Array<Action> = []
@@ -88,20 +89,20 @@ const findSuitableMove = (
             }
         })
     })
-
+    let output: boolean | Action = false
     neighbors.forEach(neighbor => {
         potentialMoves.forEach(potentialMove => {
             const out = []
-            if (isDeepStrictEqual(potentialMove.data.dst, neighbor)) {
+            if (pointsEqual(potentialMove.data.dst, neighbor)) {
                 out.push(potentialMove)
             }
-            if (out.length > 1) {
-                return tiebreakMoves(out)
+            if (!output && out.length > 0) {
+                output = tiebreakMoves(out)
             }
         })
     })
 
-    return false
+    return output
 }
 
 const runTestCase = (input: MoveResponseQuery): Output => {

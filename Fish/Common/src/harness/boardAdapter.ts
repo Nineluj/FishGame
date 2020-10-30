@@ -17,16 +17,16 @@ const isEven = (num: number): boolean => {
  *     (3,0)  (3,1)  (3,2)                 (1,1)  (3,1)  (5,1)
  * ```
  *
- * @param y0 the X coordinate of the position in the original coordinate system
- * @param x0 the Y coordinate of the position in the original coordinate system
+ * @param x the X coordinate of the position in the original coordinate system
+ * @param y the Y coordinate of the position in the original coordinate system
  */
-export const convertToBoardLocation = (y0: number, x0: number): Point => {
-    const y1 = Math.floor(y0 / 2)
+export const convertToBoardLocation = (x: number, y: number): Point => {
+    const y1 = Math.floor(x / 2)
     let x1
-    if (isEven(y0)) {
-        x1 = x0 * 2
+    if (isEven(x)) {
+        x1 = y * 2
     } else {
-        x1 = x0 * 2 + 1
+        x1 = y * 2 + 1
     }
 
     return { x: x1, y: y1 }
