@@ -40,9 +40,12 @@ describe("Player Strategy", () => {
         })
 
         const a10_00 = createMoveAction("p1", { x: 1, y: 0 }, { x: 0, y: 0 })
+        const a20_21 = createMoveAction("p1", { x: 2, y: 0 }, { x: 2, y: 1 })
+        const a11_21 = createMoveAction("p1", { x: 1, y: 1 }, { x: 2, y: 1 })
 
         it("handles row offset edge case for origin coordinate", () => {
             expect(tiebreakMoves([a10_00, a20_00])).to.equal(a20_00)
+            expect(tiebreakMoves([a20_21, a11_21])).to.equal(a20_21)
         })
 
         const a22_60 = createMoveAction("p1", { x: 2, y: 2 }, { x: 6, y: 0 })

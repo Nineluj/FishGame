@@ -145,8 +145,8 @@ const tiebreakMoves = (moves: Array<Action>): Action => {
                 (mOrigin.x < minOriginCoord.x ||
                     (mOrigin.x === minOriginCoord.x &&
                         (mDst.y + dstYOffset < minDstCoord.y ||
-                            mDst.y + dstYOffset === minDstCoord.y ||
-                            mDst.x < minDstCoord.x))))
+                            (mDst.y + dstYOffset === minDstCoord.y &&
+                                mDst.x < minDstCoord.x)))))
 
         if (update) {
             minAction = m
