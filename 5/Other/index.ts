@@ -4,7 +4,6 @@ import {
     GameState,
     getPlayerWhoseTurnItIs,
 } from "../../Fish/Common/src/models/gameState"
-import { isDeepStrictEqual } from "util"
 
 import { Point, containsPoint } from "../../Fish/Common/src/models/point"
 import {
@@ -91,15 +90,15 @@ const findSuitableMove = (
     })
     let output: boolean | Action = false
     neighbors.forEach(neighbor => {
+        const out: Array<Action> = []
         potentialMoves.forEach(potentialMove => {
-            const out = []
             if (pointsEqual(potentialMove.data.dst, neighbor)) {
                 out.push(potentialMove)
             }
-            if (!output && out.length > 0) {
-                output = tiebreakMoves(out)
-            }
         })
+        if (!output && out.length > 0) {
+            output = tiebreakMoves(out)
+        }
     })
 
     return output
