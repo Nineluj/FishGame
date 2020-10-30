@@ -54,14 +54,14 @@ describe("Test helpers", () => {
 
     describe("#makeBoardWithTiles", () => {
         it("can create board with tiles at given positions", () => {
-            const positions: Array<[number, number]> = [
-                [0, 0],
-                [0, 1],
-                [1, 0],
-                [1, 1],
-                [2, 0],
-                [2, 1],
-                [2, 2],
+            const positions: Array<[number, number, number]> = [
+                [0, 0, 2],
+                [0, 1, 2],
+                [1, 0, 2],
+                [1, 1, 2],
+                [2, 0, 2],
+                [2, 1, 2],
+                [2, 2, 2],
             ]
             const createdBoard = makeBoardWithTiles(positions)
 

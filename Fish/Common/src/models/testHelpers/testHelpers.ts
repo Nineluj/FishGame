@@ -30,40 +30,44 @@ const player3: Player = {
     score: 0,
 }
 
+export const players = [player1, player2, player3]
+
 /**
  * Creates a board with tiles that have two fish at all the given positions. Used for testing.
- * @param tileLocations
+ * @param tileInfo [x, y, nFish]
  */
 export const makeBoardWithTiles = (
-    tileLocations: Array<[number, number]>
+    tileInfo: Array<[number, number, number]>
 ): Board => {
-    if (tileLocations.length === 0) {
-        return [[]]
+    let b: Board = [[]]
+
+    for (let i = 0; i < tileInfo.length; i++) {
+        b = boardSet(
+            b,
+            { x: tileInfo[i][0], y: tileInfo[i][1] },
+            { fish: tileInfo[i][2], occupied: false }
+        )
     }
 
-    return boardSet(
-        makeBoardWithTiles(tileLocations.slice(1)),
-        { x: tileLocations[0][0], y: tileLocations[0][1] },
-        { fish: 2, occupied: false }
-    )
+    return b
 }
 
 const board = makeBoardWithTiles([
-    [0, 0],
-    [0, 1],
-    [0, 2],
-    [1, 0],
-    [1, 1],
-    [2, 0],
-    [2, 1],
-    [2, 2],
-    [3, 0],
-    [3, 1],
-    [4, 0],
-    [4, 1],
-    [4, 2],
-    [5, 0],
-    [5, 1],
+    [0, 0, 2],
+    [0, 1, 2],
+    [0, 2, 2],
+    [1, 0, 2],
+    [1, 1, 2],
+    [2, 0, 2],
+    [2, 1, 2],
+    [2, 2, 2],
+    [3, 0, 2],
+    [3, 1, 2],
+    [4, 0, 2],
+    [4, 1, 2],
+    [4, 2, 2],
+    [5, 0, 2],
+    [5, 1, 2],
 ])
 
 /**

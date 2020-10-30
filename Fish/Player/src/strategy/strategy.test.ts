@@ -5,12 +5,24 @@ import {
 } from "../../../Common/src/models/action/action"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 import { getPlayingState } from "../../../Common/src/models/testHelpers"
-import { getOverState } from "../../../Common/src/models/testHelpers/testHelpers"
+import {
+    getOverState,
+    makeBoardWithTiles,
+    players,
+    placeMultiple,
+} from "../../../Common/src/models/testHelpers/testHelpers"
 import {
     getPenguinMaxMinMoveStrategy,
     getSkipTurnStrategy,
     tiebreakMoves,
 } from "./strategy"
+import {
+    createGameStateCustomBoard,
+    GameState,
+} from "../../../Common/src/models/gameState/gameState"
+import { boardGet } from "../../../Common/src/models/board"
+import { Tile } from "../../../Common/src/models/tile"
+import { Point } from "../../../Common/src/models/point"
 
 describe("Player Strategy", () => {
     describe("#tiebreakMoves", () => {
@@ -38,9 +50,14 @@ describe("Player Strategy", () => {
         const a30_10 = createMoveAction("p1", { x: 3, y: 0 }, { x: 1, y: 0 })
         const a20_00 = createMoveAction("p1", { x: 2, y: 0 }, { x: 0, y: 0 })
 
+        const a42_41 = createMoveAction("p1", { x: 4, y: 2 }, { x: 4, y: 1 })
+        const a30_41 = createMoveAction("p1", { x: 3, y: 0 }, { x: 4, y: 1 })
+
         it("picks the right action based on origin coordinate", () => {
             expect(tiebreakMoves([a02_00, a31_10])).to.equal(a31_10)
             expect(tiebreakMoves([a20_00, a60_00, a30_10])).to.equal(a20_00)
+
+            expect(tiebreakMoves([a42_41, a30_41])).to.equal(a30_41)
         })
 
         it("picks the right action based on destination coordinate", () => {
@@ -78,8 +95,6 @@ describe("Player Strategy", () => {
     describe("#getPlacePenguinStrategy", () => {})
 
     describe("#getPenguinMaxMinMoveStrategy", () => {
-        const gs = getPlayingState()
-
         it("returns a the backup strategy (skipTurn) when the game is over", () => {
             const overGs = getOverState()
             expect(
@@ -90,6 +105,101 @@ describe("Player Strategy", () => {
             ).to.equal("skipTurn")
         })
 
-        it("handles depth greater than the number of turns left in the game", () => {})
+        // create objects for next tests
+        const board = makeBoardWithTiles([
+            [0, 0, 5],
+            [0, 1, 2],
+            [0, 2, 3],
+            [1, 0, 3],
+            [1, 1, 1],
+            [2, 0, 1],
+            [2, 1, 4],
+            [2, 2, 2],
+        ])
+
+        let customGs: GameState
+
+        beforeEach(() => {
+            customGs = placeMultiple(
+                {
+                    board: board,
+                    phase: "penguinPlacement",
+                    players: [players[0], players[1]],
+                    turn: 0,
+                },
+                [
+                    [1, 0],
+                    [0, 0],
+                    [2, 2],
+                    [2, 0],
+                ],
+                ["p1", "p2"]
+            )
+
+            customGs.phase = "playing"
+        })
+
+        it("handles 0 step ahead planning", () => {
+            const nextAction = getPenguinMaxMinMoveStrategy(
+                0,
+                getSkipTurnStrategy()
+            ).getNextAction(customGs)
+
+            expect(nextAction.data.actionType).to.equal("move")
+
+            const reachedState = nextAction.apply(customGs)
+
+            expect(
+                (boardGet(reachedState.board, { x: 2, y: 1 }) as Tile).occupied
+            ).to.be.true
+
+            const movedPenguinPos = reachedState.players[0].penguins[0]
+            expect(movedPenguinPos.x).to.equal(2)
+            expect(movedPenguinPos.y).to.equal(1)
+            const otherPenguin = reachedState.players[0].penguins[1]
+            expect(otherPenguin.x).to.equal(2)
+            expect(otherPenguin.y).to.equal(2)
+        })
+
+        it("handles more than 1 step ahead planning", () => {
+            // case is constructed so that optimizing for >3 steps
+            // ahead gets a different result vs optimizing for <= 2 steps
+            const nextAction = getPenguinMaxMinMoveStrategy(
+                3,
+                getSkipTurnStrategy()
+            ).getNextAction(customGs)
+
+            const origin = nextAction.data.origin as Point
+            const dst = nextAction.data.dst as Point
+
+            expect(origin.x).to.equal(1)
+            expect(origin.y).to.equal(0)
+            expect(dst.x).to.equal(0)
+            expect(dst.y).to.equal(1)
+        })
+
+        it("handles depth greater than the number of turns left in the game", () => {
+            const a1 = createMoveAction("p1", { x: 1, y: 0 }, { x: 0, y: 1 })
+            const a2 = createMoveAction("p2", { x: 2, y: 0 }, { x: 2, y: 1 })
+
+            let gs = a1.apply(customGs)
+            gs = a2.apply(gs)
+
+            // p1 can completely cut off p2 from playing with the expected minMax move,
+            // making it inexpensive to look far into the future. Also there aren't many turns
+            // left which also makes this faster
+            const nextAction = getPenguinMaxMinMoveStrategy(
+                10,
+                getSkipTurnStrategy()
+            ).getNextAction(gs)
+
+            const origin = nextAction.data.origin as Point
+            const dst = nextAction.data.dst as Point
+
+            expect(origin.x).to.equal(0)
+            expect(origin.y).to.equal(1)
+            expect(dst.x).to.equal(1)
+            expect(dst.y).to.equal(1)
+        })
     })
 })
