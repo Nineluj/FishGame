@@ -4,7 +4,6 @@ import {
     GameState,
     getPlayerWhoseTurnItIs,
 } from "../../Fish/Common/src/models/gameState"
-import { isDeepStrictEqual } from "util"
 
 import { Point, containsPoint } from "../../Fish/Common/src/models/point"
 import {
@@ -98,8 +97,6 @@ const findSuitableMove = (
             }
         })
         if (!output && out.length > 0) {
-            console.log("calling output")
-            console.log(out)
             output = tiebreakMoves(out)
         }
     })
