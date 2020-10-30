@@ -2,15 +2,21 @@ import { expect } from "chai"
 import {
     createSkipTurnAction,
     createMoveAction,
+    actionsEqual,
 } from "../../../Common/src/models/action/action"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 import { getPlayingState } from "../../../Common/src/models/testHelpers"
-import { getOverState } from "../../../Common/src/models/testHelpers/testHelpers"
+import {
+    getOverState,
+    getPlacementState,
+} from "../../../Common/src/models/testHelpers/testHelpers"
 import {
     getPenguinMaxMinMoveStrategy,
     getSkipTurnStrategy,
     tiebreakMoves,
+    getPenguinPlacementStrategy,
 } from "./strategy"
+import { isDeepStrictEqual } from "util"
 
 describe("Player Strategy", () => {
     describe("#tiebreakMoves", () => {
@@ -75,7 +81,70 @@ describe("Player Strategy", () => {
         })
     })
 
-    describe("#getPlacePenguinStrategy", () => {})
+    describe("#getPlacePenguinStrategy", () => {
+        it("Places a penguin correctly when there are spots left", () => {
+            const strategy = getPenguinPlacementStrategy(getSkipTurnStrategy())
+            const gs = getPlacementState()
+
+            const expectedActionData = {
+                actionType: "put",
+                playerId: "p1",
+                dst: { x: 0, y: 0 },
+            }
+
+            const firstAction = strategy.getNextAction(gs)
+
+            expect(isDeepStrictEqual(firstAction.data, expectedActionData)).to
+                .be.true
+
+            const gs2 = firstAction.apply(gs)
+
+            const expectedActionData2 = {
+                actionType: "put",
+                playerId: "p2",
+                dst: { x: 2, y: 0 },
+            }
+
+            const secondAction = strategy.getNextAction(gs2)
+            expect(isDeepStrictEqual(secondAction.data, expectedActionData2)).to
+                .be.true
+
+            const gs3 = secondAction.apply(gs2)
+            const expectedActionData3 = {
+                actionType: "put",
+                playerId: "p3",
+                dst: { x: 4, y: 0 },
+            }
+            const thirdAction = strategy.getNextAction(gs3)
+            expect(isDeepStrictEqual(thirdAction.data, expectedActionData3)).to
+                .be.true
+
+            const gs4 = thirdAction.apply(gs3)
+            const expectedActionData4 = {
+                actionType: "put",
+                playerId: "p1",
+                dst: { x: 1, y: 0 },
+            }
+            const fourthAction = strategy.getNextAction(gs4)
+            expect(isDeepStrictEqual(fourthAction.data, expectedActionData4)).to
+                .be.true
+        })
+
+        it("Returns a skip turn action when game is not in penguin placement phase", () => {
+            const strategy = getPenguinPlacementStrategy(getSkipTurnStrategy())
+            const gs = getPlayingState()
+
+            const expectedActionData = {
+                actionType: "skipTurn",
+                playerId: "p1",
+            }
+
+            const action = strategy.getNextAction(gs)
+
+            expect(isDeepStrictEqual(action.data, expectedActionData)).to.be
+                .true
+        })
+    })
 
     describe("#getPenguinMaxMinMoveStrategy", () => {
         const gs = getPlayingState()
