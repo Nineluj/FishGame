@@ -1,6 +1,6 @@
 import React from "react"
-import fishSvg from "@assets/fish.svg"
-import penguinSvg from "@assets/penguin.svg"
+import fishSvg from "../../../assets/fish.svg"
+import penguinSvg from "../../../assets/penguin.svg"
 import "./tile.css"
 
 interface Props {
