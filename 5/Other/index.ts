@@ -18,6 +18,7 @@ import {
 } from "../../Fish/Common/src/models/action/action"
 import { tiebreakMoves } from "../../Fish/Player/src/strategy/strategy"
 import { pointsEqual } from "../../Fish/Common/src/models/point/point"
+import { movePenguin } from "../../Fish/Common/src/models/gameState/gameState"
 
 interface Player {
     color: "red" | "white" | "brown" | "black"
@@ -41,19 +42,18 @@ type Output = false | [[number, number], [number, number]]
 const getNeighboringPoints = (point: Point): Array<Point> => {
     const directions = [
         // north
-        { odd: { x: 0, y: 1 }, even: { x: 0, y: 1 } },
-        // northeast
-        { odd: { x: 1, y: 0 }, even: { x: 1, y: -1 } },
-        // southeast
-        { odd: { x: 1, y: 1 }, even: { x: 1, y: 0 } },
-        // south
         { odd: { x: 0, y: -1 }, even: { x: 0, y: -1 } },
+        // northeast
+        { odd: { x: -1, y: 0 }, even: { x: -1, y: 1 } },
+        // southeast
+        { odd: { x: -1, y: -1 }, even: { x: -1, y: 0 } },
+        // south
+        { odd: { x: 0, y: 1 }, even: { x: 0, y: 1 } },
         // southwest
-        { odd: { x: -1, y: 1 }, even: { x: -1, y: 0 } },
+        { odd: { x: 1, y: -1 }, even: { x: 1, y: 0 } },
         // northwest
-        { odd: { x: -1, y: 0 }, even: { x: -1, y: -1 } },
+        { odd: { x: 1, y: 0 }, even: { x: 1, y: 1 } },
     ]
-
     const output: Array<Point> = []
 
     const whichDir = point.x % 2 == 0 ? "even" : "odd"
@@ -72,7 +72,9 @@ const findSuitableMove = (
     gs: GameState,
     targetLocation: Point
 ): false | Action => {
+    console.log(targetLocation)
     const neighbors = getNeighboringPoints(targetLocation)
+    console.log(neighbors)
 
     const potentialMoves: Array<Action> = []
     getPlayerWhoseTurnItIs(gs).player.penguins.forEach(penguin => {
@@ -88,16 +90,21 @@ const findSuitableMove = (
             }
         })
     })
+
+    console.log(JSON.stringify(potentialMoves))
     let output: boolean | Action = false
     neighbors.forEach(neighbor => {
         const out: Array<Action> = []
         potentialMoves.forEach(potentialMove => {
             if (pointsEqual(potentialMove.data.dst, neighbor)) {
+                console.log("MATCH")
+                console.log(neighbor)
                 out.push(potentialMove)
             }
         })
         if (!output && out.length > 0) {
             output = tiebreakMoves(out)
+            console.log(JSON.stringify(out))
         }
     })
 
@@ -122,10 +129,17 @@ const runTestCase = (input: MoveResponseQuery): Output => {
         board,
         players,
         phase: "playing",
-        turn: 1,
+        turn: 0,
     }
 
-    const result = findSuitableMove(gs, convertToBoardLocation(...input.to))
+    const newGs = movePenguin(
+        gs,
+        players[0].id,
+        convertToBoardLocation(...input.from),
+        convertToBoardLocation(...input.to)
+    )
+
+    const result = findSuitableMove(newGs, convertToBoardLocation(...input.to))
 
     if (result) {
         return [

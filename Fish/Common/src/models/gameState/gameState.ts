@@ -317,7 +317,9 @@ const canMovePenguin = (
     if (!containsPoint(possibleMoves, dst)) {
         return {
             validMove: false,
-            errorMessage: `move from ${origin} to ${dst} is not valid`,
+            errorMessage: `move from ${JSON.stringify(
+                origin
+            )} to ${JSON.stringify(dst)} is not valid`,
         }
     }
 

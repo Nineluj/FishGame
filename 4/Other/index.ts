@@ -23,17 +23,17 @@ const findSuitableMove = (gs: GameState): GameState | false => {
     const origin = players[0].penguins[0]
     const directions = [
         // north
-        { odd: { x: 0, y: 1 }, even: { x: 0, y: 1 } },
-        // northeast
-        { odd: { x: 1, y: 0 }, even: { x: 1, y: -1 } },
-        // southeast
-        { odd: { x: 1, y: 1 }, even: { x: 1, y: 0 } },
-        // south
         { odd: { x: 0, y: -1 }, even: { x: 0, y: -1 } },
+        // northeast
+        { odd: { x: -1, y: 0 }, even: { x: -1, y: 1 } },
+        // southeast
+        { odd: { x: -1, y: -1 }, even: { x: -1, y: 0 } },
+        // south
+        { odd: { x: 0, y: 1 }, even: { x: 0, y: 1 } },
         // southwest
-        { odd: { x: -1, y: 1 }, even: { x: -1, y: 0 } },
+        { odd: { x: 1, y: -1 }, even: { x: 1, y: 0 } },
         // northwest
-        { odd: { x: -1, y: 0 }, even: { x: -1, y: -1 } },
+        { odd: { x: 1, y: 0 }, even: { x: 1, y: 1 } },
     ]
 
     const whichDir = origin.x % 2 == 0 ? "even" : "odd"
@@ -89,7 +89,7 @@ const runTest = (input: TestData) => {
  */
 const main = () => {
     // parse objects from stdin, invoke runTest on first json object when stdin stream ends
-    parseJsonObjectsFromStdIn((data) => {
+    parseJsonObjectsFromStdIn(data => {
         runTest(data[0])
     })
 }

@@ -9,6 +9,8 @@ const isEven = (num: number): boolean => {
  * Given a datapoint using a coordinate system as below, convert it to the
  * odd-q coordinate system described here: https://www.redblobgames.com/grids/hexagons/#coordinates-offset
  *
+ * **NOTE** Tiles may look like they are adjacent horizontally, but horizontally adjacent tiles are not neighbors
+ *
  *      INPUT COORDINATES                   OUTPUT COORDINATES
  * ```
  *  (0,0)  (0,1)  (0,2)  (0,3)          (0,0)  (2,0)  (4,0)  (6,0)
