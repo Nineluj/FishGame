@@ -5,8 +5,13 @@ import {
     createGameState,
     getPlayerWhoseTurnItIs,
 } from "../../../Common/src/models/gameState/gameState"
-import { GameNode, createGameNode, completeAction } from "../../../Common/src/models/tree/tree"
+import {
+    GameNode,
+    createGameNode,
+    completeAction,
+} from "../../../Common/src/models/tree/tree"
 import { actionsEqual } from "../../../Common/src/models/action/action"
+import { Player as PlayerInstance } from "../../../Player/src/player/player"
 
 interface EliminatablePlayer extends Player {
     eliminated?: boolean
@@ -19,6 +24,7 @@ class Referee {
     private game: GameNode
     private history: Array<GameNode>
     private eliminatedPlayerIds: Set<string>
+    private players: Map<string, PlayerInstance>
 
     /**
      * Constructs a new referee and begins the game.
@@ -27,10 +33,15 @@ class Referee {
     constructor(players: Array<Player>) {
         this.game = createGameNode(createGameState(players))
         this.eliminatedPlayerIds = new Set()
+        this.history = []
+        this.players = new Map()
+        players.forEach((p) => {
+            this.players.set(p.id, new PlayerInstance(this, 3))
+        })
     }
 
     /**
-     * Returns a list of players with scores and colors
+     * Returns a list of players with scores and colors, sorted by score
      */
     getPlayerStatuses(): Array<EliminatablePlayer> {
         const outputPlayers: Array<EliminatablePlayer> = []
@@ -43,7 +54,12 @@ class Referee {
             }
         })
 
-        return outputPlayers
+        // use -1 if the player was eliminated so they are sorted to the bottom of the list
+        return outputPlayers.sort(
+            (p1, p2) =>
+                (p1.eliminated ? -1 : p1.score) -
+                (p2.eliminated ? -1 : p2.score)
+        )
     }
 
     /**
@@ -60,25 +76,29 @@ class Referee {
      * This function will be called via a network call in the future.
      *
      * **FUTURE INVARIANT** There will be some middleware that validates that the
-     * session token of the player making the request matches the playerId.
+     * session token of the player making the request matches playerId inside of the action
      *
-     * @param playerId The id of the player requesting the action
      * @param action The action to attempt to execute
      */
-    makeAction(
-        playerId: string,
-        action: Action
-    ): { gameState: GameState; success: boolean; reason?: string } {
-        if (this.game.gs.phase === "over") {
-            return {
-                gameState: this.game.gs,
-                success: false,
-                reason: "Game has already ended, no more actions can be taken",
-            }
+    makeAction(action: Action): void {
+        const playerId = action.data.playerId
+
+        // If the player has been banned, ignore this action
+        if (this.eliminatedPlayerIds.has(playerId)) {
+            return
         }
 
-        try{
-          this.completeAction(this.game, action);
+        try {
+            const newGn = completeAction(this.game, action)
+            this.history.push(this.game)
+            this.game = newGn
+        } catch (e) {
+            this.players.get(playerId)!.notifyBanned(e.message)
+        }
+
+        return {
+            gameState: this.game.gs,
+            success: true,
         }
     }
 

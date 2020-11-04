@@ -233,6 +233,7 @@ const getPenguinMaxMinMoveStrategy = (
 })
 
 export {
+    Strategy,
     tiebreakMoves,
     getSkipTurnStrategy,
     getPenguinPlacementStrategy,
