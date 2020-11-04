@@ -40,6 +40,7 @@ class Referee {
         })
     }
 
+    //todo return {players: Array<Player>, eliminatedPlayerIds: Array<string>}
     /**
      * Returns a list of players with scores and colors, sorted by score
      */
@@ -93,13 +94,13 @@ class Referee {
             this.history.push(this.game)
             this.game = newGn
         } catch (e) {
+            //todo eliminatePlayerAction
             this.players.get(playerId)!.notifyBanned(e.message)
         }
 
-        return {
-            gameState: this.game.gs,
-            success: true,
-        }
+        //todo notify all players of the new gamestate except player whose turn it is next
+
+        //todo notify player whose turn it is next
     }
 
     /**

@@ -72,6 +72,21 @@ const createSkipTurnAction = (playerId: string): Action => ({
     apply: (gs: GameState) => skipTurn(gs, playerId),
 })
 
+/**
+ * Creates an action that eliminates the player from the game. This is used
+ * by the referee when a player cheats or behaves wrong
+ * @param playerId The player to be terminated
+ */
+const createEliminatePlayerAction = (playerId: string): Action => ({
+    data: {
+        actionType: "eliminatePlayer",
+        playerId,
+    },
+    apply: (gs: GameState) => {
+        throw new Error("not implemented yet")
+    },
+})
+
 export {
     Action,
     actionsEqual,
@@ -79,4 +94,5 @@ export {
     createPlacePenguinAction,
     createMoveAction,
     createSkipTurnAction,
+    createEliminatePlayerAction,
 }
