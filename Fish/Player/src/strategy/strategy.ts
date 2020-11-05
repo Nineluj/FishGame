@@ -158,6 +158,10 @@ const tiebreakMoves = (moves: Array<Action>): Action => {
     return minAction
 }
 
+type maximiniResult = { scoreAchieved: number; moves: Array<Action> }
+const lessThan = (a: number, b: number): boolean => a < b
+const greaterThan = (a: number, b: number): boolean => a > b
+
 /**
  * Uses the minimax algorithm as described here: https://en.wikipedia.org/wiki/Minimax#Pseudocode
  * Returns the maximized score that the player with the given ID can get in `depth` turns
@@ -169,32 +173,42 @@ const miniMax = (
     node: GameNode,
     depth: number,
     maximizingPlayerId: string
-): number => {
-    if (depth == 0 || node.gs.phase !== "playing") {
-        return node.gs.players.filter((p) => p.id === maximizingPlayerId)[0]
-            .score
-    }
-
+): maximiniResult => {
     let player = getPlayerWhoseTurnItIs(node.gs)
-    if (player.id === maximizingPlayerId) {
-        // maximizingPlayer
-        let val = Number.NEGATIVE_INFINITY
+    const isMaximizing = player.id === maximizingPlayerId
 
-        for (let future of node.children()) {
-            val = Math.max(val, miniMax(future, depth - 1, maximizingPlayerId))
+    if (depth === -1 || node.gs.phase !== "playing") {
+        return {
+            scoreAchieved: node.gs.players.filter(
+                (p) => p.id === maximizingPlayerId
+            )[0].score,
+            moves: [],
         }
-
-        return val
-    } else {
-        // minimizing player
-        let val = Number.POSITIVE_INFINITY
-
-        for (let future of node.children()) {
-            val = Math.min(val, miniMax(future, depth, maximizingPlayerId))
-        }
-
-        return val
     }
+
+    const compareFunc = isMaximizing ? greaterThan : lessThan
+
+    let best: maximiniResult = {
+        scoreAchieved: isMaximizing
+            ? Number.NEGATIVE_INFINITY
+            : Number.POSITIVE_INFINITY,
+        moves: [],
+    }
+
+    for (let future of node.children()) {
+        const subCall = miniMax(
+            future,
+            isMaximizing ? depth - 1 : depth,
+            maximizingPlayerId
+        )
+
+        if (compareFunc(subCall.scoreAchieved, best.scoreAchieved)) {
+            best.scoreAchieved = subCall.scoreAchieved
+            best.moves = [future.action, ...subCall.moves]
+        }
+    }
+
+    return best
 }
 
 /**
@@ -218,17 +232,27 @@ const getPenguinMaxMinMoveStrategy = (
         }
 
         for (let future of root.children()) {
-            const moveMinScore = miniMax(future, stepsAhead, player.id)
+            const result = miniMax(future, stepsAhead - 1, player.id)
+            const scoreAchieved = result.scoreAchieved
 
-            if (moveMinScore === best.score) {
+            if (scoreAchieved === best.score) {
                 best.actions.push(future.action)
-            } else if (moveMinScore > best.score) {
-                best.score = moveMinScore
+            } else if (scoreAchieved > best.score) {
+                best.score = scoreAchieved
                 best.actions = [future.action]
             }
         }
 
-        return tiebreakMoves(best.actions)
+        // doing a skip and then a move down the line could get the same score, need
+        // to eliminate that possibility
+        if (best.actions.length === 1) {
+            return best.actions[0]
+        } else {
+            // favor non-skip actions
+            return tiebreakMoves(
+                best.actions.filter((act) => act.data.actionType !== "skipTurn")
+            )
+        }
     },
 })
 

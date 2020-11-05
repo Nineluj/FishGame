@@ -340,8 +340,9 @@ const canMovePenguin = (
 }
 
 const arrayRotate = (arr: Array<any>) => {
-    arr.push(arr.shift())
-    return arr
+    let out = [...arr]
+    out.push(out.shift())
+    return out
 }
 
 /**
@@ -365,11 +366,14 @@ const skipTurn = (gameState: GameState, playerId: string): GameState => {
 
     const newState: GamePhase = canAdvanceToOver(gameState) ? "over" : "playing"
 
-    return {
-        ...gameState,
-        players: arrayRotate(gameState.players),
-        phase: newState,
-    }
+    return update(gameState, {
+        players: {
+            $apply: arrayRotate,
+        },
+        phase: {
+            $set: newState,
+        },
+    })
 }
 
 /**
