@@ -9,21 +9,18 @@ import {
 } from "../gameState/gameState"
 
 const player1: Player = {
-    age: 1,
     id: "p1",
     penguinColor: "black",
     penguins: [],
     score: 0,
 }
 const player2: Player = {
-    age: 2,
     id: "p2",
     penguinColor: "brown",
     penguins: [],
     score: 0,
 }
 const player3: Player = {
-    age: 3,
     id: "p3",
     penguinColor: "red",
     penguins: [],
@@ -150,7 +147,6 @@ export const createPlayer = (
     id: string
 ): Player => {
     return {
-        age,
         penguinColor: color,
         id,
         penguins: [],

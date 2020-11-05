@@ -31,7 +31,7 @@ interface Strategy {
 const getSkipTurnStrategy = (): Strategy => {
     return {
         getNextAction: (gs: GameState): Action => {
-            let { player } = getPlayerWhoseTurnItIs(gs)
+            let player = getPlayerWhoseTurnItIs(gs)
             return createSkipTurnAction(player.id)
         },
     }
@@ -66,7 +66,7 @@ const getPenguinPlacementStrategy = (fallbackStrategy: Strategy): Strategy => {
                 return fallbackStrategy.getNextAction(gs)
             }
 
-            let { player } = getPlayerWhoseTurnItIs(gs)
+            let player = getPlayerWhoseTurnItIs(gs)
 
             // prettier-ignore
             for (let c: Point | false = { x: 0, y: 0 }; c; c = getCoordinateBelow(gs.board, c)) {
@@ -175,7 +175,7 @@ const miniMax = (
             .score
     }
 
-    let { player } = getPlayerWhoseTurnItIs(node.gs)
+    let player = getPlayerWhoseTurnItIs(node.gs)
     if (player.id === maximizingPlayerId) {
         // maximizingPlayer
         let val = Number.NEGATIVE_INFINITY
@@ -210,7 +210,7 @@ const getPenguinMaxMinMoveStrategy = (
         }
 
         const root = createGameNode(gs)
-        let { player } = getPlayerWhoseTurnItIs(gs)
+        let player = getPlayerWhoseTurnItIs(gs)
 
         let best = {
             actions: [createSkipTurnAction(player.id)],

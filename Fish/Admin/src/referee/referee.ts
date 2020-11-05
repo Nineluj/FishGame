@@ -10,7 +10,6 @@ import {
     createGameNode,
     completeAction,
 } from "../../../Common/src/models/tree/tree"
-import { actionsEqual } from "../../../Common/src/models/action/action"
 import { Player as PlayerInstance } from "../../../Player/src/player/player"
 
 interface EliminatablePlayer extends Player {
@@ -40,7 +39,7 @@ class Referee {
         })
     }
 
-    //todo return {players: Array<Player>, eliminatedPlayerIds: Array<string>}
+    // TODO return {players: Array<Player>, eliminatedPlayerIds: Array<string>}
     /**
      * Returns a list of players with scores and colors, sorted by score
      */
@@ -94,13 +93,13 @@ class Referee {
             this.history.push(this.game)
             this.game = newGn
         } catch (e) {
-            //todo eliminatePlayerAction
+            //TODO eliminatePlayerAction
             this.players.get(playerId)!.notifyBanned(e.message)
         }
 
-        //todo notify all players of the new gamestate except player whose turn it is next
+        //TODO notify all players of the new gamestate except player whose turn it is next
 
-        //todo notify player whose turn it is next
+        //TODO notify player whose turn it is next
     }
 
     /**

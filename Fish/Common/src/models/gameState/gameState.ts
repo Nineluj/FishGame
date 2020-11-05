@@ -1,4 +1,4 @@
-import { Player, putPenguin, sortPlayersByAgeAsc } from "../player"
+import { Player, putPenguin } from "../player"
 import {
     Board,
     boardGet,
@@ -52,10 +52,8 @@ interface GameState {
     board: Board
     /** Current phase of the game, operations on game state may be prohibited based on phase */
     phase: GamePhase
-    /** Players ordered in age order ascending */
+    /** Order of players. Is updated after a move or a skip turn */
     players: Array<Player>
-    /** The current turn, increases by increments of one */
-    turn: number
 }
 
 // Represents the number of penguins, minus the # of players, that each player
@@ -97,9 +95,25 @@ const createGameStateCustomBoard = (
     return {
         board: board,
         phase: "penguinPlacement",
-        players: sortPlayersByAgeAsc(players),
-        turn: 0,
+        players: players, //sortPlayersByAgeAsc(players),
     }
+}
+
+/**
+ * Get the player with the given ID from the game state
+ */
+const getPlayerById = (gs: GameState, pid: string): Player => {
+    const potential = gs.players.filter((p) => p.id === pid)
+
+    if (potential.length > 1) {
+        throw new IllegalArgumentError("more than one player with the same id")
+    } else if (potential.length === 0) {
+        throw new IllegalArgumentError(
+            "could not find player with the given id"
+        )
+    }
+
+    return potential[0]
 }
 
 /**
@@ -129,7 +143,7 @@ const placePenguin = (
         )
     }
 
-    const { player, index } = getPlayerWhoseTurnItIs(gameState)
+    const player = getPlayerWhoseTurnItIs(gameState)
 
     if (player.id !== playerId) {
         throw new GameStateActionError(`cannot play out of order, expecting
@@ -159,15 +173,15 @@ const placePenguin = (
 
     const newGameState = update(gameState, {
         players: {
-            [index]: {
+            // applies the set operation first to update the player, then
+            // rotates the array using arrayRotate
+            $apply: arrayRotate,
+            [0]: {
                 $set: newPlayer,
             },
         },
         board: {
             $set: newBoard,
-        },
-        turn: {
-            $apply: (turn) => turn + 1,
         },
     })
 
@@ -187,11 +201,8 @@ const placePenguin = (
  * player array.
  * @param gameState State from which you want to find the current player
  */
-const getPlayerWhoseTurnItIs = (
-    gameState: GameState
-): { player: Player; index: number } => {
-    const turnIndex = gameState.turn % gameState.players.length
-    return { player: gameState.players[turnIndex], index: turnIndex }
+const getPlayerWhoseTurnItIs = (gameState: GameState): Player => {
+    return gameState.players[0]
 }
 
 /**
@@ -226,7 +237,7 @@ const movePenguin = (
 
     // Get the required information to update the state
     const dstTile = boardGet(gameState.board, dst) as Tile
-    const { player, index } = getPlayerWhoseTurnItIs(gameState)
+    const player = getPlayerWhoseTurnItIs(gameState)
 
     // New board created by setting the old tile to be a hole and setting the new
     // tile to be occupied
@@ -248,9 +259,11 @@ const movePenguin = (
         board: {
             $set: newBoard,
         },
-        turn: { $apply: (turn) => turn + 1 },
         players: {
-            [index]: {
+            // applies the set operation first to update the player, then
+            // rotates the array using arrayRotate
+            $apply: arrayRotate,
+            [0]: {
                 $set: newPlayer,
             },
         },
@@ -292,7 +305,7 @@ const canMovePenguin = (
     }
 
     // Check if it's an out of turn move
-    const currentMovePlayer = getPlayerWhoseTurnItIs(gameState).player
+    const currentMovePlayer = getPlayerWhoseTurnItIs(gameState)
 
     if (currentMovePlayer.id !== playerId) {
         return {
@@ -326,9 +339,15 @@ const canMovePenguin = (
     return { validMove: true }
 }
 
+const arrayRotate = (arr: Array<any>) => {
+    arr.push(arr.shift())
+    return arr
+}
+
 /**
  * Skip the current player's turn
  * @param gameState The state
+ * @param playerId Player whose turn will be skipped
  */
 const skipTurn = (gameState: GameState, playerId: string): GameState => {
     if (gameState.phase !== "playing") {
@@ -337,7 +356,7 @@ const skipTurn = (gameState: GameState, playerId: string): GameState => {
         )
     }
 
-    const nextPlayer = getPlayerWhoseTurnItIs(gameState).player
+    const nextPlayer = getPlayerWhoseTurnItIs(gameState)
     if (playerId !== nextPlayer.id) {
         throw new IllegalArgumentError(
             `cannot skip turn of ${playerId}, expecting ${nextPlayer.id} to play`
@@ -348,9 +367,23 @@ const skipTurn = (gameState: GameState, playerId: string): GameState => {
 
     return {
         ...gameState,
-        turn: gameState.turn + 1,
+        players: arrayRotate(gameState.players),
         phase: newState,
     }
+}
+
+/**
+ * Eliminates the player with the given ID from the game
+ */
+const eliminatePlayer = (gameState: GameState, playerId: string): GameState => {
+    const newState: GamePhase = canAdvanceToOver(gameState) ? "over" : "playing"
+
+    return update(gameState, {
+        players: (arr) => arr.filter((player) => player.id !== playerId),
+        phase: {
+            $set: newState,
+        },
+    })
 }
 
 /**
@@ -397,8 +430,10 @@ export {
     GameState,
     createGameState,
     createGameStateCustomBoard,
+    getPlayerById,
     placePenguin,
     movePenguin,
+    eliminatePlayer,
     skipTurn,
     getPlayerWhoseTurnItIs,
 }

@@ -28,21 +28,18 @@ const Root: React.FC = () => {
     const [gameState, setGameState] = useState(
         createGameState([
             {
-                age: 15,
                 id: "bar",
                 penguinColor: "brown",
                 penguins: [],
                 score: 0,
             },
             {
-                age: 25,
                 id: "baz",
                 penguinColor: "red",
                 penguins: [],
                 score: 0,
             },
             {
-                age: 25,
                 id: "foo",
                 penguinColor: "black",
                 penguins: [],
@@ -56,14 +53,10 @@ const Root: React.FC = () => {
 
     const onTileClickPenguinPlacement = (x: number, y: number) => {
         setGameState(
-            placePenguin(
-                gameState,
-                getPlayerWhoseTurnItIs(gameState).player.id,
-                {
-                    x,
-                    y,
-                }
-            )
+            placePenguin(gameState, getPlayerWhoseTurnItIs(gameState).id, {
+                x,
+                y,
+            })
         )
     }
 
@@ -75,7 +68,7 @@ const Root: React.FC = () => {
                 setGameState(
                     movePenguin(
                         gameState,
-                        getPlayerWhoseTurnItIs(gameState).player.id,
+                        getPlayerWhoseTurnItIs(gameState).id,
                         selectedPenguin,
                         { x, y }
                     )

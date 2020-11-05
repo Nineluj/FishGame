@@ -1,5 +1,10 @@
 import { GameState } from "../gameState"
-import { movePenguin, skipTurn, placePenguin } from "../gameState/gameState"
+import {
+    movePenguin,
+    skipTurn,
+    placePenguin,
+    eliminatePlayer,
+} from "../gameState/gameState"
 import { Point } from "../point"
 import { isDeepStrictEqual } from "util"
 
@@ -73,6 +78,7 @@ const createSkipTurnAction = (playerId: string): Action => ({
 })
 
 /**
+ * TODO: test equality with this one
  * Creates an action that eliminates the player from the game. This is used
  * by the referee when a player cheats or behaves wrong
  * @param playerId The player to be terminated
@@ -82,9 +88,7 @@ const createEliminatePlayerAction = (playerId: string): Action => ({
         actionType: "eliminatePlayer",
         playerId,
     },
-    apply: (gs: GameState) => {
-        throw new Error("not implemented yet")
-    },
+    apply: (gs: GameState) => eliminatePlayer(gs, playerId),
 })
 
 export {

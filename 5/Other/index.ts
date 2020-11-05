@@ -58,7 +58,7 @@ const getNeighboringPoints = (point: Point): Array<Point> => {
 
     const whichDir = point.x % 2 == 0 ? "even" : "odd"
 
-    directions.forEach(direction => {
+    directions.forEach((direction) => {
         output.push({
             x: point.x + direction[whichDir].x,
             y: point.y + direction[whichDir].y,
@@ -77,12 +77,12 @@ const findSuitableMove = (
     console.log(neighbors)
 
     const potentialMoves: Array<Action> = []
-    getPlayerWhoseTurnItIs(gs).player.penguins.forEach(penguin => {
-        getReachableTilesFrom(gs.board, penguin).forEach(reachableTile => {
+    getPlayerWhoseTurnItIs(gs).penguins.forEach((penguin) => {
+        getReachableTilesFrom(gs.board, penguin).forEach((reachableTile) => {
             if (containsPoint(neighbors, reachableTile)) {
                 potentialMoves.push(
                     createMoveAction(
-                        getPlayerWhoseTurnItIs(gs).player.id,
+                        getPlayerWhoseTurnItIs(gs).id,
                         penguin,
                         reachableTile
                     )
@@ -93,9 +93,9 @@ const findSuitableMove = (
 
     console.log(JSON.stringify(potentialMoves))
     let output: boolean | Action = false
-    neighbors.forEach(neighbor => {
+    neighbors.forEach((neighbor) => {
         const out: Array<Action> = []
-        potentialMoves.forEach(potentialMove => {
+        potentialMoves.forEach((potentialMove) => {
             if (pointsEqual(potentialMove.data.dst, neighbor)) {
                 console.log("MATCH")
                 console.log(neighbor)

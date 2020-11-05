@@ -8,6 +8,9 @@ import {
 } from "src/strategy/strategy"
 import { Referee } from "../../../Admin/src/referee/referee"
 
+/**
+ * TODO: write JSDoc
+ */
 export class Player implements PlayerInterface {
     private strategy: Strategy
     private referee: Referee
