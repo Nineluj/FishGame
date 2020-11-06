@@ -17,10 +17,12 @@ import { createEliminatePlayerAction } from "../../../Common/src/models/action/a
  * Runs a complete game of fish for a set of players
  */
 class Referee {
-    // A node from a GameTree that holds the true state of the game
-    private game: GameNode
     //
-    private history: Array<GameNode>
+    private gameState: GameState
+    //
+    private initialGame: GameState
+    //
+    private history: Array<Action>
     private eliminatedPlayerIds: Set<string>
     private players: Map<string, PlayerInstance>
 
@@ -29,7 +31,9 @@ class Referee {
      * @param players the set of players playing in the game
      */
     constructor(players: Array<Player>) {
-        this.game = createGameNode(createGameState(players))
+        this.initialGame = createGameState(players)
+        this.gameState = this.initialGame
+
         this.eliminatedPlayerIds = new Set()
         this.history = []
         this.players = new Map()
@@ -47,7 +51,7 @@ class Referee {
         eliminatedPlayerIds: Array<string>
     } {
         return {
-            players: this.game.gs.players,
+            players: this.gameState.players,
             eliminatedPlayerIds: Array.from(this.eliminatedPlayerIds),
         }
     }
@@ -55,7 +59,7 @@ class Referee {
     /**
      * Returns a replay of the game up until this point
      */
-    getReplay(): Array<GameNode> {
+    getReplay(): Array<Action> {
         return [...this.history]
     }
 
@@ -63,7 +67,7 @@ class Referee {
      * Returns the current phase of this game.
      */
     getGamePhase(): "penguinPlacement" | "playing" | "over" {
-        return this.game.gs.phase
+        return this.gameState.phase
     }
 
     /**
@@ -85,45 +89,51 @@ class Referee {
             return
         }
 
-        let newGn: GameNode
+        // actually attempt the action and update the gameState based on
+        // whether it was successful or the player was eliminated
+        this.completePlayerActionOrEliminate(action, playerId)
 
-        try {
-            newGn = completeAction(this.game, action)
-        } catch (e) {
-            newGn = completeAction(
-                this.game,
-                createEliminatePlayerAction(playerId)
-            )
-
-            this.players.get(playerId)!.notifyBanned(e.message)
-            this.players.delete(playerId)
-        }
-
-        // Keep track of the nodes that we visit in the Game Tree
-        this.history.push(this.game)
-        this.game = newGn
-
-        const nextToPlay = getPlayerWhoseTurnItIs(newGn.gs)
+        const nextToPlay = getPlayerWhoseTurnItIs(this.gameState)
         let nextToPlayInstance: PlayerInstance
 
         // notify all players of the new gamestate except player whose turn it is next
         this.players.forEach((playerInstance, pid) => {
             if (pid !== nextToPlay.id) {
-                playerInstance.updateState(newGn.gs, false)
+                playerInstance.updateState(this.gameState, false)
             } else {
                 nextToPlayInstance = playerInstance
             }
         })
 
         // notify player whose turn it is next
-        nextToPlayInstance!.updateState(newGn.gs, true)
+        nextToPlayInstance!.updateState(this.gameState, true)
+    }
+
+    // Uses a gameTree to complete this action and updates the gameState held by the referee
+    private completePlayerActionOrEliminate(action: Action, playerId: string) {
+        let newGameState: GameState
+
+        try {
+            newGameState = action.apply(this.gameState)
+            this.history.push(action)
+        } catch (e) {
+            const elimAction = createEliminatePlayerAction(playerId)
+            this.history.push(elimAction)
+
+            newGameState = elimAction.apply(this.gameState)
+
+            this.players.get(playerId)!.notifyBanned(e.message)
+            this.players.delete(playerId)
+        }
+
+        this.gameState = newGameState
     }
 
     /**
      * Returns a read only copy of the current GameState.
      */
     getGameState(): GameState {
-        return this.game.gs
+        return this.gameState
     }
 }
 

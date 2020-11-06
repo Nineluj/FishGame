@@ -5,7 +5,7 @@ import {
     getPenguinPlacementStrategy,
     getSkipTurnStrategy,
     getPenguinMaxMinMoveStrategy,
-} from "src/strategy/strategy"
+} from "../strategy/strategy"
 import { Referee } from "../../../Admin/src/referee/referee"
 
 const DEFAULT_MOVES_AHEAD = 2

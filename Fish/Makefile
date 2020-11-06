@@ -5,6 +5,7 @@ all: install
 install:
 	${PRE} cd Common && npm install
 	${PRE} cd Player && npm install
+	${PRE} cd Admin && npm install
 
 install-view:
 	${PRE} cd View && npm install
@@ -17,5 +18,7 @@ test:
 	${PRE} cd Common && npm test --silent
 	@echo "Running tests in Player/"
 	${PRE} cd Player && npm test --silent
+	@echo "Running tests in Admin/"
+	${PRE} cd Admin && npm test --silent
 
 .PHONY: all
