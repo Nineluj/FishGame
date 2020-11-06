@@ -155,7 +155,7 @@ describe("Referee", () => {
     })
 
     describe("#getPlayerStatuses", () => {
-        it("Eliminates players properly when they make an invalid move", () => {
+        it("Returns both unbanned and banned players correctly", () => {
             const ref = new Referee(
                 getPlayingState().players,
                 getPlayingState().board
@@ -206,6 +206,21 @@ describe("Referee", () => {
             expect(ref.getPlayerStatuses().eliminatedPlayerIds[0]).to.equal(
                 "p1"
             )
+        })
+
+        it("After makeAction is invoked once, plays through an entire game", () => {
+            const ref = new Referee(
+                getPlayingState().players,
+                getPlayingState().board
+            )
+
+            let moves = [{ id: "p1", from: { x: 0, y: 0 }, to: { x: 1, y: 0 } }]
+
+            moves.forEach((move) => {
+                ref.makeAction(createMoveAction(move.id, move.from, move.to))
+            })
+
+            expect(ref.getGamePhase()).to.be.equal("over")
         })
     })
 })
