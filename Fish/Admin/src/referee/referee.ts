@@ -16,21 +16,29 @@ import { createEliminatePlayerAction } from "../../../Common/src/models/action/a
 import { Board } from "../../../Common/src/models/board"
 
 /**
- * Runs a complete game of fish for a set of players
+ * Component that knows how to run a complete game of fish for
+ * a set of players
  */
 class Referee {
-    //
+    // gameState keeps track of the current state of the game
     private gameState: GameState
-    //
+
+    // initialGame doesn't change once set and keeps track of what the
+    // game was like at the very beginning
     private initialGame: GameState
-    //
+
+    // keeps all the moves made in this game, including eliminationActions when a
+    // player gets eliminated for making a bad move
     private history: Array<Action>
+
     private eliminatedPlayerIds: Set<string>
+    // references to the player objects that know how to play in a game of fish
     private players: Map<string, PlayerInstance>
 
     /**
      * Constructs a new referee and begins the game.
-     * @param players the set of players playing in the game
+     * @param players the set of players playing in the game sorted for the desired order of play
+     * @param board optionally, a specific board that should be used for this game
      */
     constructor(players: Array<Player>, board?: Board) {
         if (board) {
@@ -119,7 +127,9 @@ class Referee {
         nextToPlayInstance!.updateState(this.gameState, true)
     }
 
-    // Uses a gameTree to complete this action and updates the gameState held by the referee
+    /**
+     * Uses a gameTree to complete this action and updates the gameState held by the referee
+     */
     private completePlayerActionOrEliminate(action: Action, playerId: string) {
         let newGameState: GameState
 

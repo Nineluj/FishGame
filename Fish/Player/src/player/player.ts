@@ -20,7 +20,7 @@ const dummyWriteable = {
 
 /**
  * Object that uses the minMax move and the zig zag placement
- * strategies to communicate with the referee to play a game of Fish
+ * strategies and communicates with the referee to play a game of Fish
  */
 export class Player implements PlayerInterface {
     private strategy: Strategy

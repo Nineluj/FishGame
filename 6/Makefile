@@ -6,5 +6,4 @@ install:
 	${PRE} cd ../Fish && make
 	${PRE} cd Other && npm install
 
-
 .PHONY: all
