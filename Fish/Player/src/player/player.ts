@@ -8,6 +8,8 @@ import {
 } from "src/strategy/strategy"
 import { Referee } from "../../../Admin/src/referee/referee"
 
+const DEFAULT_MOVES_AHEAD = 2
+
 /**
  * TODO: write JSDoc
  */
@@ -15,9 +17,9 @@ export class Player implements PlayerInterface {
     private strategy: Strategy
     private referee: Referee
 
-    constructor(referee: Referee, movesAhead: number) {
+    constructor(referee: Referee) {
         this.strategy = getPenguinMaxMinMoveStrategy(
-            movesAhead,
+            DEFAULT_MOVES_AHEAD,
             getPenguinPlacementStrategy(getSkipTurnStrategy())
         )
 
@@ -25,7 +27,7 @@ export class Player implements PlayerInterface {
     }
 
     notifyBanned(reason: string): void {
-        throw new Error("o shit u fucked")
+        console.log(`We were banned. Referee's explanation: ${reason}`)
     }
 
     updateState(gs: GameState, isYourTurn: boolean): void {

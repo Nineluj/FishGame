@@ -11,16 +11,15 @@ import {
     completeAction,
 } from "../../../Common/src/models/tree/tree"
 import { Player as PlayerInstance } from "../../../Player/src/player/player"
-
-interface EliminatablePlayer extends Player {
-    eliminated?: boolean
-}
+import { createEliminatePlayerAction } from "../../../Common/src/models/action/action"
 
 /**
  * Runs a complete game of fish for a set of players
  */
 class Referee {
+    // A node from a GameTree that holds the true state of the game
     private game: GameNode
+    //
     private history: Array<GameNode>
     private eliminatedPlayerIds: Set<string>
     private players: Map<string, PlayerInstance>
@@ -35,31 +34,29 @@ class Referee {
         this.history = []
         this.players = new Map()
         players.forEach((p) => {
-            this.players.set(p.id, new PlayerInstance(this, 3))
+            this.players.set(p.id, new PlayerInstance(this))
         })
     }
 
-    // TODO return {players: Array<Player>, eliminatedPlayerIds: Array<string>}
     /**
-     * Returns a list of players with scores and colors, sorted by score
+     * Returns the players in this game that contain their scores and colors as well as
+     * the list of the eliminated players.
      */
-    getPlayerStatuses(): Array<EliminatablePlayer> {
-        const outputPlayers: Array<EliminatablePlayer> = []
+    getPlayerStatuses(): {
+        players: Array<Player>
+        eliminatedPlayerIds: Array<string>
+    } {
+        return {
+            players: this.game.gs.players,
+            eliminatedPlayerIds: Array.from(this.eliminatedPlayerIds),
+        }
+    }
 
-        this.game.gs.players.forEach((player) => {
-            if (this.eliminatedPlayerIds.has(player.id)) {
-                outputPlayers.push({ ...player, eliminated: true })
-            } else {
-                outputPlayers.push(player)
-            }
-        })
-
-        // use -1 if the player was eliminated so they are sorted to the bottom of the list
-        return outputPlayers.sort(
-            (p1, p2) =>
-                (p1.eliminated ? -1 : p1.score) -
-                (p2.eliminated ? -1 : p2.score)
-        )
+    /**
+     * Returns a replay of the game up until this point
+     */
+    getReplay(): Array<GameNode> {
+        return [...this.history]
     }
 
     /**
@@ -88,18 +85,38 @@ class Referee {
             return
         }
 
+        let newGn: GameNode
+
         try {
-            const newGn = completeAction(this.game, action)
-            this.history.push(this.game)
-            this.game = newGn
+            newGn = completeAction(this.game, action)
         } catch (e) {
-            //TODO eliminatePlayerAction
+            newGn = completeAction(
+                this.game,
+                createEliminatePlayerAction(playerId)
+            )
+
             this.players.get(playerId)!.notifyBanned(e.message)
+            this.players.delete(playerId)
         }
 
-        //TODO notify all players of the new gamestate except player whose turn it is next
+        // Keep track of the nodes that we visit in the Game Tree
+        this.history.push(this.game)
+        this.game = newGn
 
-        //TODO notify player whose turn it is next
+        const nextToPlay = getPlayerWhoseTurnItIs(newGn.gs)
+        let nextToPlayInstance: PlayerInstance
+
+        // notify all players of the new gamestate except player whose turn it is next
+        this.players.forEach((playerInstance, pid) => {
+            if (pid !== nextToPlay.id) {
+                playerInstance.updateState(newGn.gs, false)
+            } else {
+                nextToPlayInstance = playerInstance
+            }
+        })
+
+        // notify player whose turn it is next
+        nextToPlayInstance!.updateState(newGn.gs, true)
     }
 
     /**

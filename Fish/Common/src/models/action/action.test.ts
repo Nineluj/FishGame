@@ -5,6 +5,7 @@ import {
     createMoveAction,
     createSkipTurnAction,
     createPlacePenguinAction,
+    createEliminatePlayerAction,
 } from "./action"
 
 describe("Actions", () => {
@@ -27,13 +28,14 @@ describe("Actions", () => {
                 createMoveAction("p1", point1, point2),
                 createSkipTurnAction("p1"),
                 createPlacePenguinAction("p1", point1),
+                createEliminatePlayerAction("p1"),
             ]
 
-            expect(actionsEqual(actions[0], actions[1])).to.be.false
-            expect(actionsEqual(actions[0], actions[2])).to.be.false
-            expect(actionsEqual(actions[1], actions[2])).to.be.false
-            expect(actionsEqual(actions[0], actions[3])).to.be.false
-            expect(actionsEqual(actions[3], actions[2])).to.be.false
+            for (let i = 0; i < actions.length; i++) {
+                for (let j = i + 1; j < actions.length; j++) {
+                    expect(actionsEqual(actions[i], actions[j])).to.be.false
+                }
+            }
         })
 
         it("skip actions for different ids are not equal", () => {
@@ -41,6 +43,15 @@ describe("Actions", () => {
                 actionsEqual(
                     createSkipTurnAction("p1"),
                     createSkipTurnAction("p3")
+                )
+            ).to.be.false
+        })
+
+        it("eliminate actions for different ids are not equal", () => {
+            expect(
+                actionsEqual(
+                    createEliminatePlayerAction("p1"),
+                    createEliminatePlayerAction("p3")
                 )
             ).to.be.false
         })
@@ -97,7 +108,14 @@ describe("Actions", () => {
                     createPlacePenguinAction("aaa", point1),
                     createPlacePenguinAction("aaa", point1)
                 )
-            )
+            ).to.be.true
+
+            expect(
+                actionsEqual(
+                    createEliminatePlayerAction("p2"),
+                    createEliminatePlayerAction("p2")
+                )
+            ).to.be.true
         })
     })
 })

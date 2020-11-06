@@ -78,7 +78,6 @@ const createSkipTurnAction = (playerId: string): Action => ({
 })
 
 /**
- * TODO: test equality with this one
  * Creates an action that eliminates the player from the game. This is used
  * by the referee when a player cheats or behaves wrong
  * @param playerId The player to be terminated
