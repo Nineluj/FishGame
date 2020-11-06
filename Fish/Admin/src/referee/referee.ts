@@ -4,6 +4,7 @@ import { Action } from "../../../Common/src/models/action"
 import {
     createGameState,
     getPlayerWhoseTurnItIs,
+    createGameStateCustomBoard,
 } from "../../../Common/src/models/gameState/gameState"
 import {
     GameNode,
@@ -12,6 +13,7 @@ import {
 } from "../../../Common/src/models/tree/tree"
 import { Player as PlayerInstance } from "../../../Player/src/player/player"
 import { createEliminatePlayerAction } from "../../../Common/src/models/action/action"
+import { Board } from "../../../Common/src/models/board"
 
 /**
  * Runs a complete game of fish for a set of players
@@ -30,8 +32,12 @@ class Referee {
      * Constructs a new referee and begins the game.
      * @param players the set of players playing in the game
      */
-    constructor(players: Array<Player>) {
-        this.initialGame = createGameState(players)
+    constructor(players: Array<Player>, board?: Board) {
+        if (board) {
+            this.initialGame = createGameStateCustomBoard(players, board)
+        } else {
+            this.initialGame = createGameState(players)
+        }
         this.gameState = this.initialGame
 
         this.eliminatedPlayerIds = new Set()
@@ -122,6 +128,7 @@ class Referee {
         } catch (e) {
             const elimAction = createEliminatePlayerAction(playerId)
             this.history.push(elimAction)
+            this.eliminatedPlayerIds.add(playerId)
 
             newGameState = elimAction.apply(this.gameState)
 
