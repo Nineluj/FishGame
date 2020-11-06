@@ -22,6 +22,7 @@ import {
 import {
     createGameStateCustomBoard,
     GameState,
+    getPlayerById,
 } from "../../../Common/src/models/gameState/gameState"
 import { boardGet } from "../../../Common/src/models/board"
 import { Tile } from "../../../Common/src/models/tile"
@@ -192,7 +193,6 @@ describe("Player Strategy", () => {
                     board: board,
                     phase: "penguinPlacement",
                     players: [players[0], players[1]],
-                    turn: 0,
                 },
                 [
                     [1, 0],
@@ -207,25 +207,29 @@ describe("Player Strategy", () => {
         })
 
         it("handles 0 step ahead planning", () => {
+            //            console.log(JSON.stringify(customGs, null, 2))
             const nextAction = getPenguinMaxMinMoveStrategy(
                 0,
                 getSkipTurnStrategy()
             ).getNextAction(customGs)
 
+            //            console.log("$$$", nextAction.data, customGs)
             expect(nextAction.data.actionType).to.equal("move")
-
+            //console.log(JSON.stringify(customGs, null, 2))
             const reachedState = nextAction.apply(customGs)
 
             expect(
                 (boardGet(reachedState.board, { x: 2, y: 1 }) as Tile).occupied
             ).to.be.true
 
-            const movedPenguinPos = reachedState.players[0].penguins[0]
+            const movedPenguinPos = getPlayerById(reachedState, "p1")
+                .penguins[0]
             expect(movedPenguinPos.x).to.equal(2)
             expect(movedPenguinPos.y).to.equal(1)
-            const otherPenguin = reachedState.players[0].penguins[1]
-            expect(otherPenguin.x).to.equal(2)
-            expect(otherPenguin.y).to.equal(2)
+            const otherPenguinPos = getPlayerById(reachedState, "p1")
+                .penguins[1]
+            expect(otherPenguinPos.x).to.equal(2)
+            expect(otherPenguinPos.y).to.equal(2)
         })
 
         it("handles more than 1 step ahead planning", () => {

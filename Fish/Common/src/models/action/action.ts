@@ -1,5 +1,10 @@
 import { GameState } from "../gameState"
-import { movePenguin, skipTurn, placePenguin } from "../gameState/gameState"
+import {
+    movePenguin,
+    skipTurn,
+    placePenguin,
+    eliminatePlayer,
+} from "../gameState/gameState"
 import { Point } from "../point"
 import { isDeepStrictEqual } from "util"
 
@@ -82,9 +87,7 @@ const createEliminatePlayerAction = (playerId: string): Action => ({
         actionType: "eliminatePlayer",
         playerId,
     },
-    apply: (gs: GameState) => {
-        throw new Error("not implemented yet")
-    },
+    apply: (gs: GameState) => eliminatePlayer(gs, playerId),
 })
 
 export {

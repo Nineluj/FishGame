@@ -58,7 +58,7 @@ const getNeighboringPoints = (point: Point): Array<Point> => {
 
     const whichDir = point.x % 2 == 0 ? "even" : "odd"
 
-    directions.forEach(direction => {
+    directions.forEach((direction) => {
         output.push({
             x: point.x + direction[whichDir].x,
             y: point.y + direction[whichDir].y,
@@ -72,17 +72,15 @@ const findSuitableMove = (
     gs: GameState,
     targetLocation: Point
 ): false | Action => {
-    console.log(targetLocation)
     const neighbors = getNeighboringPoints(targetLocation)
-    console.log(neighbors)
 
     const potentialMoves: Array<Action> = []
-    getPlayerWhoseTurnItIs(gs).player.penguins.forEach(penguin => {
-        getReachableTilesFrom(gs.board, penguin).forEach(reachableTile => {
+    getPlayerWhoseTurnItIs(gs).penguins.forEach((penguin) => {
+        getReachableTilesFrom(gs.board, penguin).forEach((reachableTile) => {
             if (containsPoint(neighbors, reachableTile)) {
                 potentialMoves.push(
                     createMoveAction(
-                        getPlayerWhoseTurnItIs(gs).player.id,
+                        getPlayerWhoseTurnItIs(gs).id,
                         penguin,
                         reachableTile
                     )
@@ -91,20 +89,16 @@ const findSuitableMove = (
         })
     })
 
-    console.log(JSON.stringify(potentialMoves))
     let output: boolean | Action = false
-    neighbors.forEach(neighbor => {
+    neighbors.forEach((neighbor) => {
         const out: Array<Action> = []
-        potentialMoves.forEach(potentialMove => {
+        potentialMoves.forEach((potentialMove) => {
             if (pointsEqual(potentialMove.data.dst, neighbor)) {
-                console.log("MATCH")
-                console.log(neighbor)
                 out.push(potentialMove)
             }
         })
         if (!output && out.length > 0) {
             output = tiebreakMoves(out)
-            console.log(JSON.stringify(out))
         }
     })
 
@@ -129,7 +123,6 @@ const runTestCase = (input: MoveResponseQuery): Output => {
         board,
         players,
         phase: "playing",
-        turn: 0,
     }
 
     const newGs = movePenguin(
@@ -154,7 +147,7 @@ const runTestCase = (input: MoveResponseQuery): Output => {
 const main = () => {
     parseJsonObjectsFromStdIn((data: Array<any>) => {
         const output = runTestCase(data[0])
-        console.log(JSON.stringify(output))
+        console.log(output)
     })
 }
 

@@ -49,7 +49,7 @@ const getAllPossibleMovesForTurn = (gs: GameState): Array<GameNode> => {
     const futureStates: Array<GameNode> = []
 
     // Get current player turn
-    const currentPlayer = getPlayerWhoseTurnItIs(gs).player
+    const currentPlayer = getPlayerWhoseTurnItIs(gs)
 
     // The player moves one of their penguins
     currentPlayer.penguins.forEach((penguin) => {

@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const Players: React.FC<Props> = ({ gameState }) => {
-    const currentTurnPlayerId = getPlayerWhoseTurnItIs(gameState).player.id
+    const currentTurnPlayerId = getPlayerWhoseTurnItIs(gameState).id
     return (
         <div>
             <Typography variant="subtitle1">

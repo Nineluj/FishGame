@@ -11,6 +11,8 @@ import {
     placePenguin,
     getPlayerWhoseTurnItIs,
     skipTurn,
+    getPlayerById,
+    eliminatePlayer,
 } from "./gameState"
 import {
     placeMultiple,
@@ -22,35 +24,53 @@ import { InvalidMoveError } from "../errors/invalidMoveError"
 import { getOverState } from "../testHelpers/testHelpers"
 
 describe("Game State", () => {
+    describe("#helpers", () => {
+        describe("#getPlayerById", () => {
+            it("gets a player that is in the game", () => {
+                let gs = getPlacementState()
+                expect(getPlayerById(gs, "p1").id).to.equal("p1")
+                expect(getPlayerById(gs, "p2").id).to.equal("p2")
+                expect(getPlayerById(gs, "p3").id).to.equal("p3")
+            })
+            it("throws an error when player is not found", () => {
+                expect(() => {
+                    let gs = getPlacementState()
+                    getPlayerById(gs, "foobar")
+                }).to.throw(IllegalArgumentError, "could not find")
+            })
+        })
+    })
+
     describe("#creation", () => {
         const player1: Player = {
-            age: 20,
+            //age: 20,
             id: "foo",
             penguinColor: "black",
             penguins: [],
             score: 0,
         }
         const player2: Player = {
-            age: 15,
+            //age: 15,
             id: "bar",
             penguinColor: "brown",
             penguins: [],
             score: 0,
         }
         const player3: Player = {
-            age: 25,
+            //age: 25,
             id: "baz",
             penguinColor: "red",
             penguins: [],
             score: 0,
         }
         const player4: Player = {
-            age: 18,
+            //age: 18,
             id: "lorem ipsum",
             penguinColor: "white",
             penguins: [],
             score: 0,
         }
+
         it("cannot be created with empty players array", () => {
             expect(() => createGameState([])).to.throw(
                 IllegalArgumentError,
@@ -72,9 +92,8 @@ describe("Game State", () => {
         })
 
         it("can be created with a valid correctly sized array of players", () => {
-            const actual = createGameState([player1, player2, player3])
+            const actual = createGameState([player2, player1, player3])
 
-            expect(actual.turn).to.equal(0)
             expect(actual.phase).to.equal("penguinPlacement")
             expect(actual.players.length).to.equal(3)
             expect(actual.players[0].id).to.equal("bar")
@@ -89,10 +108,6 @@ describe("Game State", () => {
         })
 
         it("gets the correct player whose turn it is", () => {
-            const { player, index } = getPlayerWhoseTurnItIs(gs)
-            expect(index).to.equal(0)
-            expect(player.id).to.be.equal("p1")
-
             const newState = placeMultiple(
                 gs,
                 [
@@ -105,8 +120,7 @@ describe("Game State", () => {
             )
 
             const np = getPlayerWhoseTurnItIs(newState)
-            expect(np.index).to.equal(1)
-            expect(np.player.id).to.equal("p2")
+            expect(np.id).to.equal("p2")
         })
 
         /* Tests to check behavior in the placePenguinPhase */
@@ -122,8 +136,11 @@ describe("Game State", () => {
 
             expect((boardGet(newState.board, placePos) as Tile).occupied).to.be
                 .true
+            expect(
+                containsPoint(getPlayerById(newState, "p1").penguins, placePos)
+            ).to.be.true
             expect(containsPoint(newState.players[0].penguins, placePos)).to.be
-                .true
+                .false
         })
 
         it("is not possible to place a penguin on another", () => {
@@ -183,6 +200,38 @@ describe("Game State", () => {
         })
     })
 
+    describe("#eliminating", () => {
+        describe(">the player whose turn it is", () => {
+            gs = getPlayingState()
+            let newGs = eliminatePlayer(gs, "p1")
+
+            it("the game become the next player's turn", () => {
+                expect(getPlayerWhoseTurnItIs(newGs).id !== "p1")
+            })
+
+            it("the player is removed from the game", () => {
+                expect(() => {
+                    getPlayerById(newGs, "p1")
+                }).to.throw(IllegalArgumentError)
+            })
+        })
+
+        describe(">a player whose turn it isn't", () => {
+            gs = getPlayingState()
+            let newGs = eliminatePlayer(gs, "p3")
+
+            it("the turn doesn't change", () => {
+                expect(getPlayerWhoseTurnItIs(newGs).id).to.equal("p1")
+            })
+
+            it("the player is removed from the game", () => {
+                expect(() => {
+                    getPlayerById(newGs, "p3")
+                }).to.throw(IllegalArgumentError)
+            })
+        })
+    })
+
     describe("#playing", () => {
         it("prevents a player from playing out of turn", () => {
             gs = getPlayingState()
@@ -202,14 +251,24 @@ describe("Game State", () => {
             )
 
             // check that the player has the new penguin pos
-            expect(containsPoint(newState.players[0].penguins, { x: 1, y: 0 }))
-                .to.be.true
+            expect(
+                containsPoint(getPlayerById(newState, "p1").penguins, {
+                    x: 1,
+                    y: 0,
+                })
+            ).to.be.true
             // check that the player no longer has the old penguin pos
-            expect(containsPoint(newState.players[0].penguins, { x: 0, y: 0 }))
-                .to.be.false
+            expect(
+                containsPoint(getPlayerById(newState, "p1").penguins, {
+                    x: 0,
+                    y: 0,
+                })
+            ).to.be.false
 
             // the right number of points are added to the player
-            expect(newState.players[0].score).to.equal(gs.players[0].score + 2)
+            expect(getPlayerById(newState, "p1").score).to.equal(
+                getPlayerById(gs, "p1").score + 2
+            )
 
             // the destination tile is marked as occupied
             expect((boardGet(newState.board, { x: 1, y: 0 }) as Tile).occupied)
@@ -275,7 +334,7 @@ describe("Game State", () => {
             cState = skipTurn(cState, "p2")
 
             const currPlayer = getPlayerWhoseTurnItIs(cState)
-            expect(currPlayer.player.id).to.equal("p3")
+            expect(currPlayer.id).to.equal("p3")
         })
 
         it("prevents player from moving other player's penguin", () => {

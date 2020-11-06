@@ -1,5 +1,6 @@
 import { expect } from "chai"
 import { getPlacementState } from "."
+import { getPlayerById } from "../gameState/gameState"
 import {
     getPlayingState,
     placeMultiple,
@@ -29,7 +30,10 @@ describe("Test helpers", () => {
 
     describe("#placeMultiple", () => {
         it("does nothing with empty list", () => {
-            expect(placeMultiple(getPlacementState(), [], []).turn).to.equal(0)
+            expect(
+                getPlayerById(placeMultiple(getPlacementState(), [], []), "p1")
+                    .score
+            ).to.equal(0)
         })
 
         it("places correctly", () => {

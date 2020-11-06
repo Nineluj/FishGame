@@ -14,7 +14,6 @@ export const makePlayersFromTestInput = (
 
 const makePlayer = (p: ExternalPlayer, age: number): InternalPlayer => {
     return {
-        age: age,
         id: `${p.color}`,
         penguinColor: p.color,
         penguins: p.places.map((pos) => convertToBoardLocation(...pos)),
@@ -22,7 +21,6 @@ const makePlayer = (p: ExternalPlayer, age: number): InternalPlayer => {
     }
 }
 
-// TODO sort the output players
 export const toOutputPlayer = (
     players: Array<InternalPlayer>
 ): Array<ExternalPlayer> =>
