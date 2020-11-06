@@ -32,26 +32,89 @@ describe("Game Tree", () => {
             }).to.throw(GamePhaseError, "ended")
         })
 
-        // TODO: fix this test
-        //     it("can be created for a game that is in the playing phase", () => {
-        //         const gameNode = createGameNode(getPlayingState())
-        //         const expected =  {}
-        //
-        //         expect(gameNode.action.data.actionType).to.equal("identity")
-        //         expect(isDeepStrictEqual(expected.gs, gameNode.gs)).to.equal(true)
-        //         expect(gameNode.children().length).to.equal(7)
-        //
-        //         gameNode.children().forEach((child) => {
-        //             expect(
-        //                 isDeepStrictEqual(
-        //                     completeAction(gameNode, child.action).gs,
-        //                     child.gs
-        //                 )
-        //             ).to.equal(true)
-        //         })
-        //
-        //         expect(isDeepStrictEqual(expected.children, gameNode.children))
-        //     })
+        it("can be created for a game that is in the playing phase", () => {
+            const gameNode = createGameNode(getPlayingState())
+            const expected = {
+                action: { data: { actionType: "identity" } },
+                gs: {
+                    board: [
+                        [
+                            { fish: 0, occupied: true },
+                            { fish: 0, occupied: true },
+                            { fish: 0, occupied: true },
+                        ],
+                        [
+                            { fish: 2, occupied: false },
+                            { fish: 2, occupied: false },
+                        ],
+                        [
+                            { fish: 2, occupied: false },
+                            { fish: 0, occupied: true },
+                            { fish: 0, occupied: true },
+                        ],
+                        [
+                            { fish: 0, occupied: true },
+                            { fish: 0, occupied: true },
+                        ],
+                        [
+                            { fish: 0, occupied: true },
+                            { fish: 2, occupied: false },
+                            { fish: 0, occupied: true },
+                        ],
+                        [
+                            { fish: 2, occupied: false },
+                            { fish: 2, occupied: false },
+                        ],
+                    ],
+                    phase: "playing",
+                    players: [
+                        {
+                            id: "p1",
+                            penguinColor: "black",
+                            penguins: [
+                                { x: 0, y: 0 },
+                                { x: 3, y: 1 },
+                                { x: 2, y: 1 },
+                            ],
+                            score: 6,
+                        },
+                        {
+                            id: "p2",
+                            penguinColor: "brown",
+                            penguins: [
+                                { x: 0, y: 1 },
+                                { x: 4, y: 2 },
+                                { x: 3, y: 0 },
+                            ],
+                            score: 6,
+                        },
+                        {
+                            id: "p3",
+                            penguinColor: "red",
+                            penguins: [
+                                { x: 0, y: 2 },
+                                { x: 4, y: 0 },
+                                { x: 2, y: 2 },
+                            ],
+                            score: 6,
+                        },
+                    ],
+                },
+            }
+
+            expect(gameNode.action.data.actionType).to.equal("identity")
+            expect(isDeepStrictEqual(expected.gs, gameNode.gs)).to.equal(true)
+            expect(gameNode.children().length).to.equal(7)
+
+            gameNode.children().forEach((child) => {
+                expect(
+                    isDeepStrictEqual(
+                        completeAction(gameNode, child.action).gs,
+                        child.gs
+                    )
+                ).to.equal(true)
+            })
+        })
     })
 
     describe("#actions", () => {
