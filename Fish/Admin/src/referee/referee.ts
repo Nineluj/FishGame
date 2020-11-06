@@ -85,7 +85,10 @@ class Referee {
         const playerId = action.data.playerId
 
         // If the player has been banned, ignore this action
-        if (this.eliminatedPlayerIds.has(playerId)) {
+        if (
+            this.gameState.phase === "over" ||
+            this.eliminatedPlayerIds.has(playerId)
+        ) {
             return
         }
 
