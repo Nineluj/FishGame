@@ -92,9 +92,18 @@ const createGameStateCustomBoard = (
             `Expecting 2-4 players to create a game, got ${players.length}`
         )
     }
+    const totalPenguins = players.reduce(
+        (count, player) => count + player.penguins.length,
+        0
+    )
     return {
         board: board,
-        phase: "penguinPlacement",
+        phase:
+            totalPenguins ===
+            players.length *
+                (PENGUIN_PLACEMENTS_NEEDED_PER_PLAYER - players.length)
+                ? "playing"
+                : "penguinPlacement",
         players: players, //sortPlayersByAgeAsc(players),
     }
 }
