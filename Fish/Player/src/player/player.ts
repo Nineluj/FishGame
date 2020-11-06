@@ -14,6 +14,10 @@ interface Writeable {
     write(s: string): void
 }
 
+const dummyWriteable = {
+    write(s: string): void {},
+}
+
 /**
  * Object that uses the minMax move and the zig zag placement
  * strategies to communicate with the referee to play a game of Fish
@@ -39,7 +43,7 @@ export class Player implements PlayerInterface {
         if (output) {
             this.output = output
         } else {
-            this.output = process.stdout
+            this.output = dummyWriteable
         }
     }
 

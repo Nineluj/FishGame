@@ -43,6 +43,7 @@ class Referee {
         this.eliminatedPlayerIds = new Set()
         this.history = []
         this.players = new Map()
+
         players.forEach((p) => {
             this.players.set(p.id, new PlayerInstance(this))
         })
