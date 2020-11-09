@@ -15,7 +15,12 @@ import { GamePhaseError } from "../errors/gamePhaseError"
  * GameNode represents a possible GameState, the action that led to it, and potential future moves
  */
 interface GameNode {
-    /** The action that led to this node. Can be unset only for the top level GameNode */
+    /** The action that led to this node.
+     * In this context an action should be:
+     *  - "move" action - represents a players move
+     *  - "put" action - represents a penguin placement
+     *  - "skipTurn" action - represents a player skipping their turn (only valid if they can't move)
+     * Can be unset only for the top level GameNode */
     action: Action
     /** The state of the game at this point */
     gs: GameState

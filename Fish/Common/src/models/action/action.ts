@@ -55,19 +55,20 @@ const createPlacePenguinAction = (playerId: string, dst: Point): Action => ({
 const createMoveAction = (
     playerId: string,
     origin: Point,
-    dst: Point
+    destination: Point
 ): Action => ({
     data: {
         actionType: "move",
         playerId,
         origin: { x: origin.x, y: origin.y },
-        dst: { x: dst.x, y: dst.y },
+        dst: { x: destination.x, y: destination.y },
     },
-    apply: (gs: GameState) => movePenguin(gs, playerId, origin, dst),
+    apply: (gs: GameState) => movePenguin(gs, playerId, origin, destination),
 })
 
 /**
- * Creates an action for skipping the a player's turn
+ * Creates an action for skipping the a player's turn.
+ * This should only happen if a player cannot make moves
  */
 const createSkipTurnAction = (playerId: string): Action => ({
     data: {
