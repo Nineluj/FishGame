@@ -1,4 +1,4 @@
-[] GameNode interpretation doesn't seem to talk about skip: how does the user know what kind of node it represents? (-10 for skip) (skip comment is not enough, your interpretation should talk about it)
+[x] GameNode interpretation doesn't seem to talk about skip: how does the user know what kind of node it represents? (-10 for skip) (skip comment is not enough, your interpretation should talk about it)
 
 [] README does not explain how project is organized (file/folder structure)
 
@@ -30,3 +30,7 @@
 [] refactoring chunky functions in strategy
 
 [] break up validation in penguin placement
+
+[] enforce player can only skip turn if they have no possible moves -> referee preemptively skip players turn if there are no moves
+
+[]
