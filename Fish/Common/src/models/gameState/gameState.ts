@@ -42,6 +42,11 @@ game is over.
 
 It is the referee's responsability to skip a player's turn if they cannot play.
  */
+
+// A GamePhase represents the stage of the game.
+// - penguinPlacement when players are placing their penguin on the board
+// - playing when the players are moving penguins
+// - over when no player can move a penguin
 type GamePhase = "penguinPlacement" | "playing" | "over"
 
 /**
@@ -52,7 +57,10 @@ interface GameState {
     board: Board
     /** Current phase of the game, operations on game state may be prohibited based on phase */
     phase: GamePhase
-    /** Order of players. Is updated after a move or a skip turn */
+    /**
+     * Players are players in the game in the order they will take turns.
+     * After the state is updated (by a move, a skip, a placement), the order will rotate.
+     */
     players: Array<Player>
 }
 
@@ -319,7 +327,7 @@ const canMovePenguin = (
     if (currentMovePlayer.id !== playerId) {
         return {
             validMove: false,
-            errorMessage: `cannot play out of order, expecting 
+            errorMessage: `cannot play out of order, expecting
             ${currentMovePlayer.id} to play and not ${playerId} `,
         }
     }

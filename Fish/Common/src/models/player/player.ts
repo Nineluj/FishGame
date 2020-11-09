@@ -1,14 +1,21 @@
 import { Point } from "../point"
 
+/**
+ * A PenguinColor is a color that player's penguin takes on in the game. Each player has a unique color
+ */
 export type PenguinColor = "red" | "white" | "brown" | "black"
 
 /**
  * Represents a Player that is playing in a game of Fish
  */
 interface Player {
+    // The Id of the player
     id: string
+    // The color of the player's penguins
     penguinColor: PenguinColor
+    // The positions of the player's penguins on the board
     penguins: Array<Point>
+    // the number of fish a player has collected so far
     score: number
 }
 

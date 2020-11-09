@@ -1,4 +1,11 @@
-/* Point denotes a position on a board */
+/**
+ * Point denotes a position on a board
+ *
+ * Coordinate system based on the 3rd model (“odd-q” vertical layout shoves odd columns down) from:
+ * https://www.redblobgames.com/grids/hexagons/#coordinates-offset
+ *
+ * Where x is the first number in the coordinate, and y is the second
+ */
 type Point = { x: number; y: number }
 
 /**
