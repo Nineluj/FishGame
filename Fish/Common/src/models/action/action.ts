@@ -8,13 +8,20 @@ import {
 import { Point } from "../point"
 import { isDeepStrictEqual } from "util"
 
-/*
-  Actions are a type of object that can act on a game state and can be compared for equality.
-  All actions should be created using one of the createXAction functions in this file since those
-  correctly set the data for the action allowing the actions to be checked for equality.
-*/
+/**
+ * An Action is an event that changes/produces a new game state. An Action represents an player event in the game
+ * (ie. move penguin, take turn, skip turn).
+ *
+ * Actions are a type of object that can act on a game state and can be compared for equality.
+ * All actions should be created using one of the createXAction functions in this file since those
+ * correctly set the data for the action allowing the actions to be checked for equality.
+ */
 interface Action {
+    // Data related to the action itself (ie. move destination, penguin placement, etc)
+    // Data is largely used for object equality.
     data: any
+    // Apply represents how the action applies to the given game state. For example,
+    //in a move player action apply returns the game state result of the making the move
     apply: (gs: GameState) => GameState
 }
 
