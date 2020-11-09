@@ -15,3 +15,9 @@ feedback: insufficient interpretation of the board (it should be clear what all 
 approach: talked through the data definition and what each component of a board represents
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5dc298a528ff4e25fd4628f418176c240421a38f
+
+feedback: weak interpretation for game states (Unclear interpretation of how turn is related to players, location of penguins, how Penguins and players are related)
+
+approach: Talk through the data definition and what things represent. Go through each referenced data definition and add more interpretations
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/abfdb8e2b60d77dc22359696b252cc2c9f7af7d2
