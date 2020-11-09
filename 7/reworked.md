@@ -3,3 +3,9 @@ feedback: GameNode interpretation doesn't seem to talk about skip: how does the 
 approach to fix: Talked through the data definition. Had a debate what a game tree should conceptualize. Added the result to the data definition
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/ddf3b126cd4b59aa936b9c79582d96af20fc343e
+
+feedback: choosing turn action: purpose statement and/or data definition/interpretation of <Action> don't explain what the result means
+
+approach: further clarify the data definition of an action. Express what it represents. More explanation of what a result means
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/90daa78c9a9ed42f417c8ebebb85a73fa1a3bd50
