@@ -7,11 +7,14 @@ const MIN_NUM_TILES = 0
 const MIN_NUM_FISH_PER_TILE = 0
 
 /**
- * Represents a board from the Fish game
- * Coordinate system based on the 3rd model (odd-q) from:
+ * A Board is a n x m hexagonal grid of Tiles and Holes. The board is used to play the Fish Game where
+ * players traverse the hexagonal grid collecting fish from tiles.
+ *
+ * Coordinate system based on the 3rd model (“odd-q” vertical layout shoves odd columns down) from:
  * https://www.redblobgames.com/grids/hexagons/#coordinates-offset
  *
- * The board contains columns that contains rows
+ *
+ * The board is represented by an Array of Columns which are Arrays of Tiles or Holes
  */
 type Board = Array<Array<Tile | Hole>>
 
