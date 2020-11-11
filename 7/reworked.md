@@ -29,3 +29,22 @@ the relevant data to the referee. We converted the original `makeAction` that wa
 game and runs through an entire game.
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/bc30879ccaf98a87383972d36254a67d753c1665
+
+feedback: (self-identified issue) the referee no longer takes in the board
+representation of the players. Instead it takes in the implementation of a player
+interface.
+
+approach: we let the referee decide what colors and ids the board representation
+for the players take. Updated the relevant tests.
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5097316eb640669bfb276c4f08dc757691d8a83a
+
+feedback: (self-identified issue) the referee was not interacting with the player
+instances in a safe way.
+
+approach: we use a try/catch for all the interactions with the players. We identified
+two kinds of failing players: those that throw errors and those that give the referee
+a bad action. We abstracted the existing code into the `callPlayer` and `kickPlayer`
+functions to handle both of these cases.
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5097316eb640669bfb276c4f08dc757691d8a83a
