@@ -7,6 +7,7 @@ import { createPlayer, getOverState } from "../testHelpers/testHelpers"
 import { isDeepStrictEqual } from "util"
 import { GameStateActionError } from "../errors/gameStateActionError"
 import { createMoveAction } from "../action/action"
+import { InvalidMoveError } from "../errors/invalidMoveError"
 
 describe("Game Tree", () => {
     describe("#creation", () => {
@@ -133,7 +134,7 @@ describe("Game Tree", () => {
             )
         })
 
-        it("returns the correct gamenode when completeAction() is invoked with a valid Action/GameNode combo", () => {
+        it("returns the correct gamenode when completeAction() is invoked with a valid Action/GameNode combo for a move action", () => {
             const gameNode = createGameNode(getPlayingState())
             const expected = {
                 board: [
@@ -209,6 +210,46 @@ describe("Game Tree", () => {
             const actual = completeAction(gameNode, moveAction)
             expect(isDeepStrictEqual(expected, actual.gs)).to.equal(true)
         })
+
+        it("returns the correct gamenode when completeAction() is invoked with a invalid Action/GameNode combo for consecutive move actions", () => {
+            const gameNode = createGameNode(getPlayingState())
+
+            const moveAction = createMoveAction(
+                "p1",
+                { x: 0, y: 0 },
+                { x: 1, y: 0 }
+            )
+
+            const actual = completeAction(gameNode, moveAction)
+
+            expect(() => {
+                completeAction(actual, moveAction)
+            }).to.throw(GameStateActionError, "not valid")
+        })
+
+        it("returns the correct gamenode when completeAction() is invoked with a valid Action/GameNode combo for consecutive move actions", () => {
+            const gameNode = createGameNode(getPlayingState())
+
+            const moveAction = createMoveAction(
+                "p1",
+                { x: 0, y: 0 },
+                { x: 1, y: 0 }
+            )
+
+            const first = completeAction(gameNode, moveAction)
+            const secondMoveAction = createMoveAction(
+                "p2",
+                { x: 0, y: 1 },
+                { x: 1, y: 1 }
+            )
+
+            expect(() => {
+                completeAction(first, secondMoveAction)
+            }).to.not.throw
+        })
+    })
+
+    describe("#applyToAllFutureStates", () => {
         it("correctly applies a lambda action to all directly reachable GameStates when applyToAllFutureStates() is invoked", () => {
             const sumScores = (gs: GameState): number => {
                 let total = 0

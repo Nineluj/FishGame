@@ -12,7 +12,7 @@
 
 [x] The purpose statement for reachable-positions should clearly explain what "reachable" means (straight lines? zigzags? can it jump over holes?)
 
-[] Your signature of Game-Tree is incomplete
+[x] Your signature of Game-Tree is incomplete
 
 [] Unit tests:
 
