@@ -21,3 +21,11 @@ feedback: weak interpretation for game states (Unclear interpretation of how tur
 approach: Talk through the data definition and what things represent. Go through each referenced data definition and add more interpretations
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/abfdb8e2b60d77dc22359696b252cc2c9f7af7d2
+
+feedback: (self-identified issue) we decided that the player should not call upon the referee, instead the referee asks players for their actions.
+
+approach: We went through the functions in player and found where we were calling the referee and converted those into functions that returned
+the relevant data to the referee. We converted the original `makeAction` that was called by the player to `runGamePlay` that's invoked once per
+game and runs through an entire game.
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/bc30879ccaf98a87383972d36254a67d753c1665
