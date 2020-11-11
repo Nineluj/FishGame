@@ -56,3 +56,9 @@ We added the word "hexagon".
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5dc298a528ff4e25fd4628f418176c240421a38f
 commit 2: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/f4e11ad4587a060edb7767ad071826a52d5e5f43
+
+feedback: The purpose statement for reachable-positions should clearly explain what "reachable" means (straight lines? zigzags? can it jump over holes?)
+
+approach: Clarified what reachable means.
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/79f8807b356eba22f970f0e025d5fd313bc0c15e
