@@ -1,33 +1,73 @@
 import { expect } from "chai"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 import {
-    players,
     getPlacementState,
     getPlayingState,
-    getOverState,
-    makeBoardWithTiles,
 } from "../../../Common/src/models/testHelpers/testHelpers"
 import { Referee } from "./referee"
 import { isDeepStrictEqual } from "util"
+import { Board } from "../../../Common/src/models/board"
+import { Player } from "../../../Common/src/models/player"
 import {
-    createPlacePenguinAction,
+    AIPlayer,
+    DEFAULT_MOVES_AHEAD,
+} from "../../../Player/src/player/player"
+import { PlayerInterface } from "../../../Common/player-interface"
+import { Action } from "../../../Common/src/models/action"
+import { GameState } from "../../../Common/src/models/gameState"
+import {
     createMoveAction,
     actionsEqual,
 } from "../../../Common/src/models/action/action"
-import { read } from "fs"
-import { Board } from "../../../Common/src/models/board"
-import { GameState } from "../../../Common/src/models/gameState"
-import { Player } from "../../../Common/src/models/player"
 import {
     getPenguinMaxMinMoveStrategy,
     getSkipTurnStrategy,
+    getPenguinPlacementStrategy,
 } from "../../../Player/src/strategy/strategy"
+
+const playerAI1 = new AIPlayer()
+const playerAI2 = new AIPlayer()
+const playerAI3 = new AIPlayer()
+
+const allPlayers: Array<PlayerInterface> = [playerAI1, playerAI2, playerAI3]
+
+/**
+ * Player that always throws errors for all of its methods
+ */
+class ErrorPlayer implements PlayerInterface {
+    notifyBanned(s: string) {
+        throw new IllegalArgumentError("sir this is a Wendies")
+    }
+
+    getNextAction(gs: GameState): Action {
+        throw new IllegalArgumentError(
+            "I don't know how to handle a game state"
+        )
+    }
+
+    updateGameState(gs: GameState) {
+        throw new IllegalArgumentError("what is a game state?")
+    }
+}
+
+/**
+ * Player that generates an invalid move when getNextAction is called
+ */
+class IllegalActionPlayer implements PlayerInterface {
+    notifyBanned(s: string) {}
+
+    getNextAction(gs: GameState): Action {
+        return createMoveAction("red", { x: 0, y: 0 }, { x: 6, y: 1 })
+    }
+
+    updateGameState(gs: GameState) {}
+}
 
 describe("Referee", () => {
     describe("#constructor", () => {
         it("handles proper argument gracefully", () => {
             expect(() => {
-                new Referee(players)
+                new Referee(allPlayers)
             }).not.to.throw()
         })
 
@@ -38,11 +78,11 @@ describe("Referee", () => {
 
             expect(() => {
                 new Referee([
-                    players[0],
-                    players[0],
-                    players[0],
-                    players[1],
-                    players[2],
+                    allPlayers[0],
+                    allPlayers[1],
+                    allPlayers[2],
+                    allPlayers[0],
+                    allPlayers[2],
                 ])
             })
         })
@@ -50,7 +90,7 @@ describe("Referee", () => {
 
     describe("#getGameState", () => {
         it("Returns a valid and correct gamestate", () => {
-            const ref = new Referee(players)
+            const ref = new Referee(allPlayers)
 
             const expected = {
                 board: [
@@ -81,9 +121,19 @@ describe("Referee", () => {
                 ],
                 phase: "penguinPlacement",
                 players: [
-                    { id: "p1", penguinColor: "black", penguins: [], score: 0 },
-                    { id: "p2", penguinColor: "brown", penguins: [], score: 0 },
-                    { id: "p3", penguinColor: "red", penguins: [], score: 0 },
+                    { id: "red", penguinColor: "red", penguins: [], score: 0 },
+                    {
+                        id: "white",
+                        penguinColor: "white",
+                        penguins: [],
+                        score: 0,
+                    },
+                    {
+                        id: "brown",
+                        penguinColor: "brown",
+                        penguins: [],
+                        score: 0,
+                    },
                 ],
             }
 
@@ -93,127 +143,84 @@ describe("Referee", () => {
 
     describe("#getGamePhase", () => {
         it("Returns correct initial gamePhase on a new game", () => {
-            const ref = new Referee(players)
-
+            const ref = new Referee(allPlayers)
             expect(ref.getGamePhase()).to.equal("penguinPlacement")
         })
 
         it("Returns correct gamePhase on a game in the playing phase", () => {
-            const ref = new Referee(
-                getPlayingState().players,
-                getPlayingState().board
-            )
-
+            const ref = new Referee(allPlayers, getPlacementState().board)
+            ref.runPlacementPhase()
             expect(ref.getGamePhase()).to.equal("playing")
         })
 
         it("Returns correct gamePhase on a game in the over phase", () => {
-            const ref = new Referee(
-                getPlayingState().players,
-                getPlayingState().board
-            )
-
-            let moves = [
-                { id: "p1", from: { x: 0, y: 0 }, to: { x: 1, y: 0 } },
-                { id: "p2", from: { x: 3, y: 0 }, to: { x: 2, y: 0 } },
-                { id: "p3", from: { x: 0, y: 2 }, to: { x: 1, y: 1 } },
-                { id: "p1", from: { x: 3, y: 1 }, to: { x: 5, y: 0 } },
-                { id: "p2", from: { x: 4, y: 2 }, to: { x: 5, y: 1 } },
-            ]
-
+            const ref = new Referee(allPlayers, getPlayingState().board)
             ref.runGamePlay()
-
             expect(ref.getGamePhase()).to.equal("over")
         })
     })
 
     describe("#getReplay", () => {
-        it("Returns correct game replay") //, () => {
-        // const playingState = getPlayingState()
-        // const ref = new Referee(playingState.players, playingState.board)
-        // const moveStrategy = getPenguinMaxMinMoveStrategy(
-        //     2,
-        //     getSkipTurnStrategy()
-        // )
+        it("Returns correct first part of a replay", () => {
+            const ref = new Referee(allPlayers, getPlacementState().board)
+            const initialState = ref.getGameState()
+            const placementStrategy = getPenguinPlacementStrategy(
+                getSkipTurnStrategy()
+            )
 
-        // ref.runGamePlay()
-        // expect(
-        //     actionsEqual(
-        //         ref.getReplay()[0],
-        //         moveStrategy.getNextAction(playingState)
-        //     )
-        // ).to.be.true
+            ref.runGamePlay()
 
-        // let moves = [{ id: "p1", from: { x: 0, y: 0 }, to: { x: 1, y: 0 } }]
+            const firstActionFromReplay = ref.getReplay()[0]
+            const actionFromStrategy = placementStrategy.getNextAction(
+                initialState
+            )
 
-        // const replay1data = {
-        //     actionType: "move",
-        //     playerId: "p2",
-        //     origin: { x: 3, y: 0 },
-        //     dst: { x: 2, y: 0 },
-        // }
+            expect(actionsEqual(firstActionFromReplay, actionFromStrategy)).to
+                .be.true
+        })
 
-        // const replay5data = {
-        //     actionType: "move",
-        //     playerId: "p3",
-        //     origin: { x: 5, y: 0 },
-        //     dst: { x: 5, y: 1 },
-        // }
+        it("Returns correct second part of a replay", () => {
+            const ref = new Referee(allPlayers, getPlacementState().board)
+            ref.runPlacementPhase()
 
-        // expect(ref.getReplay()).to.have.length(6)
-        // expect(isDeepStrictEqual(ref.getReplay()[1].data, replay1data)).to
-        //     .be.true
-        // expect(isDeepStrictEqual(ref.getReplay()[5].data, replay5data)).to
-        //     .be.true
-        //})
+            const actionsCount = ref.getReplay().length
+            const startOfPlayingGameState = ref.getGameState()
+
+            const playingStrategy = getPenguinMaxMinMoveStrategy(
+                DEFAULT_MOVES_AHEAD,
+                getSkipTurnStrategy()
+            )
+
+            ref.runGameMovementPhase()
+
+            const firstMoveActionFromReplay = ref.getReplay()[actionsCount]
+            const actionFromStrategy = playingStrategy.getNextAction(
+                startOfPlayingGameState
+            )
+
+            expect(actionsEqual(firstMoveActionFromReplay, actionFromStrategy))
+                .to.be.true
+        })
     })
 
     describe("#getPlayerStatuses", () => {
         it("Returns both unbanned and banned players correctly", () => {
             const ref = new Referee(
-                getPlayingState().players,
-                getPlayingState().board
+                [playerAI1, new ErrorPlayer(), playerAI2],
+                getPlacementState().board
             )
 
-            ref.runGamePlay() // this will fail, TODO: will be fixed by passing player interfaces into referee
-
-            const expected = {
-                players: [
-                    {
-                        id: "p2",
-                        penguinColor: "brown",
-                        penguins: [
-                            { x: 0, y: 1 },
-                            { x: 4, y: 2 },
-                            { x: 1, y: 1, tile: { fish: 2, occupied: false } },
-                        ],
-                        score: 12,
-                    },
-                    {
-                        id: "p3",
-                        penguinColor: "red",
-                        penguins: [
-                            { x: 0, y: 2 },
-                            { x: 5, y: 1, tile: { fish: 2, occupied: false } },
-                            { x: 2, y: 2 },
-                        ],
-                        score: 12,
-                    },
-                ],
-                eliminatedPlayerIds: ["p1"],
-            }
-
-            expect(isDeepStrictEqual(ref.getPlayerStatuses(), expected)).to.be
-                .true
+            ref.runGamePlay()
+            const result = ref.getPlayerStatuses()
+            expect(result.players).to.have.lengthOf(2)
+            expect(result.eliminatedPlayerIds).to.have.lengthOf(1)
+            expect(result.eliminatedPlayerIds[0]).to.equal("white")
         })
     })
 
     describe("#runGamePlay", () => {
-        it("runs through a game as before", () => {
-            const ref = new Referee(
-                getPlayingState().players,
-                getPlayingState().board
-            )
+        it("runs through an entire game", () => {
+            const ref = new Referee(allPlayers, getPlacementState().board)
 
             ref.runGamePlay()
             expect(ref.getGamePhase()).to.be.equal("over")
@@ -221,49 +228,6 @@ describe("Referee", () => {
                 ref.getPlayerStatuses().eliminatedPlayerIds.length
             ).to.be.equal(0)
             expect(ref.getPlayerStatuses().players[0].score).to.be.equal(10)
-        })
-
-        it("test small game", () => {
-            const smallBoard: Board = [
-                [{ fish: 1, occupied: true }],
-                [{ fish: 2, occupied: false }],
-                [{ fish: 2, occupied: false }],
-                [{ fish: 2, occupied: false }],
-                [{ fish: 2, occupied: false }],
-                [{ fish: 2, occupied: false }],
-                [{ fish: 2, occupied: false }],
-                [{ fish: 1, occupied: false }],
-                [{ fish: 2, occupied: false }],
-                [{ fish: 2, occupied: false }],
-                [{ fish: 2, occupied: false }],
-                [{ fish: 2, occupied: false }],
-                [{ fish: 2, occupied: false }],
-                [{ fish: 2, occupied: true }],
-            ]
-
-            const players: Player[] = [
-                {
-                    id: "1",
-                    penguinColor: "red",
-                    penguins: [{ x: 0, y: 0 }],
-                    score: 0,
-                },
-                {
-                    id: "2",
-                    penguinColor: "black",
-                    penguins: [{ x: 6, y: 0 }],
-                    score: 0,
-                },
-            ]
-
-            const ref = new Referee(players, smallBoard)
-            ref.runGamePlay()
-            const resultingGameState = ref.getGameState()
-            expect(resultingGameState.phase).to.be.equal("over")
-            expect(
-                ref.getPlayerStatuses().eliminatedPlayerIds.length
-            ).to.be.equal(0)
-            expect(ref.getPlayerStatuses().players.length).to.be.equal(2)
         })
     })
 })

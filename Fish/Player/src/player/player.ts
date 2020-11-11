@@ -9,7 +9,7 @@ import {
 import { Referee } from "../../../Admin/src/referee/referee"
 import { Action } from "../../../Common/src/models/action"
 
-const DEFAULT_MOVES_AHEAD = 2
+export const DEFAULT_MOVES_AHEAD = 2
 
 interface Writeable {
     write(s: string): void
@@ -23,9 +23,8 @@ const dummyWriteable = {
  * Object that uses the minMax move and the zig zag placement
  * strategies and communicates with the referee to play a game of Fish
  */
-export class Player implements PlayerInterface {
+export class AIPlayer implements PlayerInterface {
     private strategy: Strategy
-    private referee: Referee
     private output: Writeable
 
     /**
@@ -33,13 +32,11 @@ export class Player implements PlayerInterface {
      * to make actions. The referee is tasked with calling the methods
      * on this player to give it information about the game
      */
-    constructor(referee: Referee, output?: Writeable) {
+    constructor(output?: Writeable) {
         this.strategy = getPenguinMaxMinMoveStrategy(
             DEFAULT_MOVES_AHEAD,
             getPenguinPlacementStrategy(getSkipTurnStrategy())
         )
-
-        this.referee = referee
 
         if (output) {
             this.output = output

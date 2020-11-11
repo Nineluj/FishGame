@@ -14,9 +14,9 @@ describe("Game Tree", () => {
             expect(() => {
                 createGameNode(
                     createGameState([
-                        createPlayer(15, "red", "foo"),
-                        createPlayer(20, "black", "bar"),
-                        createPlayer(25, "brown", "baz"),
+                        createPlayer("red", "foo"),
+                        createPlayer("black", "bar"),
+                        createPlayer("brown", "baz"),
                     ])
                 )
             }).to.throw(

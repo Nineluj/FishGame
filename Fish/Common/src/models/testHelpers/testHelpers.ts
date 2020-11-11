@@ -141,11 +141,7 @@ export const placeMultiple = (
     return cState
 }
 
-export const createPlayer = (
-    age: number,
-    color: PenguinColor,
-    id: string
-): Player => {
+export const createPlayer = (color: PenguinColor, id: string): Player => {
     return {
         penguinColor: color,
         id,

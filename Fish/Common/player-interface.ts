@@ -19,7 +19,7 @@ export interface PlayerInterface {
     updateGameState(gs: GameState): void
 
     /**
-     * Asks the player for its next action
+     * Asks the player for its next action. The player can assume that it is their turn.
      */
     getNextAction(gs: GameState): Action
 }

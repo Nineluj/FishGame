@@ -3,13 +3,10 @@
     "version": "1.0.0",
     "main": "./dist/main.bundle.js",
     "scripts": {
-        "test": "mocha -r ts-node/register -r tsconfig-paths/register \"src/**/*test.ts\"",
+        "test": "mocha --timeout 10000 -r ts-node/register -r tsconfig-paths/register \"src/**/*test.ts\"",
         "lint": "prettier src --write"
     },
-    "authors": [
-        "Julian Hirn",
-        "Joshua Rosenberg"
-    ],
+    "authors": ["Julian Hirn", "Joshua Rosenberg"],
     "license": "MIT",
     "dependencies": {
         "immutability-helper": "^3.1.1"

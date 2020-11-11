@@ -207,7 +207,6 @@ describe("Player Strategy", () => {
         })
 
         it("handles 0 step ahead planning", () => {
-            //            console.log(JSON.stringify(customGs, null, 2))
             const nextAction = getPenguinMaxMinMoveStrategy(
                 0,
                 getSkipTurnStrategy()

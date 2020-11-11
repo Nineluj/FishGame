@@ -22,6 +22,7 @@
 -   insufficient coverage of unit tests for turn-taking functionality (No unit test for multiple turns of moving penguins)
 -   no unit tests for functionality that checks if no move is possible (Only check if penguins have been placed, not if game is over)
 -   no unit tests for remove-tile functionality in the view
+-   (our todo) tests for AIPlayer, making sure that it returns an action
 
 [] failing integration tests
 
@@ -33,7 +34,7 @@
 
 [] Our todo: enforce player can only skip turn if they have no possible moves -> referee preemptively skip players turn if there are no moves
 
-[] Our todo: player should not call back to the referee - In the current design the player calls the referee when it is done with it's turn.
+[x] Our todo: player should not call back to the referee - In the current design the player calls the referee when it is done with it's turn.
 
 [] Our todo: wrap calls to player in try catch (asking for next action)
 
