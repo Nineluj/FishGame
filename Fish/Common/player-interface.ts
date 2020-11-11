@@ -1,3 +1,4 @@
+import { Action } from "./src/models/action"
 import { GameState } from "./src/models/gameState"
 
 /**
@@ -13,7 +14,12 @@ export interface PlayerInterface {
     notifyBanned(reason: string): void
 
     /**
-     * Notifies the player of the most recent GameState, and if it is their turn.
+     * Notify the player there is a new game state
      */
-    updateState(gs: GameState, isYourTurn: boolean): void
+    updateGameState(gs: GameState): void
+
+    /**
+     * Asks the player for its next action
+     */
+    getNextAction(gs: GameState): Action
 }

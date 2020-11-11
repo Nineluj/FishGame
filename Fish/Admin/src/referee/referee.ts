@@ -41,6 +41,7 @@ class Referee {
      * @param board optionally, a specific board that should be used for this game
      */
     constructor(players: Array<Player>, board?: Board) {
+        // referee sets up the players given the a player interface
         if (board) {
             this.initialGame = createGameStateCustomBoard(players, board)
         } else {
@@ -86,56 +87,38 @@ class Referee {
     }
 
     /**
-     * Request to make an action for a certain player. If the action is invalid,
-     * the player making the request will be eliminated.
-     *
-     * This function will be called via a network call in the future.
-     *
-     * **FUTURE INVARIANT** There will be some middleware that validates that the
-     * session token of the player making the request matches playerId inside of the action
-     *
-     * @param action The action to attempt to execute
+     * Loops through game state until the game has ended. Requests player actions for each turn.
+     * If a player submits an invalid action the player is  removed from the game.
      */
-    makeAction(action: Action): void {
-        const playerId = action.data.playerId
+    runGamePlay() {
+        while (this.gameState.phase !== "over") {
+            // who's turn is it?
+            const nextToPlay = getPlayerWhoseTurnItIs(this.gameState)
+            let nextToPlayInstance: PlayerInstance = this.players.get(
+                nextToPlay.id
+            ) as PlayerInstance
 
-        // If the player has been banned, ignore this action
-        if (
-            this.gameState.phase === "over" ||
-            this.eliminatedPlayerIds.has(playerId)
-        ) {
-            return
+            this.getPlayerActionOrEliminate(nextToPlayInstance, nextToPlay.id)
+
+            // update the players with the new state
+            this.players.forEach((playerInstance, pid) => {
+                playerInstance.updateGameState(this.gameState)
+            })
         }
-
-        // actually attempt the action and update the gameState based on
-        // whether it was successful or the player was eliminated
-        this.completePlayerActionOrEliminate(action, playerId)
-
-        const nextToPlay = getPlayerWhoseTurnItIs(this.gameState)
-        let nextToPlayInstance: PlayerInstance
-
-        // notify all players of the new gamestate except player whose turn it is next
-        this.players.forEach((playerInstance, pid) => {
-            if (pid !== nextToPlay.id) {
-                playerInstance.updateState(this.gameState, false)
-            } else {
-                nextToPlayInstance = playerInstance
-            }
-        })
-
-        // notify player whose turn it is next
-        nextToPlayInstance!.updateState(this.gameState, true)
     }
 
     /**
-     * Uses a gameTree to complete this action and updates the gameState held by the referee
+     * Asks the player for it's action based on the current game state. If this action is valid, it modifies the game state.
+     * Otherwise it removes the player from the game.
+     * @param player the current player
+     * @param playerId the player id
      */
-    private completePlayerActionOrEliminate(action: Action, playerId: string) {
+    getPlayerActionOrEliminate(player: PlayerInstance, playerId: string): void {
+        const playerAction = player.getNextAction(this.gameState)
         let newGameState: GameState
-
         try {
-            newGameState = action.apply(this.gameState)
-            this.history.push(action)
+            newGameState = playerAction.apply(this.gameState)
+            this.history.push(playerAction)
         } catch (e) {
             const elimAction = createEliminatePlayerAction(playerId)
             this.history.push(elimAction)
@@ -146,7 +129,6 @@ class Referee {
             this.players.get(playerId)!.notifyBanned(e.message)
             this.players.delete(playerId)
         }
-
         this.gameState = newGameState
     }
 

@@ -27,10 +27,14 @@
 
 [] sub-tasks of reachable-positions functionality are not factored-out
 
-[] refactoring chunky functions in strategy
+[] Our todo: refactoring chunky functions in strategy
 
-[] break up validation in penguin placement
+[] Our todo: break up validation in penguin placement
 
-[] enforce player can only skip turn if they have no possible moves -> referee preemptively skip players turn if there are no moves
+[] Our todo: enforce player can only skip turn if they have no possible moves -> referee preemptively skip players turn if there are no moves
 
-[]
+[] Our todo: player should not call back to the referee - In the current design the player calls the referee when it is done with it's turn.
+
+[] Our todo: wrap calls to player in try catch (asking for next action)
+
+[] Our todo: Referee should receive something that implements the player interface (how will we accommodate other AI players)

@@ -7,6 +7,7 @@ import {
     getPenguinMaxMinMoveStrategy,
 } from "../strategy/strategy"
 import { Referee } from "../../../Admin/src/referee/referee"
+import { Action } from "../../../Common/src/models/action"
 
 const DEFAULT_MOVES_AHEAD = 2
 
@@ -51,9 +52,9 @@ export class Player implements PlayerInterface {
         this.output.write(`We were banned. Referee's explanation: ${reason}`)
     }
 
-    updateState(gs: GameState, isYourTurn: boolean): void {
-        if (isYourTurn) {
-            this.referee.makeAction(this.strategy.getNextAction(gs))
-        }
+    updateGameState(gs: GameState): void {}
+
+    getNextAction(gs: GameState): Action {
+        return this.strategy.getNextAction(gs)
     }
 }
