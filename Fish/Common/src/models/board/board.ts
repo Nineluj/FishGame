@@ -86,7 +86,9 @@ const getNumberOfTilesOnBoard = (board: Board): number => {
 
 /**
  * Find all the tiles in the board that are reachable from the given position,
- * not including the tile itself and not including holes
+ * not including the tile itself and not including holes. Reachable means
+ * that a tile can be reached by a penguin moving in a straight line uninterrupted
+ * by holes and occupied tiles
  *
  * @param board The game board
  * @param origin Position

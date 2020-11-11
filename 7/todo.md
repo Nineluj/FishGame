@@ -12,8 +12,6 @@
 
 [] The purpose statement for reachable-positions should clearly explain what "reachable" means (straight lines? zigzags? can it jump over holes?)
 
-[] Insufficient purpose statement for reachable-positions functionality
-
 [] Your signature of Game-Tree is incomplete
 
 [] Unit tests:
