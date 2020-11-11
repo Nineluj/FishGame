@@ -14,13 +14,13 @@
 
 [x] Your signature of Game-Tree is incomplete
 
-[] Unit tests:
+Unit tests:
 
--   There can be more unit tests for first query function
--   insufficient coverage of unit tests for turn-taking functionality (No unit test for multiple turns of moving penguins)
--   no unit tests for functionality that checks if no move is possible (Only check if penguins have been placed, not if game is over)
--   no unit tests for remove-tile functionality in the view
--   (our todo) tests for AIPlayer, making sure that it returns an action
+-   [x] There can be more unit tests for first query function
+-   [] insufficient coverage of unit tests for turn-taking functionality (No unit test for multiple turns of moving penguins)
+-   [] no unit tests for functionality that checks if no move is possible (Only check if penguins have been placed, not if game is over)
+-   [] no unit tests for remove-tile functionality in the view
+-   [] (our todo) tests for AIPlayer, making sure that it returns an action
 
 [] failing integration tests
 

@@ -69,3 +69,11 @@ approach: GameTree was given a better signature when we were improving the Actio
 data definition.
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/ddf3b126cd4b59aa936b9c79582d96af20fc343e
+
+feedback: There can be more unit tests for first query function
+
+approach: We found that we were not testing completeAction for more than one action.
+Added a test for consecutive actions that failed and another one for consecutive
+actions that both succeeded.
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/0a3233009c9a937027b7b6040eb9373b14f4bc10
