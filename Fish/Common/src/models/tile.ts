@@ -1,7 +1,7 @@
 // Hole denotes a hole in a board
 type Hole = "hole"
 
-// A Tile represents an active on the board.
+// A Tile represents an active hexagon place on the board.
 interface Tile {
     // The number of fish on the current tile. Must be greater than 0.
     fish: number

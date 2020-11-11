@@ -36,6 +36,6 @@
 
 [x] Our todo: player should not call back to the referee - In the current design the player calls the referee when it is done with it's turn.
 
-[] Our todo: wrap calls to player in try catch (asking for next action)
+[x] Our todo: wrap calls to player in try catch (asking for next action)
 
-[] Our todo: Referee should receive something that implements the player interface (how will we accommodate other AI players)
+[x] Our todo: Referee should receive something that implements the player interface (how will we accommodate other AI players)
