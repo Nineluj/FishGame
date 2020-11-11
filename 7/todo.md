@@ -8,7 +8,7 @@
 
 [x] weak interpretation for game states (Unclear interpretation of how turn is related to players, location of penguins, how Penguins and players are related)
 
-[] Tile data description can be further improved by including details like containing fish, are hexagonal etc, as well as a more overall description of the purpose of a Tile object and its role in the Fish system as a whole.
+[x] Tile data description can be further improved by including details like containing fish, are hexagonal etc, as well as a more overall description of the purpose of a Tile object and its role in the Fish system as a whole.
 
 [] The purpose statement for reachable-positions should clearly explain what "reachable" means (straight lines? zigzags? can it jump over holes?)
 

@@ -48,3 +48,11 @@ a bad action. We abstracted the existing code into the `callPlayer` and `kickPla
 functions to handle both of these cases.
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5097316eb640669bfb276c4f08dc757691d8a83a
+
+feedback: Tile data description can be further improved by including details like containing fish, are hexagonal etc, as well as a more overall description of the purpose of a Tile object and its role in the Fish system as a whole.
+
+approach: This was largely completed while improving the data definition for the board, because it made sense to also look at the tiles.
+We added the word "hexagon".
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5dc298a528ff4e25fd4628f418176c240421a38f
+commit 2: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/f4e11ad4587a060edb7767ad071826a52d5e5f43
