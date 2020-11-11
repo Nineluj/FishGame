@@ -47,7 +47,7 @@ const completeAction = (gameNode: GameNode, action: Action): GameNode => {
 }
 
 /**
- * Get the possible states one turn from now
+ * Get the child states directly reachable from the given game state
  */
 const getAllPossibleMovesForTurn = (gs: GameState): Array<GameNode> => {
     // Holds the possible direct next states

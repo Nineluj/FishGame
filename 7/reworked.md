@@ -62,3 +62,10 @@ feedback: The purpose statement for reachable-positions should clearly explain w
 approach: Clarified what reachable means.
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/79f8807b356eba22f970f0e025d5fd313bc0c15e
+
+feedback: Your signature of Game-Tree is incomplete
+
+approach: GameTree was given a better signature when we were improving the Action
+data definition.
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/ddf3b126cd4b59aa936b9c79582d96af20fc343e
