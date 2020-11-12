@@ -38,6 +38,7 @@ approach: we let the referee decide what colors and ids the board representation
 for the players take. Updated the relevant tests.
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5097316eb640669bfb276c4f08dc757691d8a83a
+additonal tests: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/d65ef10cd88144d3c8f4af0516263c71ba343b3f
 
 feedback: no separate method/function that implements protection of calls to player
 
