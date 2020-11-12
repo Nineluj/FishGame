@@ -354,9 +354,29 @@ describe("Game State", () => {
         })
 
         it("allows players to play until the game is over", () => {
+            // this is a helper that plays through a game, by placing all penguins and making moves, until the game is over
+            // this tests the canAdvanceToOver
             const cState = getOverState()
 
             expect(cState.phase).to.equal("over")
+        })
+
+        it("stays in playing phase until the game is over", () => {
+            let cState = getPlayingState()
+            let moves = [
+                { id: "p1", from: { x: 0, y: 0 }, to: { x: 1, y: 0 } },
+                { id: "p2", from: { x: 3, y: 0 }, to: { x: 2, y: 0 } },
+                { id: "p3", from: { x: 0, y: 2 }, to: { x: 1, y: 1 } },
+                { id: "p1", from: { x: 3, y: 1 }, to: { x: 5, y: 0 } },
+                { id: "p2", from: { x: 4, y: 2 }, to: { x: 5, y: 1 } },
+            ]
+            moves.forEach((m) => {
+                cState = movePenguin(cState, m.id, m.from, m.to)
+            })
+
+            cState = skipTurn(cState, "p3")
+
+            expect(cState.phase).to.be.equal("playing")
         })
     })
 })

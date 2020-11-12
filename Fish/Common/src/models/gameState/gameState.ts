@@ -55,7 +55,10 @@ type GamePhase = "penguinPlacement" | "playing" | "over"
 interface GameState {
     /** The collection of tiles and holes that make up the board */
     board: Board
-    /** Current phase of the game, operations on game state may be prohibited based on phase */
+    /**
+     * Current phase of the game, operations on game state may be prohibited based on phase
+     * This is always updated after a move. if the state is over, that means no penguins can be moved
+     */
     phase: GamePhase
     /**
      * Players are players in the game in the order they will take turns.
@@ -435,7 +438,7 @@ const canAdvanceToPlaying = (gs: GameState): boolean => {
         return false
     }
 
-    // check that all the players have placed the neccessary number of penguins
+    // check that all the players have placed the necessary number of penguins
     for (let player of gs.players) {
         if (
             player.penguins.length !== getNumberOfPenguinsToPlacePerPlayer(gs)
