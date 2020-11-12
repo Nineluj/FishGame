@@ -77,3 +77,9 @@ Added a test for consecutive actions that failed and another one for consecutive
 actions that both succeeded.
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/0a3233009c9a937027b7b6040eb9373b14f4bc10
+
+feedback: sub-tasks of reachable-positions functionality are not factored-out
+
+approach: We looked for any point where it seemed that the function was too complicated and had a discrete sub task. We moved them out of the function. We added additional types to work with a constant that was present. We factored out said constant as it never changes.
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/d6dc54932e3bd52c154edb0811646e08354324bc
