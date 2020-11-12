@@ -113,3 +113,9 @@ feedback: no unit test that specifically addresses placement only (For acknowled
 
 approach: Added unit tests alongside new functionality
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5097316eb640669bfb276c4f08dc757691d8a83a
+
+feedback: Missing documentation of what abnormal player conditions the referee addresses(calls to player methods that result in exceptions, player goes into infinite loop (or otherwise runs for too long))
+
+approach: Added documentation for when a player gets kicked out in english.
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/0899b65bccb71bea591b4ec99ae79e460de3521a

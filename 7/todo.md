@@ -31,7 +31,7 @@
 
 ### Referee and Player Representation
 
--   [] Missing documentation of what abnormal player conditions the referee addresses
+-   [x] Missing documentation of what abnormal player conditions the referee addresses
 
     -   calls to player methods that result in exceptions, player goes into infinite loop (or otherwise runs for too long),
 
