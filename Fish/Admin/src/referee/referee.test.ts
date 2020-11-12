@@ -88,6 +88,33 @@ describe("Referee", () => {
         })
     })
 
+    describe("#createGamePlayers", () => {
+        it("assigns distinct colors to more players", () => {
+            const fourPlayers = Referee.createGamePlayers(4)
+            expect(fourPlayers.length).to.equal(4)
+            fourPlayers.forEach((player) => {
+                expect(
+                    fourPlayers.filter(
+                        (otherPlayer) =>
+                            player.penguinColor === otherPlayer.penguinColor
+                    )
+                ).to.have.lengthOf(1)
+            })
+        })
+        it("errors when given too many players", () => {
+            expect(() => Referee.createGamePlayers(90)).to.throw(
+                IllegalArgumentError,
+                "Number of players must be between 2 and 4 received 90"
+            )
+        })
+        it("errors when given too few players", () => {
+            expect(() => Referee.createGamePlayers(1)).to.throw(
+                IllegalArgumentError,
+                "Number of players must be between 2 and 4 received 1"
+            )
+        })
+    })
+
     describe("#getGameState", () => {
         it("Returns a valid and correct gamestate", () => {
             const ref = new Referee(allPlayers)

@@ -72,8 +72,8 @@ interface GameState {
 const PENGUIN_PLACEMENTS_NEEDED_PER_PLAYER = 6
 
 const DEFAULT_MIN_TILES = 16
-const MIN_PLAYER_COUNT = 2
-const MAX_PLAYER_COUNT = 4
+export const MIN_PLAYER_COUNT = 2
+export const MAX_PLAYER_COUNT = 4
 
 /**
  * Creates a new GameState object for the given players and generates a board for the game

@@ -1,5 +1,9 @@
 import { Player, PenguinColor } from "../../../Common/src/models/player"
-import { GameState } from "../../../Common/src/models/gameState"
+import {
+    GameState,
+    MIN_PLAYER_COUNT,
+    MAX_PLAYER_COUNT,
+} from "../../../Common/src/models/gameState"
 import { Action } from "../../../Common/src/models/action"
 import {
     createGameState,
@@ -15,6 +19,7 @@ import { PlayerInterface } from "../../../Common/player-interface"
 import { createEliminatePlayerAction } from "../../../Common/src/models/action/action"
 import { Board } from "../../../Common/src/models/board"
 import { createPlayer } from "../../../Common/src/models/testHelpers/testHelpers"
+import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 
 // The order in which the referee will assign the colors to the players
 let colorOrder: Array<PenguinColor> = ["red", "white", "brown", "black"]
@@ -45,7 +50,7 @@ class Referee {
      * @param board optionally, a specific board that should be used for this game
      */
     constructor(players: Array<PlayerInterface>, board?: Board) {
-        const gamePlayers = this.createGamePlayers(players.length)
+        const gamePlayers = Referee.createGamePlayers(players.length)
 
         if (board) {
             this.initialGame = createGameStateCustomBoard(gamePlayers, board)
@@ -66,11 +71,17 @@ class Referee {
 
     /**
      * Creates the player knowledge for the game state
-     * TODO: test
      */
-    createGamePlayers(numberOfPlayers: number): Array<Player> {
+    static createGamePlayers(numberOfPlayers: number): Array<Player> {
         let out: Array<Player> = []
-
+        if (
+            numberOfPlayers < MIN_PLAYER_COUNT ||
+            numberOfPlayers > MAX_PLAYER_COUNT
+        ) {
+            throw new IllegalArgumentError(
+                `Number of players must be between 2 and 4 received ${numberOfPlayers}`
+            )
+        }
         for (
             let playerIndex = 0;
             playerIndex < numberOfPlayers;
