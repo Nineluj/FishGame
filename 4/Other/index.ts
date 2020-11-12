@@ -1,6 +1,12 @@
-import { makeBoardFromTestInput, toOutputBoard } from "./boardAdapter"
+import {
+    makeBoardFromTestInput,
+    toOutputBoard,
+} from "../../Fish/Common/src/harness/boardAdapter"
 import { parseJsonObjectsFromStdIn } from "./parseJson"
-import { makePlayersFromTestInput, toOutputPlayer } from "./playerAdapter"
+import {
+    makePlayersFromTestInput,
+    toOutputPlayer,
+} from "../../Fish/Common/src/harness/playerAdapter"
 import {
     GameState,
     movePenguin,
@@ -67,7 +73,6 @@ const runTest = (input: TestData) => {
         board,
         players,
         phase: "playing",
-        turn: 0,
     }
 
     const result = findSuitableMove(gs)
@@ -89,7 +94,7 @@ const runTest = (input: TestData) => {
  */
 const main = () => {
     // parse objects from stdin, invoke runTest on first json object when stdin stream ends
-    parseJsonObjectsFromStdIn(data => {
+    parseJsonObjectsFromStdIn((data) => {
         runTest(data[0])
     })
 }
