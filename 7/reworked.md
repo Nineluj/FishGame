@@ -89,3 +89,10 @@ feedback: in game state: insufficient coverage of unit tests for turn-taking fun
 approach: This was fixed in October after feedback was received
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/f201463f3977d54bbffc634d7048ca6a0fa325bc
+
+feedback: in game state: no unit tests for functionality that checks if no move is possible (Only check if penguins have been placed, not if game is over)
+
+approach: We discussed this for a while. We discussed exporting the function that checks if it is time to move forward in the game, we didn't end up doing this. A test was added in october to verify the game reaches the 'over' phase if enough penguins are placed. We added another that checks when the game is not over. We clarified the data definition to specify that the phase is kept up to date
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/8ad9808251309fc727b90231b0b308f1648f003d
+https://github.ccs.neu.edu/CS4500-F20/levelland/commit/f201463f3977d54bbffc634d7048ca6a0fa325bc

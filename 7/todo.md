@@ -19,7 +19,7 @@
 
 -   [x] in game tree: There can be more unit tests for first query function
 -   [x] in game state: insufficient coverage of unit tests for turn-taking functionality (No unit test for multiple turns of moving penguins)
--   [] in game state: no unit tests for functionality that checks if no move is possible (Only check if penguins have been placed, not if game is over)
+-   [x] in game state: no unit tests for functionality that checks if no move is possible (Only check if penguins have been placed, not if game is over)
 -   [] no unit tests for remove-tile functionality in the view
 -   [] (our todo) tests for AIPlayer, making sure that it returns an action
 
