@@ -27,6 +27,14 @@ let colorOrder: Array<PenguinColor> = ["red", "white", "brown", "black"]
 /**
  * Component that knows how to run a complete game of fish for
  * a set of players
+ *
+ * Constraints: When the referee encounters failing players it kicks them out
+ * The cases the referee considers before kicking out the player are:
+ *  - Players that error (throw Errors)
+ *  - Players that submit invalid actions
+ *
+ * We leave the timeout feature to the tcp player to monitor. We trust the house players
+ * not to time out. If a Player goes into an infinite loop, we will not be able to prevent that
  */
 class Referee {
     // gameState keeps track of the current state of the game
@@ -125,6 +133,14 @@ class Referee {
 
     /**
      * Runs through an entire game by going through the placement and movement phase
+     *
+     * Constraints: When the referee encounters failing players it kicks them out
+     * The cases the referee considers before kicking out the player are:
+     *  - Players that error
+     *  - Players that submit invalid moves
+     *
+     * We leave the timeout feature to the tcp player to monitor. We trust the house players
+     * not to time out. If a Player goes into an infinite loop, we will not be able to prevent that
      */
     runGamePlay() {
         this.runPlacementPhase()
