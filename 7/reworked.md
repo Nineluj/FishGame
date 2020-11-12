@@ -119,3 +119,8 @@ feedback: Missing documentation of what abnormal player conditions the referee a
 approach: Added documentation for when a player gets kicked out in english.
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/0899b65bccb71bea591b4ec99ae79e460de3521a
+
+feedback:(self-identified issue) The validation for penguin placement is not factored out into readable helpers
+
+approach: Took each error and moved it into one helper, then broke that helper into discrete sections focused on each item being checked
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/45d51fd225332014829b65a0dee882dcccad0142

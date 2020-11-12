@@ -49,7 +49,7 @@
 
 -   [] Our todo: refactoring chunky functions in strategy
 
--   [] Our todo: break up validation in penguin placement
+-   [x] Our todo: break up validation in penguin placement
 
 ### Project Structure:
 
