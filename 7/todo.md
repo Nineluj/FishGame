@@ -15,15 +15,11 @@
 
 -   [x] weak interpretation for game states (Unclear interpretation of how turn is related to players, location of penguins, how Penguins and players are related)
 
-### Project Structure:
-
--   [] README does not explain how project is organized (file/folder structure)
-
 ### Misc. Unit tests:
 
--   [x] There can be more unit tests for first query function
--   [] insufficient coverage of unit tests for turn-taking functionality (No unit test for multiple turns of moving penguins)
--   [] no unit tests for functionality that checks if no move is possible (Only check if penguins have been placed, not if game is over)
+-   [x] in game tree: There can be more unit tests for first query function
+-   [x] in game state: insufficient coverage of unit tests for turn-taking functionality (No unit test for multiple turns of moving penguins)
+-   [] in game state: no unit tests for functionality that checks if no move is possible (Only check if penguins have been placed, not if game is over)
 -   [] no unit tests for remove-tile functionality in the view
 -   [] (our todo) tests for AIPlayer, making sure that it returns an action
 
@@ -46,3 +42,7 @@
 -   [] Our todo: refactoring chunky functions in strategy
 
 -   [] Our todo: break up validation in penguin placement
+
+### Project Structure:
+
+-   [] README does not explain how project is organized (file/folder structure)

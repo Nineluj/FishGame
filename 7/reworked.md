@@ -83,3 +83,9 @@ feedback: sub-tasks of reachable-positions functionality are not factored-out
 approach: We looked for any point where it seemed that the function was too complicated and had a discrete sub task. We moved them out of the function. We added additional types to work with a constant that was present. We factored out said constant as it never changes.
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/d6dc54932e3bd52c154edb0811646e08354324bc
+
+feedback: in game state: insufficient coverage of unit tests for turn-taking functionality (No unit test for multiple turns of moving penguins)
+
+approach: This was fixed in October after feedback was received
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/f201463f3977d54bbffc634d7048ca6a0fa325bc
