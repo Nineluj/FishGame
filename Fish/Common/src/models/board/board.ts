@@ -7,6 +7,37 @@ const MIN_NUM_TILES = 0
 const MIN_NUM_FISH_PER_TILE = 0
 
 /**
+ * A UnitsVector represents a translation by 1 tile in some direction
+ */
+type UnitsVector = {
+    x: -1 | 0 | 1
+    y: -1 | 0 | 1
+}
+
+/**
+ * A Direction Increment represents instructions for moving 1 tile in a direction.
+ * If the x coordinate of the point being moved from is even, then you use the even field to increment your position
+ * If the x coordinate of the point being moved from is odd, then you use the odd field to increment your position
+ */
+type DirectionIncrement = {
+    odd: UnitsVector
+    even: UnitsVector
+}
+
+// Contains the different increments you can move to get to a
+// neighboring tile for tiles in even and odd columns.
+// See odd-q increments here:
+// https://www.redblobgames.com/grids/hexagons/#neighbors-offset
+const MOVEMENT_INCREMENTS: DirectionIncrement[] = [
+    { odd: { x: 0, y: -1 }, even: { x: 0, y: -1 } },
+    { odd: { x: 1, y: 0 }, even: { x: 1, y: -1 } },
+    { odd: { x: 1, y: 1 }, even: { x: 1, y: 0 } },
+    { odd: { x: 0, y: 1 }, even: { x: 0, y: 1 } },
+    { odd: { x: -1, y: 1 }, even: { x: -1, y: 0 } },
+    { odd: { x: -1, y: 0 }, even: { x: -1, y: -1 } },
+]
+
+/**
  * A Board is a n x m hexagonal grid of Tiles and Holes. The board is used to play the Fish Game where
  * players traverse the hexagonal grid collecting fish from tiles.
  *
@@ -99,42 +130,17 @@ const getReachableTilesFrom = (
 ): Array<{ x: number; y: number; tile: Tile }> => {
     const output: Array<{ x: number; y: number; tile: Tile }> = []
 
-    // Contains the different increments you can move to get to a
-    // neighboring tile for tiles in even and odd columns.
-    // See odd-q increments here:
-    // https://www.redblobgames.com/grids/hexagons/#neighbors-offset
-    const movementIncrements = [
-        { odd: { x: 0, y: -1 }, even: { x: 0, y: -1 } },
-        { odd: { x: 1, y: 0 }, even: { x: 1, y: -1 } },
-        { odd: { x: 1, y: 1 }, even: { x: 1, y: 0 } },
-        { odd: { x: 0, y: 1 }, even: { x: 0, y: 1 } },
-        { odd: { x: -1, y: 1 }, even: { x: -1, y: 0 } },
-        { odd: { x: -1, y: 0 }, even: { x: -1, y: -1 } },
-    ]
-
     // Check that the origin point is a tile
-    if (!boardHas(board, origin)) {
-        return []
-    }
+    isValidMovementPosition(board, origin)
 
-    movementIncrements.forEach((increment) => {
+    MOVEMENT_INCREMENTS.forEach((increment: DirectionIncrement) => {
         let currentPosn: Point = { x: origin.x, y: origin.y }
-
         // Move in the direction defined by the increment until we hit a hole
         // or the end of the board, adding each tile encountered to the output
         while (true) {
-            const xIncrement =
-                currentPosn.x % 2 === 0 ? increment.even.x : increment.odd.x
-            const yIncrement =
-                currentPosn.x % 2 === 0 ? increment.even.y : increment.odd.y
-
-            currentPosn = {
-                x: currentPosn.x + xIncrement,
-                y: currentPosn.y + yIncrement,
-            }
+            currentPosn = getNextTileInDirection(currentPosn, increment)
 
             let currentTile = boardGet(board, currentPosn)
-
             if (
                 currentTile !== "hole" &&
                 currentTile !== undefined &&
@@ -148,6 +154,27 @@ const getReachableTilesFrom = (
     })
 
     return output
+}
+
+const getNextTileInDirection = (
+    currentPosition: Point,
+    increment: DirectionIncrement
+): Point => {
+    const xIncrement =
+        currentPosition.x % 2 === 0 ? increment.even.x : increment.odd.x
+    const yIncrement =
+        currentPosition.x % 2 === 0 ? increment.even.y : increment.odd.y
+
+    return (currentPosition = {
+        x: currentPosition.x + xIncrement,
+        y: currentPosition.y + yIncrement,
+    })
+}
+
+const isValidMovementPosition = (board: Board, origin: Point) => {
+    if (!boardHas(board, origin)) {
+        throw new IllegalArgumentError("You cannot move from a hole")
+    }
 }
 
 /**

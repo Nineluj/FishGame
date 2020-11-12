@@ -56,14 +56,20 @@ describe("the board", () => {
         expect(getNumberOfTilesOnBoard(board)).to.be.at.least(10)
     })
 
-    it("returns no moves when getReachableTilesFrom is invoked on a hole", () => {
+    it("throws an exception when getReachableTilesFrom is invoked on a hole", () => {
         const board = createBoard(10, { holes: [{ x: 0, y: 2 }] })
-        expect(getReachableTilesFrom(board, { x: 0, y: 2 })).to.be.empty
+        expect(() => getReachableTilesFrom(board, { x: 0, y: 2 })).to.throw(
+            IllegalArgumentError,
+            "You cannot move from a hole"
+        )
     })
 
-    it("returns no moves when getReachableTilesFrom is invoked on an empty board", () => {
+    it("throws an exception when getReachableTilesFrom is invoked on an empty board", () => {
         const board = createBoard(0)
-        expect(getReachableTilesFrom(board, { x: 0, y: 0 })).to.be.empty
+        expect(() => getReachableTilesFrom(board, { x: 0, y: 0 })).to.throw(
+            IllegalArgumentError,
+            "You cannot move from a hole"
+        )
     })
 
     it("returns valid moves when getReachableTilesFrom is invoked on a tile with neighboring tiles", () => {
