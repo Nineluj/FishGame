@@ -39,8 +39,7 @@ for the players take. Updated the relevant tests.
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5097316eb640669bfb276c4f08dc757691d8a83a
 
-feedback: (self-identified issue) the referee was not interacting with the player
-instances in a safe way.
+feedback: no separate method/function that implements protection of calls to player
 
 approach: we use a try/catch for all the interactions with the players. We identified
 two kinds of failing players: those that throw errors and those that give the referee
@@ -96,3 +95,20 @@ approach: We discussed this for a while. We discussed exporting the function tha
 
 commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/8ad9808251309fc727b90231b0b308f1648f003d
 https://github.ccs.neu.edu/CS4500-F20/levelland/commit/f201463f3977d54bbffc634d7048ca6a0fa325bc
+
+feedback: no unit tests that cover abnormal conditions
+
+approach: Added two failing players, and relevant tests that illustrate their failures
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5097316eb640669bfb276c4f08dc757691d8a83a
+
+feedback: no separate function to handle avatar placement phase There should be a separate function in the referee which handles placement for each player.
+
+approach: We separated out the calls for the placement phase and the movement phase. We test each separately. This built off of the initial change to stop the players from calling the referee
+
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5097316eb640669bfb276c4f08dc757691d8a83a
+
+feedback: no unit test that specifically addresses placement only (For acknowledging this in the self-eval, you earned half credit)
+
+approach: Added unit tests alongside new functionality
+commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5097316eb640669bfb276c4f08dc757691d8a83a
