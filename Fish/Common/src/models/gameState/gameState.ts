@@ -147,39 +147,9 @@ const placePenguin = (
     playerId: string,
     dst: Point
 ): GameState => {
-    // check the phase
-    if (gameState.phase !== "penguinPlacement") {
-        throw new GameStateActionError(
-            `placePenguin expected penguinPlacement phase, got ${gameState.phase}`
-        )
-    }
-
-    // Check that the destination is an unoccupied tile
-    const dstTile = boardGet(gameState.board, dst)
-
-    if (dstTile === "hole" || dstTile === undefined || dstTile.occupied) {
-        throw new IllegalArgumentError(
-            `cannot place penguin on tile ${JSON.stringify(dstTile)}`
-        )
-    }
-
+    validatePenguinPlacement(gameState, dst, playerId)
+    const dstTile = boardGet(gameState.board, dst) as Tile
     const player = getPlayerWhoseTurnItIs(gameState)
-
-    if (player.id !== playerId) {
-        throw new GameStateActionError(`cannot play out of order, expecting
-            ${player.id} to play and not ${playerId}`)
-    }
-
-    // check that the player isn't trying to place too many penguins
-    if (
-        player.penguins.length >= getNumberOfPenguinsToPlacePerPlayer(gameState)
-    ) {
-        throw new GameStateActionError(
-            `cannot place more than ${getNumberOfPenguinsToPlacePerPlayer(
-                gameState
-            )} penguins per player`
-        )
-    }
 
     // Create the new player by adding a new penguin for them and giving them
     // points for the fish that were on the tile
@@ -213,6 +183,53 @@ const placePenguin = (
     return {
         ...newGameState,
         phase: newPhase,
+    }
+}
+
+const validatePenguinPlacement = (
+    gameState: GameState,
+    destination: Point,
+    playerId: string
+) => {
+    // check the phase
+    if (gameState.phase !== "penguinPlacement") {
+        throw new GameStateActionError(
+            `placePenguin expected penguinPlacement phase, got ${gameState.phase}`
+        )
+    }
+
+    validatePlacementPosition(gameState.board, destination)
+    validatePlayer(gameState, playerId)
+}
+
+// Throw if a penguin placement position is not an unoccupied tile
+const validatePlacementPosition = (board: Board, destination: Point) => {
+    const dstTile = boardGet(board, destination)
+    if (dstTile === "hole" || dstTile === undefined || dstTile.occupied) {
+        throw new IllegalArgumentError(
+            `cannot place penguin on tile ${JSON.stringify(dstTile)}`
+        )
+    }
+}
+
+// throws if it is not the player's turn, or the player has placed too many penguins
+const validatePlayer = (gameState: GameState, playerId: string) => {
+    const player = getPlayerWhoseTurnItIs(gameState)
+    // is the player playing out of order
+    if (player.id !== playerId) {
+        throw new GameStateActionError(`cannot play out of order, expecting
+            ${player.id} to play and not ${playerId}`)
+    }
+
+    // check that the player isn't trying to place too many penguins
+    if (
+        player.penguins.length >= getNumberOfPenguinsToPlacePerPlayer(gameState)
+    ) {
+        throw new GameStateActionError(
+            `cannot place more than ${getNumberOfPenguinsToPlacePerPlayer(
+                gameState
+            )} penguins per player`
+        )
     }
 }
 
