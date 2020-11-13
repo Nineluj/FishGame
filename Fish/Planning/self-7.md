@@ -18,6 +18,8 @@ critical elements of the project, though by no means all of them.
 
 ### Board
 
+https://github.ccs.neu.edu/CS4500-F20/levelland/blob/master/7/todo.md#gametree-todos
+
 -   a data definition and an interpretation for the game _board_
 
 Bullet in the todo (sub-bullet of board) : Insufficient interpretation of the board (it should be clear what all components of the data definition mean, how the data definition represents a real game board - example definition, tiles/holes). Please revise the interpretation to be as exact as possible, instead of saying the third model, it would be more clear to mention the name of the coordinate system on the website linked.
@@ -35,6 +37,8 @@ https://github.ccs.neu.edu/CS4500-F20/levelland/commit/79f8807b356eba22f970f0e02
 We did not have to add this to our todo. We had tested reachable tiles sufficiently to begin with. Here are the tests: https://github.ccs.neu.edu/CS4500-F20/levelland/blob/master/Fish/Common/src/models/board/board.test.ts#L59-L180
 
 ### Game States
+
+https://github.ccs.neu.edu/CS4500-F20/levelland/blob/master/7/todo.md#gametree-todo
 
 -   a data definition and an interpretation for the game _state_
 
@@ -54,6 +58,8 @@ https://github.ccs.neu.edu/CS4500-F20/levelland/commit/f201463f3977d54bbffc634d7
 Adds an additional unit test
 
 ### Trees and Strategies
+
+https://github.ccs.neu.edu/CS4500-F20/levelland/blob/master/7/todo.md#gametree-todo
 
 -   a data definition including an interpretation for _tree_ that represent entire games
 
@@ -112,7 +118,7 @@ and/or `reworked.md`).
 
 My favorite debt removal we tackled was in the referee. We refactored the referee quite a bit. But the part that stuck out the most in onboarding was that the referee would call the player, and then the player would call back to the referee. This was not a pattern that flowed well because a) there was no protection from a faulty player b) the player would take in the referee c) the players would be instantiated in the referee which meant we could only support one type of player.
 
-We solved this in serveral steps:
+We solved this in serveral steps: https://github.ccs.neu.edu/CS4500-F20/levelland/blob/master/7/todo.md#gametree-todo
 
 Step 1: Our todo: player should not call back to the referee - In the current design the player calls the referee when it is done with it's turn, player mutates referee's trusted data structures (in both todo and in reworked)
 
