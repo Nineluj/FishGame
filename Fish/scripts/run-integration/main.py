@@ -6,11 +6,14 @@ import sys
 import shlex
 import shutil
 
-import string
-import random
-
 # Be careful what you set this to, will be deleted when run
 OUTDIR = "/tmp/fish/"
+
+skips = set()
+
+if len(sys.argv) > 1:
+    for arg in sys.argv[1:]:
+        skips.add(arg)
 
 # Get the top level dir
 root_loc = pathlib.Path(__file__).resolve().parent.parent.parent.parent
@@ -33,17 +36,23 @@ os.mkdir(OUTDIR)
 
 for index, tf_list in enumerate(test_fests):
     name = milestones[index].name
+
+    if name in skips:
+        print(f"Skipping {name} as requested")
+        continue
     if len(tf_list) != 1:
         print(f"Skipping {name}, no fest folder found")
         continue
     if len(executables[index]) != 1:
         print(f"Skipping {name}, no executable found")
+        continue
 
     exec_path = executables[index][0]
 
     all_test_files = list(test_fests[index][0].glob("**/*-in.json"))
     test_file_len = len(all_test_files)
     count = 0
+    failed_tests = 0
 
     for input_file_name in all_test_files:
         # read the input
@@ -66,10 +75,13 @@ for index, tf_list in enumerate(test_fests):
         cmp_out.wait()
 
         if cmp_out.returncode != 0:
+            failed_tests += 1
             print(f"==================\nFAILURE: MS {name} {expected_file}")
             [print("     " + x.decode()) for x in cmp_out.stdout.readlines()]
 
         count += 1
         print(f"STATUS: [{count}/{test_file_len}]")
+
+    print(f"Failed {failed_tests} tests")
 
 print("ALL DONE")
