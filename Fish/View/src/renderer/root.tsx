@@ -25,6 +25,9 @@ const Root: React.FC = () => {
         electron.ipcRenderer.send("close-me")
     }
 
+    /**
+     * Dummy gameState used to showcase the functionality of the view.
+     */
     const [gameState, setGameState] = useState(
         createGameState([
             {
@@ -48,9 +51,20 @@ const Root: React.FC = () => {
         ])
     )
 
+    /**
+     * The penguin that has been selected by being clicked. A penguin must first be selected
+     * in order to be moved. A penguin cannot be selected during the placement phase
+     */
     const [selectedPenguin, setSelectedPenguin] = useState<undefined | Point>()
+    /**
+     * Error message that gets displayed to the user
+     */
     const [errorMessage, setErrorMessage] = useState<null | string>(null)
 
+    /**
+     * Places a penguin for the player on their view
+     * when a penguin clicks a tile during the penguin placement phase
+     */
     const onTileClickPenguinPlacement = (x: number, y: number) => {
         setGameState(
             placePenguin(gameState, getPlayerWhoseTurnItIs(gameState).id, {
@@ -59,6 +73,11 @@ const Root: React.FC = () => {
             })
         )
     }
+
+    /**
+     * Moves a penguin for the player on their view
+     * when a penguin clicks a tile during the penguin placement phase
+     */
 
     const onTileClickPlaying = (x: number, y: number) => {
         if (!selectedPenguin) {
@@ -81,6 +100,10 @@ const Root: React.FC = () => {
 
     console.log(getPlayerWhoseTurnItIs(gameState))
 
+    /**
+     * Delegates the handling of the tile click action based
+     * on the phase of the game
+     */
     const onTileClick = (x: number, y: number) => {
         if (gameState.phase === "playing") {
             onTileClickPlaying(x, y)
@@ -91,6 +114,10 @@ const Root: React.FC = () => {
         }
     }
 
+    /**
+     * Selects the penguin at the given location to be
+     * the player's selectedPenguin
+     */
     const onPenguinClick = (x: number, y: number) => {
         if (
             selectedPenguin &&
@@ -103,6 +130,9 @@ const Root: React.FC = () => {
     }
 
     console.log(gameState)
+    /**
+     * Render functionality
+     */
     return (
         <>
             <Players gameState={gameState} />

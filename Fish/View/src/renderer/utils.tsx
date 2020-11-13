@@ -9,6 +9,10 @@ export interface ViewTile extends Tile {
 
 export type ViewBoard = Array<Array<ViewTile | Hole>>
 
+/**
+ * Converts the gameState board into a representation that is easy for the
+ * view to render.
+ */
 export const getViewBoard = (gameState: GameState): ViewBoard => {
     let output = gameState.board
     gameState.players.forEach((player) => {
