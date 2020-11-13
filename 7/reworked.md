@@ -261,11 +261,12 @@ Missing documentation of what abnormal player conditions the referee addresses(c
 
 ### approach:
 
-Added documentation for when a player gets kicked out in english.
+Added documentation for when a player gets kicked out in english. Remembered to note that the game state could not be mutated
 
 ### commit:
 
 https://github.ccs.neu.edu/CS4500-F20/levelland/commit/0899b65bccb71bea591b4ec99ae79e460de3521a
+https://github.ccs.neu.edu/CS4500-F20/levelland/commit/cd01bfa0a4f03987d5410a5bed671c03bdb40563
 
 ## 19
 
