@@ -232,7 +232,7 @@ const getPenguinMaxMinMoveStrategy = (
         }
 
         for (let future of root.children()) {
-            const result = miniMax(future, stepsAhead - 1, player.id)
+            const result = miniMax(future, stepsAhead - 2, player.id)
             const scoreAchieved = result.scoreAchieved
 
             if (scoreAchieved === best.score) {

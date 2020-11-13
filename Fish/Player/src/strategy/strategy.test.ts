@@ -162,7 +162,12 @@ describe("Player Strategy", () => {
         })
     })
 
+    /*
+    TODO: these are all going to fail because they were created with the idea that
+    players receive points when penguins enter a tile instead of leaving it
+     */
     describe("#getPenguinMaxMinMoveStrategy", () => {
+        it("rework these tests")
         it("returns a the backup strategy (skipTurn) when the game is over", () => {
             const overGs = getOverState()
             expect(
@@ -206,20 +211,18 @@ describe("Player Strategy", () => {
             customGs.phase = "playing"
         })
 
-        it("handles 0 step ahead planning", () => {
+        it("handles best possible direct move, 1 step ahead planning", () => {
             const nextAction = getPenguinMaxMinMoveStrategy(
-                0,
+                1,
                 getSkipTurnStrategy()
             ).getNextAction(customGs)
 
-            //            console.log("$$$", nextAction.data, customGs)
             expect(nextAction.data.actionType).to.equal("move")
-            //console.log(JSON.stringify(customGs, null, 2))
             const reachedState = nextAction.apply(customGs)
 
             expect(
                 (boardGet(reachedState.board, { x: 2, y: 1 }) as Tile).occupied
-            ).to.be.true
+            ).to.be.false
 
             const movedPenguinPos = getPlayerById(reachedState, "p1")
                 .penguins[0]

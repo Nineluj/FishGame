@@ -254,7 +254,7 @@ describe("Referee", () => {
             expect(
                 ref.getPlayerStatuses().eliminatedPlayerIds.length
             ).to.be.equal(0)
-            expect(ref.getPlayerStatuses().players[0].score).to.be.equal(10)
+            expect(ref.getPlayerStatuses().players[0].score).to.be.equal(4)
         })
     })
 })

@@ -151,15 +151,18 @@ const placePenguin = (
     const dstTile = boardGet(gameState.board, dst) as Tile
     const player = getPlayerWhoseTurnItIs(gameState)
 
-    // Create the new player by adding a new penguin for them and giving them
-    // points for the fish that were on the tile
+    // Create the new player by adding a new penguin for them.
+    // no points are given since points are only awarded when a penguin
+    // moves off a tile
     const newPlayer = {
         ...putPenguin(player, dst),
-        score: player.score + dstTile.fish,
     }
 
     // Create the new board in which the tile where the penguin was placed is occupied
-    const newBoard = boardSet(gameState.board, dst, { fish: 0, occupied: true })
+    const newBoard = boardSet(gameState.board, dst, {
+        fish: dstTile.fish,
+        occupied: true,
+    })
 
     const newGameState = update(gameState, {
         players: {
@@ -273,6 +276,7 @@ const movePenguin = (
     }
 
     // Get the required information to update the state
+    const originTile = boardGet(gameState.board, origin) as Tile
     const dstTile = boardGet(gameState.board, dst) as Tile
     const player = getPlayerWhoseTurnItIs(gameState)
 
@@ -289,7 +293,7 @@ const movePenguin = (
     // Next update the player's score
     newPlayer = {
         ...newPlayer,
-        score: newPlayer.score + dstTile.fish,
+        score: newPlayer.score + originTile.fish,
     }
 
     const updatedGameState = update(gameState, {

@@ -265,7 +265,7 @@ describe("Game State", () => {
                 })
             ).to.be.false
 
-            // the right number of points are added to the player
+            // player's score gets incremented
             expect(getPlayerById(newState, "p1").score).to.equal(
                 getPlayerById(gs, "p1").score + 2
             )
@@ -289,6 +289,7 @@ describe("Game State", () => {
                 cState = movePenguin(cState, m.id, m.from, m.to)
             })
 
+            // scores get change by moving penguin off its tile
             cState.players.forEach((pl, i) =>
                 expect(pl.score).to.equal(initialScores[i] + 2)
             )

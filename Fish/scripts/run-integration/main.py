@@ -16,7 +16,7 @@ OUTDIR = "/tmp/fish/"
 root_loc = pathlib.Path(__file__).resolve().parent.parent.parent.parent
 all_folders = [x for x in root_loc.glob("*")]
 
-# retrieve the milestones, test fest folders and the executables 
+# retrieve the milestones, test fest folders and the executables
 milestones = list(filter(lambda f: re.compile(r"^[0-9]+$").match(f.name), all_folders))
 milestones.sort(key=lambda m: int(m.name))
 
@@ -41,13 +41,17 @@ for index, tf_list in enumerate(test_fests):
 
     exec_path = executables[index][0]
 
-    for input_file_name in test_fests[index][0].glob("**/*-in.json"):
+    all_test_files = list(test_fests[index][0].glob("**/*-in.json"))
+    test_file_len = len(all_test_files)
+    count = 0
+
+    for input_file_name in all_test_files:
         # read the input
         ps = subprocess.Popen(["cat", str(input_file_name)], stdout=subprocess.PIPE)
         ps.wait()
 
         test_num = str(input_file_name.name)[0]
-        
+
         # run the integration test integration executable
         exec_out = subprocess.Popen([str(exec_path)], shell=True, cwd=str(exec_path.parent), stdin=ps.stdout, stdout=subprocess.PIPE)
         exec_out.wait()
@@ -64,5 +68,8 @@ for index, tf_list in enumerate(test_fests):
         if cmp_out.returncode != 0:
             print(f"==================\nFAILURE: MS {name} {expected_file}")
             [print("     " + x.decode()) for x in cmp_out.stdout.readlines()]
+
+        count += 1
+        print(f"STATUS: [{count}/{test_file_len}]")
 
 print("ALL DONE")

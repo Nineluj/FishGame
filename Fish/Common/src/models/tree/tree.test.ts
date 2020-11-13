@@ -40,9 +40,9 @@ describe("Game Tree", () => {
                 gs: {
                     board: [
                         [
-                            { fish: 0, occupied: true },
-                            { fish: 0, occupied: true },
-                            { fish: 0, occupied: true },
+                            { fish: 2, occupied: true },
+                            { fish: 2, occupied: true },
+                            { fish: 2, occupied: true },
                         ],
                         [
                             { fish: 2, occupied: false },
@@ -50,17 +50,17 @@ describe("Game Tree", () => {
                         ],
                         [
                             { fish: 2, occupied: false },
-                            { fish: 0, occupied: true },
-                            { fish: 0, occupied: true },
+                            { fish: 2, occupied: true },
+                            { fish: 2, occupied: true },
                         ],
                         [
-                            { fish: 0, occupied: true },
-                            { fish: 0, occupied: true },
+                            { fish: 2, occupied: true },
+                            { fish: 2, occupied: true },
                         ],
                         [
-                            { fish: 0, occupied: true },
+                            { fish: 2, occupied: true },
                             { fish: 2, occupied: false },
-                            { fish: 0, occupied: true },
+                            { fish: 2, occupied: true },
                         ],
                         [
                             { fish: 2, occupied: false },
@@ -77,7 +77,7 @@ describe("Game Tree", () => {
                                 { x: 3, y: 1 },
                                 { x: 2, y: 1 },
                             ],
-                            score: 6,
+                            score: 0,
                         },
                         {
                             id: "p2",
@@ -87,7 +87,7 @@ describe("Game Tree", () => {
                                 { x: 4, y: 2 },
                                 { x: 3, y: 0 },
                             ],
-                            score: 6,
+                            score: 0,
                         },
                         {
                             id: "p3",
@@ -97,7 +97,7 @@ describe("Game Tree", () => {
                                 { x: 4, y: 0 },
                                 { x: 2, y: 2 },
                             ],
-                            score: 6,
+                            score: 0,
                         },
                     ],
                 },
@@ -140,8 +140,8 @@ describe("Game Tree", () => {
                 board: [
                     [
                         "hole",
-                        { fish: 0, occupied: true },
-                        { fish: 0, occupied: true },
+                        { fish: 2, occupied: true },
+                        { fish: 2, occupied: true },
                     ],
                     [
                         { occupied: true, fish: 2 },
@@ -149,17 +149,17 @@ describe("Game Tree", () => {
                     ],
                     [
                         { fish: 2, occupied: false },
-                        { fish: 0, occupied: true },
-                        { fish: 0, occupied: true },
+                        { fish: 2, occupied: true },
+                        { fish: 2, occupied: true },
                     ],
                     [
-                        { fish: 0, occupied: true },
-                        { fish: 0, occupied: true },
+                        { fish: 2, occupied: true },
+                        { fish: 2, occupied: true },
                     ],
                     [
-                        { fish: 0, occupied: true },
+                        { fish: 2, occupied: true },
                         { fish: 2, occupied: false },
-                        { fish: 0, occupied: true },
+                        { fish: 2, occupied: true },
                     ],
                     [
                         { fish: 2, occupied: false },
@@ -176,7 +176,7 @@ describe("Game Tree", () => {
                             { x: 4, y: 2 },
                             { x: 3, y: 0 },
                         ],
-                        score: 6,
+                        score: 0,
                     },
                     {
                         id: "p3",
@@ -186,7 +186,7 @@ describe("Game Tree", () => {
                             { x: 4, y: 0 },
                             { x: 2, y: 2 },
                         ],
-                        score: 6,
+                        score: 0,
                     },
                     {
                         id: "p1",
@@ -196,7 +196,7 @@ describe("Game Tree", () => {
                             { x: 3, y: 1 },
                             { x: 2, y: 1 },
                         ],
-                        score: 8,
+                        score: 2,
                     },
                 ],
             }
@@ -251,19 +251,22 @@ describe("Game Tree", () => {
 
     describe("#applyToAllFutureStates", () => {
         it("correctly applies a lambda action to all directly reachable GameStates when applyToAllFutureStates() is invoked", () => {
-            const sumScores = (gs: GameState): number => {
+            const sumPenguinXYs = (gs: GameState): number => {
                 let total = 0
                 gs.players.forEach((pl) => {
-                    total += pl.score
+                    pl.penguins.forEach((p) => {
+                        total += p.x
+                        total += p.y
+                    })
                 })
                 return total
             }
 
             const gs = getPlayingState()
             const gn = createGameNode(gs)
-            const out = applyToAllFutureStates(gn, sumScores)
+            const out = applyToAllFutureStates(gn, sumPenguinXYs)
 
-            expect(isDeepStrictEqual(out, [20, 20, 20, 20, 20, 20, 18])).to.be
+            expect(isDeepStrictEqual(out, [28, 28, 28, 26, 26, 25, 27])).to.be
                 .true
         })
     })
