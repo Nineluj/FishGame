@@ -37,11 +37,11 @@
 
 -   [x] Our todo: player should not call back to the referee - In the current design the player calls the referee when it is done with it's turn, player mutates referee's trusted data structures
 
--   [x] no separate method/function that implements protection of calls to player (self-identified pre-feedback)
+-   [x] no separate method/function that implements protection of calls to player (self-identified pre-feedback) (self-identified pre-feedback)
 
 -   [x] Our todo: Referee should receive something that implements the player interface (how will we accommodate other AI players)
 
--   [x] no separate function to handle avatar placement phase There should be a separate function in the referee which handles placement for each player.
+-   [x] no separate function to handle avatar placement phase There should be a separate function in the referee which handles placement for each player. (self-identified pre-feedback)
 
 -   [] Our todo: enforce player can only skip turn if they have no possible moves -> referee preemptively skip players turn if there are no moves
 

@@ -2,7 +2,7 @@
 
 ### feedback:
 
-GameNode interpretation doesn't seem to talk about skip: how does the user know what kind of node it represents? (-10 for skip) (skip comment is not enough, your interpretation should talk about it)
+GameNode interpretation doesn't seem to talk about skip: how does the user know what kind of node it represents? (skip comment is not enough, your interpretation should talk about it)
 
 ### approach:
 
