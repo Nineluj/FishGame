@@ -10,8 +10,11 @@ Original Failing Test Example: 1-in.json from the alma directory
 What was the bug: The gameState logic gave a player points when a penguin was placed and when it
 arrived at a tile. The score should only be incremented when a penguin leaves a tile.
 Tests for gameState were fixed to reflect this change. Was fixed at the same time as the next bug.
+The failing integration test was turned into a unit test (see second commit). Only had to convert
+the coordinate and board into our internal representation to get it to work which was fairly straightforward.
 
 Commit: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/60b7b85afcc995aa1b8d5f004574b2e953afcfb2
+New unit test: https://github.ccs.neu.edu/CS4500-F20/levelland/commit/04b1f1c51d2daf91a39bf516e385c6e344e8dafb
 
 ### Bug: Milestone 6 -- Wrong depth used by minMax strategy
 
