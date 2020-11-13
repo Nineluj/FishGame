@@ -216,7 +216,6 @@ describe("Player Strategy", () => {
                 1,
                 getSkipTurnStrategy()
             ).getNextAction(customGs)
-
             expect(nextAction.data.actionType).to.equal("move")
             const reachedState = nextAction.apply(customGs)
 
@@ -226,7 +225,8 @@ describe("Player Strategy", () => {
 
             const movedPenguinPos = getPlayerById(reachedState, "p1")
                 .penguins[0]
-            expect(movedPenguinPos.x).to.equal(2)
+
+            expect(movedPenguinPos.x).to.equal(0)
             expect(movedPenguinPos.y).to.equal(1)
             const otherPenguinPos = getPlayerById(reachedState, "p1")
                 .penguins[1]
@@ -269,8 +269,8 @@ describe("Player Strategy", () => {
             const origin = nextAction.data.origin as Point
             const dst = nextAction.data.dst as Point
 
-            expect(origin.x).to.equal(0)
-            expect(origin.y).to.equal(1)
+            expect(origin.x).to.equal(2)
+            expect(origin.y).to.equal(2)
             expect(dst.x).to.equal(1)
             expect(dst.y).to.equal(1)
         })
