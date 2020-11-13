@@ -2,7 +2,7 @@
 
 ### feedback:
 
-GameNode interpretation doesn't seem to talk about skip: how does the user know what kind of node it represents? (-10 for skip) (skip comment is not enough, your interpretation should talk about it)
+GameNode interpretation doesn't seem to talk about skip: how does the user know what kind of node it represents? (skip comment is not enough, your interpretation should talk about it)
 
 ### approach:
 
@@ -261,11 +261,12 @@ Missing documentation of what abnormal player conditions the referee addresses(c
 
 ### approach:
 
-Added documentation for when a player gets kicked out in english.
+Added documentation for when a player gets kicked out in english. Remembered to note that the game state could not be mutated
 
 ### commit:
 
 https://github.ccs.neu.edu/CS4500-F20/levelland/commit/0899b65bccb71bea591b4ec99ae79e460de3521a
+https://github.ccs.neu.edu/CS4500-F20/levelland/commit/cd01bfa0a4f03987d5410a5bed671c03bdb40563
 
 ## 19
 
@@ -280,3 +281,31 @@ Took each error and moved it into one helper, then broke that helper into discre
 ### commit:
 
 https://github.ccs.neu.edu/CS4500-F20/levelland/commit/45d51fd225332014829b65a0dee882dcccad0142
+
+### 20
+
+### feedback:
+
+README does not explain how project is organized (file/folder structure)
+
+### approach:
+
+Described the contents of each sub-directory. Worked through the contents. Described how to run it
+
+### commit:
+
+https://github.ccs.neu.edu/CS4500-F20/levelland/commit/96a2b994dd4c0262c8982929a77f26a51474fd6a
+
+### 21
+
+### feedback:
+
+Add tests for the AI Player to show it is consistent with it's strategy
+
+### approach:
+
+These are very simple tests that are largely a sanity check to make sure the player is acting consistently
+
+### commit:
+
+https://github.ccs.neu.edu/CS4500-F20/levelland/commit/63b4e63f4dda891f00d92b72c5dc387f2ab3cf73

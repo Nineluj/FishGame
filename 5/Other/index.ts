@@ -19,6 +19,7 @@ import {
 import { tiebreakMoves } from "../../Fish/Player/src/strategy/strategy"
 import { pointsEqual } from "../../Fish/Common/src/models/point/point"
 import { movePenguin } from "../../Fish/Common/src/models/gameState/gameState"
+import { createGameNode } from "../../Fish/Common/src/models/tree/tree"
 
 interface Player {
     color: "red" | "white" | "brown" | "black"
@@ -44,16 +45,22 @@ const getNeighboringPoints = (point: Point): Array<Point> => {
         // north
         { odd: { x: 0, y: -1 }, even: { x: 0, y: -1 } },
         // northeast
-        { odd: { x: -1, y: 0 }, even: { x: -1, y: 1 } },
+        { odd: { x: 1, y: 0 }, even: { x: 1, y: -1 } },
         // southeast
-        { odd: { x: -1, y: -1 }, even: { x: -1, y: 0 } },
+        { odd: { x: 1, y: 1 }, even: { x: 1, y: 0 } },
         // south
         { odd: { x: 0, y: 1 }, even: { x: 0, y: 1 } },
         // southwest
-        { odd: { x: 1, y: -1 }, even: { x: 1, y: 0 } },
-        // northwest
-        { odd: { x: 1, y: 0 }, even: { x: 1, y: 1 } },
+        { odd: { x: -1, y: 1 }, even: { x: -1, y: 0 } },
+        // is actually northewest
+        { odd: { x: -1, y: 0 }, even: { x: -1, y: -1 } },
     ]
+    // { odd: { x: 0, y: -1 }, even: { x: 0, y: -1 } },
+    // { odd: { x: 1, y: 0 }, even: { x: 1, y: -1 } },
+    // { odd: { x: 1, y: 1 }, even: { x: 1, y: 0 } },
+    // { odd: { x: 0, y: 1 }, even: { x: 0, y: 1 } },
+    // { odd: { x: -1, y: 1 }, even: { x: -1, y: 0 } },
+    // { odd: { x: -1, y: 0 }, even: { x: -1, y: -1 } },
     const output: Array<Point> = []
 
     const whichDir = point.x % 2 == 0 ? "even" : "odd"
@@ -72,29 +79,22 @@ const findSuitableMove = (
     gs: GameState,
     targetLocation: Point
 ): false | Action => {
+    if (gs.phase === "over") {
+        return false
+    }
     const neighbors = getNeighboringPoints(targetLocation)
-
-    const potentialMoves: Array<Action> = []
-    getPlayerWhoseTurnItIs(gs).penguins.forEach((penguin) => {
-        getReachableTilesFrom(gs.board, penguin).forEach((reachableTile) => {
-            if (containsPoint(neighbors, reachableTile)) {
-                potentialMoves.push(
-                    createMoveAction(
-                        getPlayerWhoseTurnItIs(gs).id,
-                        penguin,
-                        reachableTile
-                    )
-                )
-            }
-        })
-    })
+    const tree = createGameNode(gs)
+    const potentialMoves = tree.children()
 
     let output: boolean | Action = false
     neighbors.forEach((neighbor) => {
         const out: Array<Action> = []
         potentialMoves.forEach((potentialMove) => {
-            if (pointsEqual(potentialMove.data.dst, neighbor)) {
-                out.push(potentialMove)
+            if (
+                potentialMove.action.data.dst &&
+                pointsEqual(potentialMove.action.data.dst, neighbor)
+            ) {
+                out.push(potentialMove.action)
             }
         })
         if (!output && out.length > 0) {
@@ -147,6 +147,7 @@ const runTestCase = (input: MoveResponseQuery): Output => {
 const main = () => {
     parseJsonObjectsFromStdIn((data: Array<any>) => {
         const output = runTestCase(data[0])
+
         console.log(output)
     })
 }

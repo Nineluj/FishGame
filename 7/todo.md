@@ -21,7 +21,7 @@
 -   [x] in game state: insufficient coverage of unit tests for turn-taking functionality (No unit test for multiple turns of moving penguins)
 -   [x] in game state: no unit tests for functionality that checks if no move is possible (Only check if penguins have been placed, not if game is over)
 -   [] no unit tests for remove-tile functionality in the view
--   [] (our todo) tests for AIPlayer, making sure that it returns an action
+-   [x] (our todo) tests for AIPlayer, making sure that it returns an action
 -   [x] no unit tests that cover abnormal conditions
 -   [x] no unit test that specifically addresses placement only (For acknowledging this in the self-eval, you earned half credit)
 
@@ -37,11 +37,11 @@
 
 -   [x] Our todo: player should not call back to the referee - In the current design the player calls the referee when it is done with it's turn, player mutates referee's trusted data structures
 
--   [x] no separate method/function that implements protection of calls to player (self-identified pre-feedback)
+-   [x] no separate method/function that implements protection of calls to player (self-identified pre-feedback) (self-identified pre-feedback)
 
 -   [x] Our todo: Referee should receive something that implements the player interface (how will we accommodate other AI players)
 
--   [x] no separate function to handle avatar placement phase There should be a separate function in the referee which handles placement for each player.
+-   [x] no separate function to handle avatar placement phase There should be a separate function in the referee which handles placement for each player. (self-identified pre-feedback)
 
 -   [] Our todo: enforce player can only skip turn if they have no possible moves -> referee preemptively skip players turn if there are no moves
 
@@ -53,4 +53,4 @@
 
 ### Project Structure:
 
--   [] README does not explain how project is organized (file/folder structure)
+-   [x] README does not explain how project is organized (file/folder structure)

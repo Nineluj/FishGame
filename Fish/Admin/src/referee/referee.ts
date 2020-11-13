@@ -138,6 +138,7 @@ class Referee {
      * The cases the referee considers before kicking out the player are:
      *  - Players that error
      *  - Players that submit invalid moves
+     * The Game State is immutable so players are unable to change the ground truth of the game
      *
      * We leave the timeout feature to the tcp player to monitor. We trust the house players
      * not to time out. If a Player goes into an infinite loop, we will not be able to prevent that
