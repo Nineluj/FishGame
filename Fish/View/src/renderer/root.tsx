@@ -56,6 +56,7 @@ const Root: React.FC = () => {
      * in order to be moved. A penguin cannot be selected during the placement phase
      */
     const [selectedPenguin, setSelectedPenguin] = useState<undefined | Point>()
+
     /**
      * Error message that gets displayed to the user
      */
@@ -130,6 +131,7 @@ const Root: React.FC = () => {
     }
 
     console.log(gameState)
+
     /**
      * Render functionality
      */

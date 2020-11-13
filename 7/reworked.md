@@ -282,7 +282,7 @@ Took each error and moved it into one helper, then broke that helper into discre
 
 https://github.ccs.neu.edu/CS4500-F20/levelland/commit/45d51fd225332014829b65a0dee882dcccad0142
 
-### 20
+## 20
 
 ### feedback:
 
@@ -296,7 +296,7 @@ Described the contents of each sub-directory. Worked through the contents. Descr
 
 https://github.ccs.neu.edu/CS4500-F20/levelland/commit/96a2b994dd4c0262c8982929a77f26a51474fd6a
 
-### 21
+## 21
 
 ### feedback:
 
@@ -309,3 +309,20 @@ These are very simple tests that are largely a sanity check to make sure the pla
 ### commit:
 
 https://github.ccs.neu.edu/CS4500-F20/levelland/commit/63b4e63f4dda891f00d92b72c5dc387f2ab3cf73
+
+## 22
+
+### feedback
+
+no unit tests for remove-tile functionality in the view
+
+### approach
+
+`remove-tile` was a temporary function that was removed when the view was changed to allow for
+simple game play without the referee. The functions in the view however did not have proper purpose
+statements or any other comments so those were added. The functions were all quite simple
+and were not doing much work on top of what was already handled by the gameState which is fully tested.
+
+### commit
+
+https://github.ccs.neu.edu/CS4500-F20/levelland/commit/782acb820878fa469d8e46e0ccadf8627edc3926
