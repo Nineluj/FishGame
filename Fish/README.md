@@ -33,7 +33,13 @@ This project contains unit tests written using Mocha and Chai. These can be run 
 
 ### scripts
 
-`scrips/` contains a script that can run all of the tests in a test fest and check the output matches the test fest. This is a convenience feature
+`scripts/` contains a script that can run all of the tests in a test fest and check the output matches the test fest. This is a convenience feature.
+
+-   `json-eq` is a script to compare a stream of JSON objects
+-   `run-integration` contains a python script that can run through all the test fests for the various integration tests to make it easy to
+    find failing tests after changes have been made. For it to work, you must first enter and run `make` in the milestone (numbered) folder. The milestone directories that are to be tested
+    should also contain a folder `fest` that is the extracted (with `tar -xf`) test fest folder provided by the staff. The makefile in this directory is to make the python file executable
+    and install json-eq which is needed for run-integration to work. The script can take a list of numbers (separated by spaces) to indicate which milestone testing suite should not be run.
 
 ### View
 

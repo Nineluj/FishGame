@@ -1,3 +1,14 @@
+#!/usr/bin/python3
+
+# You need to go into each integration test folder and
+# run `make` there to make the executables work
+#
+# There should be a fest/ folder under {MS_Number}/
+# that is the extracted tar -xf file
+#
+# This script can take numbers (separated by spaces)
+# that indicate the milestone testing folders not to be run
+
 import pathlib
 import re
 import subprocess
@@ -11,6 +22,7 @@ OUTDIR = "/tmp/fish/"
 
 skips = set()
 
+# handles skipped MS directories
 if len(sys.argv) > 1:
     for arg in sys.argv[1:]:
         skips.add(arg)
