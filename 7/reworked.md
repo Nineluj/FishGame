@@ -295,3 +295,17 @@ Described the contents of each sub-directory. Worked through the contents. Descr
 ### commit:
 
 https://github.ccs.neu.edu/CS4500-F20/levelland/commit/96a2b994dd4c0262c8982929a77f26a51474fd6a
+
+### 21
+
+### feedback:
+
+Add tests for the AI Player to show it is consistent with it's strategy
+
+### approach:
+
+These are very simple tests that are largely a sanity check to make sure the player is acting consistently
+
+### commit:
+
+https://github.ccs.neu.edu/CS4500-F20/levelland/commit/63b4e63f4dda891f00d92b72c5dc387f2ab3cf73

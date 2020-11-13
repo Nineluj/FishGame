@@ -21,7 +21,7 @@
 -   [x] in game state: insufficient coverage of unit tests for turn-taking functionality (No unit test for multiple turns of moving penguins)
 -   [x] in game state: no unit tests for functionality that checks if no move is possible (Only check if penguins have been placed, not if game is over)
 -   [] no unit tests for remove-tile functionality in the view
--   [] (our todo) tests for AIPlayer, making sure that it returns an action
+-   [x] (our todo) tests for AIPlayer, making sure that it returns an action
 -   [x] no unit tests that cover abnormal conditions
 -   [x] no unit test that specifically addresses placement only (For acknowledging this in the self-eval, you earned half credit)
 
