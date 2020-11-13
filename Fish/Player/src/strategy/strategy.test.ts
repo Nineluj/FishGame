@@ -28,6 +28,7 @@ import { boardGet } from "../../../Common/src/models/board"
 import { Tile } from "../../../Common/src/models/tile"
 import { Point } from "../../../Common/src/models/point"
 import { isDeepStrictEqual } from "util"
+import { convertToBoardLocation } from "../../../Common/src/harness/boardAdapter"
 
 describe("Player Strategy", () => {
     describe("#tiebreakMoves", () => {
@@ -162,12 +163,7 @@ describe("Player Strategy", () => {
         })
     })
 
-    /*
-    TODO: these are all going to fail because they were created with the idea that
-    players receive points when penguins enter a tile instead of leaving it
-     */
     describe("#getPenguinMaxMinMoveStrategy", () => {
-        it("rework these tests")
         it("returns a the backup strategy (skipTurn) when the game is over", () => {
             const overGs = getOverState()
             expect(
@@ -273,6 +269,80 @@ describe("Player Strategy", () => {
             expect(origin.y).to.equal(2)
             expect(dst.x).to.equal(1)
             expect(dst.y).to.equal(1)
+        })
+
+        // created from failing integration test
+        it("optimizes the move based on points earned when penguin leaves a tile", () => {
+            // the board here was converted with the adapter into our internal board
+            // representation
+            const gs: GameState = {
+                board: [
+                    [
+                        { fish: 2, occupied: true },
+                        { fish: 3, occupied: true },
+                    ],
+                    [
+                        { fish: 4, occupied: false },
+                        { fish: 3, occupied: true },
+                    ],
+                    [
+                        { fish: 5, occupied: true },
+                        { fish: 5, occupied: true },
+                    ],
+                    [
+                        { fish: 3, occupied: true },
+                        { fish: 3, occupied: true },
+                    ],
+                    [
+                        { fish: 4, occupied: true },
+                        { fish: 3, occupied: false },
+                    ],
+                    [
+                        { fish: 4, occupied: false },
+                        { fish: 1, occupied: false },
+                    ],
+                ],
+                players: [
+                    {
+                        id: "red",
+                        penguinColor: "red",
+                        penguins: [
+                            { x: 0, y: 0 },
+                            { x: 0, y: 1 },
+                            { x: 1, y: 1 },
+                            { x: 2, y: 0 },
+                        ],
+                        score: 0,
+                    },
+                    {
+                        id: "brown",
+                        penguinColor: "brown",
+                        penguins: [
+                            { x: 4, y: 0 },
+                            { x: 2, y: 1 },
+                            { x: 3, y: 1 },
+                            { x: 3, y: 0 },
+                        ],
+                        score: 0,
+                    },
+                ],
+                phase: "playing",
+            }
+
+            const actual = getPenguinMaxMinMoveStrategy(
+                1,
+                getSkipTurnStrategy()
+            ).getNextAction(gs)
+
+            // these are the points from the integration test
+            // had to be converted to our coordinate system
+            const expected = createMoveAction(
+                "red",
+                convertToBoardLocation(0, 1),
+                convertToBoardLocation(1, 0)
+            )
+
+            expect(actionsEqual(expected, actual)).to.be.true
         })
     })
 })
