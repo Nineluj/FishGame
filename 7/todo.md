@@ -53,4 +53,4 @@
 
 ### Project Structure:
 
--   [] README does not explain how project is organized (file/folder structure)
+-   [x] README does not explain how project is organized (file/folder structure)

@@ -280,3 +280,17 @@ Took each error and moved it into one helper, then broke that helper into discre
 ### commit:
 
 https://github.ccs.neu.edu/CS4500-F20/levelland/commit/45d51fd225332014829b65a0dee882dcccad0142
+
+### 20
+
+### feedback:
+
+README does not explain how project is organized (file/folder structure)
+
+### approach:
+
+Described the contents of each sub-directory. Worked through the contents. Described how to run it
+
+### commit:
+
+https://github.ccs.neu.edu/CS4500-F20/levelland/commit/96a2b994dd4c0262c8982929a77f26a51474fd6a
