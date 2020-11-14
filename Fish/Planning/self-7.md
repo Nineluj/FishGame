@@ -48,7 +48,7 @@ https://github.ccs.neu.edu/CS4500-F20/levelland/commit/abfdb8e2b60d77dc22359696b
 
 -   a purpose statement for the "take turn" functionality on states
 
-We did not receive feedback on our purpose statement for take turn functionality it was sufficiently detailed.
+We did not receive feedback on our purpose statement for take turn functionality it was sufficiently detailed. To see the current state of take turn purpose statement see: https://github.ccs.neu.edu/CS4500-F20/levelland/blob/7f2d8d5b2ec2c03aaef0fe54ccbe573b7f133cf0/Fish/Common/src/models/gameState/gameState.ts#L248-L254
 
 -   two unit tests for the "take turn" functionality
 
@@ -73,7 +73,7 @@ https://github.ccs.neu.edu/CS4500-F20/levelland/commit/ddf3b126cd4b59aa936b9c795
 
 -   a purpose statement for the "maximin strategy" functionality on trees
 
-We did not have to update our maximin strategy purpose statement. We did clarify the data definition for action so that purposes would be further clarified.
+We did not have to update our maximin strategy purpose statement. We did clarify the data definition for action so that purposes would be further clarified. To see the current state of the maximin purpose statement see: https://github.ccs.neu.edu/CS4500-F20/levelland/blob/7f2d8d5b2ec2c03aaef0fe54ccbe573b7f133cf0/Fish/Player/src/strategy/strategy.ts#L165-L257
 
 -   two unit tests for the "maximin" functionality
 
@@ -85,11 +85,11 @@ Point to at least two of the following three points of remediation:
 
 -   the replacement of `null` for the representation of holes with an actual representation
 
-We did not have to factor out null. We had Holes and Tiles as types to begin with.
+We never received feedback on null for the representation of holes. To see the current state of holes see: https://github.ccs.neu.edu/CS4500-F20/levelland/blob/7f2d8d5b2ec2c03aaef0fe54ccbe573b7f133cf0/Fish/Common/src/models/tile.ts#L1-L3
 
 -   one name refactoring that replaces a misleading name with a self-explanatory name
 
-Though we did not call it out exactly. We refactored the name of our Player to AIPlayer to distinguish between the representation of the player in the board and in the referee
+Though we did not call it out exactly in our todo. We refactored the name of our Player to AIPlayer to distinguish between the representation of the player in the board and in the referee
 
 https://github.ccs.neu.edu/CS4500-F20/levelland/commit/5097316eb640669bfb276c4f08dc757691d8a83a#diff-e4a6306c9c6c050b5fbc45ec3c0af38eL24-R28
 
