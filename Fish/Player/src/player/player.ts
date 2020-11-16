@@ -32,9 +32,12 @@ export class AIPlayer implements PlayerInterface {
      * to make actions. The referee is tasked with calling the methods
      * on this player to give it information about the game
      */
-    constructor(output?: Writeable) {
+    constructor(output?: Writeable, movesAhead?: number) {
+        if (!movesAhead) {
+            movesAhead = DEFAULT_MOVES_AHEAD
+        }
         this.strategy = getPenguinMaxMinMoveStrategy(
-            DEFAULT_MOVES_AHEAD,
+            movesAhead,
             getPenguinPlacementStrategy(getSkipTurnStrategy())
         )
 
