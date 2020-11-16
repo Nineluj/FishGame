@@ -18,11 +18,19 @@ import {
 import { PlayerInterface } from "../../../Common/player-interface"
 import { createEliminatePlayerAction } from "../../../Common/src/models/action/action"
 import { Board } from "../../../Common/src/models/board"
-import { createPlayer } from "../../../Common/src/models/testHelpers/testHelpers"
+import {
+    createPlayer,
+    players,
+} from "../../../Common/src/models/testHelpers/testHelpers"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 
 // The order in which the referee will assign the colors to the players
-let colorOrder: Array<PenguinColor> = ["red", "white", "brown", "black"]
+export const colorOrder: Array<PenguinColor> = [
+    "red",
+    "white",
+    "brown",
+    "black",
+]
 
 /**
  * Component that knows how to run a complete game of fish for
@@ -57,8 +65,12 @@ class Referee {
      * @param players the set of players playing in the game sorted for the desired order of play
      * @param board optionally, a specific board that should be used for this game
      */
-    constructor(players: Array<PlayerInterface>, board?: Board) {
-        const gamePlayers = Referee.createGamePlayers(players.length)
+    constructor(
+        players: Array<PlayerInterface>,
+        board?: Board,
+        playerIds?: string[]
+    ) {
+        const gamePlayers = Referee.createGamePlayers(players.length, playerIds)
 
         if (board) {
             this.initialGame = createGameStateCustomBoard(gamePlayers, board)
@@ -80,7 +92,10 @@ class Referee {
     /**
      * Creates the player knowledge for the game state
      */
-    static createGamePlayers(numberOfPlayers: number): Array<Player> {
+    static createGamePlayers(
+        numberOfPlayers: number,
+        playerIds?: string[]
+    ): Array<Player> {
         let out: Array<Player> = []
         if (
             numberOfPlayers < MIN_PLAYER_COUNT ||
@@ -95,9 +110,11 @@ class Referee {
             playerIndex < numberOfPlayers;
             playerIndex++
         ) {
-            out.push(
-                createPlayer(colorOrder[playerIndex], colorOrder[playerIndex])
-            )
+            let playerId: string = colorOrder[playerIndex]
+            if (playerIds) {
+                playerId = playerIds[playerIndex]
+            }
+            out.push(createPlayer(colorOrder[playerIndex], playerId))
         }
 
         return out
@@ -115,6 +132,21 @@ class Referee {
             players: this.gameState.players,
             eliminatedPlayerIds: Array.from(this.eliminatedPlayerIds),
         }
+    }
+
+    getWinningPlayers(): Array<string> {
+        let bestPlayer = [] as string[]
+        let bestScore = 0
+
+        this.gameState.players.forEach((player) => {
+            if (player.score > bestScore) {
+                bestPlayer = [player.id]
+                bestScore = player.score
+            } else if (player.score === bestScore) {
+                bestPlayer.push(player.id)
+            }
+        })
+        return bestPlayer
     }
 
     /**
