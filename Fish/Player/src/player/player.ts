@@ -54,4 +54,14 @@ export class AIPlayer implements PlayerInterface {
     getNextAction(gs: GameState): Action {
         return this.strategy.getNextAction(gs)
     }
+
+    /**
+     * Notify the player that the tournament is starting
+     */
+    notifyTournamentIsStarting() {}
+
+    /**
+     * Update the AI Player that they have been pushed through to the next round of the tournament
+     */
+    advanceToNextRound() {}
 }
