@@ -22,4 +22,14 @@ export interface PlayerInterface {
      * Asks the player for its next action. The player can assume that it is their turn.
      */
     getNextAction(gs: GameState): Action
+
+    /**
+     * Notify the player that the tournament is starting
+     */
+    notifyTournamentIsStarting(): void
+
+    /**
+     * Notify the player that the tournament is over
+     */
+    notifyTournamentOver(didIWin: boolean): void
 }

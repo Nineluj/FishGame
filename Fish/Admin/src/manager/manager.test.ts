@@ -2,6 +2,8 @@ import { AIPlayer } from "../../../Player/src/player/player"
 import { createCompetitorArray } from "../../../Common/src/models/testHelpers"
 import { Competitor, TournamentManager } from "./manager"
 import { expect } from "chai"
+import { isDeepStrictEqual } from "util"
+import { ErrorPlayer } from "src/referee/referee.test"
 
 describe("Tournament Manager", () => {
     describe("#constructor", () => {})
@@ -54,6 +56,81 @@ describe("Tournament Manager", () => {
             expect(splitPlayers[1]).to.have.lengthOf(3)
         })
     })
+
+    describe("#runRefereeGames", () => {
+        it("creates a referee for each group", () => {
+            const competitors = createCompetitorArray(5)
+            const groups = TournamentManager.splitPlayersIntoGames(competitors)
+
+            const manager = new TournamentManager(competitors)
+            const refGroups = manager.runRefereeGames(groups)
+
+            refGroups.forEach((rg, index) => {
+                expect(isDeepStrictEqual(rg[1], groups[index])).to.be.true
+                rg[0]
+                    .getPlayerStatuses()
+                    .players.forEach((p) =>
+                        expect(isIdInCompetitorArray(groups[index], p.id))
+                    )
+            })
+        })
+    })
+
+    describe("#runTournament", () => {
+        it("puts a failing player into the losers array", () => {
+            const competitors = createCompetitorArray(6).concat([
+                { id: "bad", age: 2, ai: new ErrorPlayer() },
+            ])
+
+            const manager = new TournamentManager(competitors)
+            manager.runTournament()
+
+            expect(manager.getLosers()).to.contain("bad")
+        })
+    })
+
+    describe("#runGameForEachGroup", () => {
+        it("at least one player make it to the next round given rule abiding players", () => {})
+
+        it("no players make it to the next round if they are all bad", () => {
+            const cs = [
+                { id: "bad1", age: 1, ai: new ErrorPlayer() },
+                { id: "bad2", age: 2, ai: new ErrorPlayer() },
+                { id: "bad3", age: 3, ai: new ErrorPlayer() },
+                { id: "bad4", age: 4, ai: new ErrorPlayer() },
+            ]
+
+            const groups = [
+                [cs[0], cs[1]],
+                [cs[2], cs[3]],
+            ]
+
+            const manager = new TournamentManager(cs)
+            const result = manager.runGameForEachGroup(groups)
+
+            expect(result).to.have.lengthOf(0)
+            expect(manager.getLosers()).to.have.lengthOf(4)
+        })
+
+        it("bad player doesn't make it to the second round", () => {
+            const cs = createCompetitorArray(6).concat([
+                { id: "bad", age: 2, ai: new ErrorPlayer() },
+            ])
+
+            const groups = [
+                [cs[0], cs[1], cs[2]],
+                [cs[3], cs[4], cs[5], cs[6]],
+            ]
+
+            const manager = new TournamentManager(cs)
+            const result = manager.runGameForEachGroup(groups)
+
+            expect(isIdInCompetitorArray(result, "bad")).to.be.false
+            expect(manager.getLosers()).to.contain("bad")
+        })
+    })
+
+    // TODO: need some tests with naughty player AIs
 })
 
 const isCompetitorArraySorted = (competitors: Competitor[]) => {
@@ -66,3 +143,8 @@ const isCompetitorArraySorted = (competitors: Competitor[]) => {
     }
     return true
 }
+
+const isIdInCompetitorArray = (
+    competitors: Competitor[],
+    id: string
+): boolean => competitors.some((comp) => comp.id === id)

@@ -34,7 +34,7 @@ const allPlayers: Array<PlayerInterface> = [playerAI1, playerAI2, playerAI3]
 /**
  * Player that always throws errors for all of its methods
  */
-class ErrorPlayer implements PlayerInterface {
+export class ErrorPlayer extends AIPlayer {
     notifyBanned(s: string) {
         throw new IllegalArgumentError("sir this is a Wendies")
     }
@@ -53,7 +53,7 @@ class ErrorPlayer implements PlayerInterface {
 /**
  * Player that generates an invalid move when getNextAction is called
  */
-class IllegalActionPlayer implements PlayerInterface {
+class IllegalActionPlayer extends AIPlayer {
     notifyBanned(s: string) {}
 
     getNextAction(gs: GameState): Action {

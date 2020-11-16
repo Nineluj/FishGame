@@ -61,10 +61,10 @@ export class AIPlayer implements PlayerInterface {
     /**
      * Notify the player that the tournament is starting
      */
-    notifyTournamentIsStarting() {}
+    notifyTournamentIsStarting(): void {}
 
     /**
-     * Update the AI Player that they have been pushed through to the next round of the tournament
+     * Notify the player that the tournament is over
      */
-    advanceToNextRound() {}
+    notifyTournamentOver(didIWin: boolean): void {}
 }

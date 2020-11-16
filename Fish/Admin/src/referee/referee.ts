@@ -23,6 +23,7 @@ import {
     players,
 } from "../../../Common/src/models/testHelpers/testHelpers"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
+import { callFunctionSafely } from "src/utils/communications"
 
 // The order in which the referee will assign the colors to the players
 export const colorOrder: Array<PenguinColor> = [
@@ -31,6 +32,16 @@ export const colorOrder: Array<PenguinColor> = [
     "brown",
     "black",
 ]
+
+/**
+ * Represents players' outcome of a game separated into winners and losers
+ */
+export type GameResult = {
+    // players who achieved the highest score
+    winners: Array<string>
+    // players who did not achieve the highest score or got kicked out
+    losers: Array<string>
+}
 
 /**
  * Component that knows how to run a complete game of fish for
@@ -134,19 +145,39 @@ class Referee {
         }
     }
 
-    getWinningPlayers(): Array<string> {
-        let bestPlayer = [] as string[]
+    /**
+     * Gets the winning and losing players from the game after it is run.
+     * Throws an error if it is called before the game is completed.
+     * TODO: test this
+     */
+    getPlayerResults(): GameResult {
+        if (this.gameState.phase !== "over") {
+            throw new IllegalArgumentError(
+                "cannot get the winning players before the game is over"
+            )
+        }
+
+        let results: GameResult = {
+            winners: [],
+            losers: Array.from(this.eliminatedPlayerIds),
+        }
+
         let bestScore = 0
 
         this.gameState.players.forEach((player) => {
             if (player.score > bestScore) {
-                bestPlayer = [player.id]
+                results.losers = results.losers.concat(results.winners)
+                results.winners = [player.id]
+
                 bestScore = player.score
             } else if (player.score === bestScore) {
-                bestPlayer.push(player.id)
+                results.winners.push(player.id)
+            } else {
+                results.losers.push(player.id)
             }
         })
-        return bestPlayer
+
+        return results
     }
 
     /**
@@ -208,7 +239,7 @@ class Referee {
 
         // update the players with the new state
         this.players.forEach((playerInstance, playerId) => {
-            this.callPlayerFunction(playerId, () =>
+            callFunctionSafely(() =>
                 playerInstance.updateGameState(this.gameState)
             )
         })
@@ -230,26 +261,12 @@ class Referee {
         this.gameState = elimAction.apply(this.gameState)
 
         if (notify) {
-            this.callPlayerFunction(playerId, () =>
+            callFunctionSafely(() =>
                 this.players.get(playerId)!.notifyBanned(reason)
             )
         }
 
         this.players.delete(playerId)
-    }
-
-    /**
-     * Calls a player function and returns the result. If the call fails, kicks the player and returns false.
-     */
-    private callPlayerFunction<R>(
-        responsiblePlayerId: string,
-        fn: () => R
-    ): R | false {
-        try {
-            return fn()
-        } catch {}
-
-        return false
     }
 
     /**
@@ -261,7 +278,7 @@ class Referee {
     private getPlayerActionOrEliminate(playerId: string): void {
         const player = this.players.get(playerId)!
 
-        const playerAction = this.callPlayerFunction(playerId, () =>
+        const playerAction = callFunctionSafely(() =>
             player.getNextAction(this.gameState)
         )
 
