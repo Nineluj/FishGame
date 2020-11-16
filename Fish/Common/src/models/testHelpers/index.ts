@@ -2,6 +2,12 @@ import {
     placeMultiple,
     getPlayingState,
     getPlacementState,
+    createCompetitorArray,
 } from "./testHelpers"
 
-export { placeMultiple, getPlayingState, getPlacementState }
+export {
+    placeMultiple,
+    getPlayingState,
+    getPlacementState,
+    createCompetitorArray,
+}

@@ -7,6 +7,8 @@ import {
     movePenguin,
     skipTurn,
 } from "../gameState/gameState"
+import { Competitor } from "../../../../Admin/src/manager/manager"
+import { AIPlayer } from "../../../../Player/src/player/player"
 
 const player1: Player = {
     id: "p1",
@@ -148,4 +150,20 @@ export const createPlayer = (color: PenguinColor, id: string): Player => {
         penguins: [],
         score: 0,
     }
+}
+
+export const createCompetitor = (id: string, age: number): Competitor => {
+    return {
+        id,
+        age,
+        ai: new AIPlayer(),
+    }
+}
+
+export const createCompetitorArray = (desiredLength: number): Competitor[] => {
+    const output = []
+    for (let i = 0; i < desiredLength; i++) {
+        output.push(createCompetitor(String(i), i))
+    }
+    return output
 }
