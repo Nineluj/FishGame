@@ -16,6 +16,15 @@ class PlayerErrorsAsTournamentStarts extends AIPlayer {
         throw new Error("I cant handle competing")
     }
 }
+class PlayerRecordsTournamentUpdates extends AIPlayer {
+    notifyTournamentIsStarting() {
+        this.output.write("Tournament Is Starting")
+    }
+
+    notifyVictoryOrLoss(didIWin: boolean) {
+        this.output.write(`I ${didIWin ? "won" : "lost"}`)
+    }
+}
 
 describe("Tournament Manager", () => {
     describe("#constructor", () => {})
@@ -247,8 +256,56 @@ describe("Tournament Manager", () => {
     })
 
     describe("#alertPlayersThatTournamentIsBeginning", () => {
-        it("alerts players that the tournament is beginning")
-        it("makes players that error losers")
+        it("alerts players that the tournament is beginning", () => {
+            let data = { written: "" }
+            const customWriter = {
+                write(s: string): void {
+                    data.written = s
+                },
+            }
+
+            const recordPlayer = new PlayerRecordsTournamentUpdates(
+                customWriter
+            )
+
+            const normalPlayer = new AIPlayer()
+
+            const tm = new TournamentManager([
+                { id: "recorder", age: 1, ai: recordPlayer },
+                { id: "normy", age: 1, ai: normalPlayer },
+            ])
+
+            tm.alertPlayersThatTournamentIsBeginning()
+            expect(data.written).to.be.equal("Tournament Is Starting")
+        })
+        it("makes players that error losers", () => {
+            let data = { written: "" }
+            const customWriter = {
+                write(s: string): void {
+                    data.written = s
+                },
+            }
+
+            const recordPlayer = new PlayerRecordsTournamentUpdates(
+                customWriter
+            )
+
+            const normalPlayer = new AIPlayer()
+
+            const tm = new TournamentManager([
+                { id: "recorder", age: 1, ai: recordPlayer },
+                { id: "normy", age: 1, ai: normalPlayer },
+                {
+                    id: "error",
+                    age: 1000,
+                    ai: new PlayerErrorsAsTournamentStarts(),
+                },
+            ])
+
+            tm.alertPlayersThatTournamentIsBeginning()
+            expect(data.written).to.be.equal("Tournament Is Starting")
+            expect(tm.getLosers()).to.have.lengthOf(1)
+        })
     })
 
     describe("#alertPlayersOfVictory", () => {

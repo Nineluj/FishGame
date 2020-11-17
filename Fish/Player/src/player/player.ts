@@ -11,7 +11,7 @@ import { Action } from "../../../Common/src/models/action"
 
 export const DEFAULT_MOVES_AHEAD = 2
 
-interface Writeable {
+export interface Writeable {
     write(s: string): void
 }
 
@@ -25,7 +25,7 @@ const dummyWriteable = {
  */
 export class AIPlayer implements PlayerInterface {
     private strategy: Strategy
-    private output: Writeable
+    protected output: Writeable
 
     /**
      * @param referee is the referee that the player interacts with
