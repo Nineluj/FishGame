@@ -26,6 +26,7 @@ export class TournamentManager {
                 `Must have at least ${MIN_PLAYER_COUNT} players to run a tournament`
             )
         }
+
         this.competingPlayers = players
         this.losers = []
     }
@@ -43,17 +44,11 @@ export class TournamentManager {
         this.alertPlayersThatTournamentIsBeginning()
 
         let remainingPlayers = this.competingPlayers
+        let lastRoundWinners: Competitor[] = []
 
-        while (remainingPlayers.length >= MIN_PLAYER_COUNT) {
-            const groups = TournamentManager.splitPlayersIntoGames(
-                remainingPlayers
-            )
-            const winners = this.runGameForEachGroup(groups)
-
-            if (isDeepStrictEqual(remainingPlayers, winners)) {
-                break
-            }
-
+        while (this.canRunAnotherRound(remainingPlayers, lastRoundWinners)) {
+            let winners = this.runOneRound(remainingPlayers)
+            lastRoundWinners = remainingPlayers
             remainingPlayers = winners
         }
 
@@ -66,6 +61,36 @@ export class TournamentManager {
         this.alertPlayersOfLoss()
 
         return remainingPlayers
+    }
+
+    /**
+     * Determines if it is possible to run another round in this tournament. It is
+     * not possible to run a new round in a tournament when there aren't enough
+     * competitors to play or when two consecutive rounds have the same winners
+     */
+    canRunAnotherRound(
+        winners: Competitor[],
+        lastRoundWinners: Competitor[]
+    ): boolean {
+        if (isDeepStrictEqual(winners, lastRoundWinners)) {
+            return false
+        }
+
+        if (winners.length < MIN_PLAYER_COUNT) {
+            return false
+        }
+
+        return true
+    }
+
+    /**
+     * Runs a single round of this tournament with the given competitors
+     */
+    runOneRound(competitors: Competitor[]): Competitor[] {
+        const groups = TournamentManager.splitPlayersIntoGames(competitors)
+        const winners = this.runGameForEachGroup(groups)
+
+        return winners
     }
 
     /**
