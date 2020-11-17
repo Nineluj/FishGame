@@ -259,6 +259,8 @@ describe("Tournament Manager", () => {
     describe("#alertPlayersOfLoss", () => {
         it("alerts players that the tournament is over and they lost")
     })
+    describe("#canRunAnotherRound", () => {})
+    describe("#runOneRound", () => {})
 })
 
 const isCompetitorArraySorted = (competitors: Competitor[]) => {

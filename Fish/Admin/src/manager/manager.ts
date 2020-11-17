@@ -8,18 +8,41 @@ import {
 } from "../../../Common/src/models/gameState"
 import { callFunctionSafely } from "src/utils/communications"
 
+/**
+ * A Competitor is a participant in the tournament. A Competitor contains an id, an age, and something
+ * that implements the PlayerInterface.
+ */
 export type Competitor = {
+    // the Identifier of the competitor. The name they use to enroll in the tournament
     id: string
+    // the age of the player (used to determine turn order)
     age: number
+    // the ai player of the competitor, the ai competes o
     ai: PlayerInterface
 }
 
+/**
+ * A Competitor Group represents a grouping of players for the purpose of a single game in the tournament
+ */
 type CompetitorGroup = Competitor[]
 
+/**
+ * The TournamentManager manages a single tournament. It receives competitors from a sign up server, and then
+ * runs an entire tournament. The tournament manager removes competitors from ongoing game play if
+ *      a) they error in any given communication between the manager and player
+ *          (notification the tournament is starting, notification of victory)
+ *      b) the player loses an individual game (or is kicked out of a game by the referee)
+ * The TournamentManager utilizes a knockout system for tournament progression, players that win the tournament move
+ * to the next round
+ */
 export class TournamentManager {
     private competingPlayers: Competitor[]
     private losers: Competitor[]
 
+    /**
+     * Construct a tournament manager for the signed up players. Must have enough players to actually run a tournament
+     * @param players an array of signed up players containing ids, ages, and their corresponding ai
+     */
     constructor(players: Competitor[]) {
         if (players.length < MIN_PLAYER_COUNT) {
             throw new IllegalArgumentError(
@@ -161,8 +184,9 @@ export class TournamentManager {
     }
 
     /**
-     * TODO: more better comment
-     * Sets up and runs a referee game for each group
+     * Creates a Referee for each Competitor Group, and starts the referee running the game
+     *
+     * *Note: This is not currently asynchronous, but this was split to better allow that in the future
      * Returns the connection of referee with their corresponding groups
      */
     runRefereeGames(
@@ -188,7 +212,10 @@ export class TournamentManager {
     }
 
     /**
-     * Collects the competitors that have won their respective games
+     * Collects the competitors that have won their respective games by
+     * adding losers to the loser array, and returning the winners
+     *
+     * @return the players that have won and should therefore move on in the tournament
      */
     collectResults(
         allRefs: Array<[Referee, CompetitorGroup]>
@@ -233,10 +260,15 @@ export class TournamentManager {
     }
 
     /**
-     * Split the remaining competitors into
-     * //TODO describe in more detail
+     * Allocates players to games by:
+     * - assigning them to games with the maximal number of participants permitted in order of age
+     * - if it cannot put the remaining players into maximal games, it back tracks one game, and
+     *   tries games of size one less than the maximal number
+     *
+     * @param competitors the competitors to allocate to games
+     * @return competitors grouped into games
      */
-    static splitPlayersIntoGames(competitors: Competitor[]) {
+    static splitPlayersIntoGames(competitors: Competitor[]): CompetitorGroup[] {
         let currMax = MAX_PLAYER_COUNT
         let playersToPlace = TournamentManager.sortPlayersByAge([
             ...competitors,
