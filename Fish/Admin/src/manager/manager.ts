@@ -238,7 +238,9 @@ export class TournamentManager {
      */
     static splitPlayersIntoGames(competitors: Competitor[]) {
         let currMax = MAX_PLAYER_COUNT
-        let playersToPlace = [...competitors]
+        let playersToPlace = TournamentManager.sortPlayersByAge([
+            ...competitors,
+        ])
         let gameResult = []
 
         while (playersToPlace.length > 0) {
@@ -247,17 +249,13 @@ export class TournamentManager {
                 currMax >= MIN_PLAYER_COUNT
             ) {
                 const groupPlayers = playersToPlace.slice(0, currMax)
-                gameResult.push(
-                    TournamentManager.sortPlayersByAge(groupPlayers)
-                )
+                gameResult.push(groupPlayers)
                 playersToPlace = playersToPlace.slice(currMax)
             } else if (
                 playersToPlace.length <= MAX_PLAYER_COUNT &&
                 playersToPlace.length > currMax
             ) {
-                gameResult.push(
-                    TournamentManager.sortPlayersByAge(playersToPlace)
-                )
+                gameResult.push(playersToPlace)
                 break
             } else {
                 currMax--
