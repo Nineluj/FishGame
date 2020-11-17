@@ -11,6 +11,12 @@ class WinningErrorPlayer extends AIPlayer {
     }
 }
 
+class PlayerErrorsAsTournamentStarts extends AIPlayer {
+    notifyTournamentIsStarting() {
+        throw new Error("I cant handle competing")
+    }
+}
+
 describe("Tournament Manager", () => {
     describe("#constructor", () => {})
     describe("#splitPlayersIntoGames", () => {
@@ -99,6 +105,7 @@ describe("Tournament Manager", () => {
             const manager = new TournamentManager(competitors)
             const result = manager.runTournament()
             expect(result).to.have.lengthOf.greaterThan(0)
+            expect(result.length + manager.getLosers().length).to.equal(8)
         })
         it("if the winner errors after winning, the winner is added to the losers array", () => {
             const competitors = [
@@ -117,10 +124,53 @@ describe("Tournament Manager", () => {
             expect(result).to.have.lengthOf(0)
             expect(manager.getLosers()).to.contain("8")
         })
+        it("if all players error as they are alerted the game is beginning, they are added to the losers", () => {
+            const competitors = [
+                { id: "1", age: 10, ai: new PlayerErrorsAsTournamentStarts() },
+                { id: "2", age: 10, ai: new PlayerErrorsAsTournamentStarts() },
+                { id: "3", age: 10, ai: new PlayerErrorsAsTournamentStarts() },
+                { id: "4", age: 10, ai: new PlayerErrorsAsTournamentStarts() },
+                { id: "5", age: 10, ai: new PlayerErrorsAsTournamentStarts() },
+                { id: "6", age: 10, ai: new PlayerErrorsAsTournamentStarts() },
+                { id: "7", age: 10, ai: new PlayerErrorsAsTournamentStarts() },
+                { id: "8", age: 10, ai: new PlayerErrorsAsTournamentStarts() },
+            ]
+
+            const manager = new TournamentManager(competitors)
+            const result = manager.runTournament()
+            expect(result).to.have.lengthOf(0)
+            expect(manager.getLosers()).to.have.lengthOf(8)
+        })
     })
 
     describe("#runGameForEachGroup", () => {
-        it("at least one player make it to the next round given rule abiding players", () => {})
+        it("at least one player make it to the next round given rule abiding players", () => {
+            const competitors = createCompetitorArray(12)
+            const groups = [
+                [
+                    competitors[0],
+                    competitors[1],
+                    competitors[2],
+                    competitors[3],
+                ],
+                [
+                    competitors[4],
+                    competitors[5],
+                    competitors[6],
+                    competitors[7],
+                ],
+                [
+                    competitors[8],
+                    competitors[9],
+                    competitors[10],
+                    competitors[11],
+                ],
+            ]
+
+            const manager = new TournamentManager(competitors)
+            const result = manager.runGameForEachGroup(groups)
+            expect(result).to.have.length.greaterThan(2) // each group should produce at least one winner
+        })
 
         it("no players make it to the next round if they are all bad", () => {
             const cs = [
