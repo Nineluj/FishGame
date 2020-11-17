@@ -5,6 +5,12 @@ import { expect } from "chai"
 import { isDeepStrictEqual } from "util"
 import { ErrorPlayer } from "src/referee/referee.test"
 
+class WinningErrorPlayer extends AIPlayer {
+    notifyTournamentOver(didIWin: boolean) {
+        throw new Error("I dont know how to handle victory")
+    }
+}
+
 describe("Tournament Manager", () => {
     describe("#constructor", () => {})
     describe("#splitPlayersIntoGames", () => {
@@ -86,6 +92,30 @@ describe("Tournament Manager", () => {
             manager.runTournament()
 
             expect(manager.getLosers()).to.contain("bad")
+        })
+        it("produces at least one winner", () => {
+            const competitors = createCompetitorArray(8)
+
+            const manager = new TournamentManager(competitors)
+            const result = manager.runTournament()
+            expect(result).to.have.lengthOf.greaterThan(0)
+        })
+        it("if the winner errors after winning, the winner is added to the losers array", () => {
+            const competitors = [
+                { id: "1", age: 10, ai: new ErrorPlayer() },
+                { id: "2", age: 10, ai: new ErrorPlayer() },
+                { id: "3", age: 10, ai: new ErrorPlayer() },
+                { id: "4", age: 10, ai: new ErrorPlayer() },
+                { id: "5", age: 10, ai: new ErrorPlayer() },
+                { id: "6", age: 10, ai: new ErrorPlayer() },
+                { id: "7", age: 10, ai: new ErrorPlayer() },
+                { id: "8", age: 10, ai: new WinningErrorPlayer() },
+            ]
+
+            const manager = new TournamentManager(competitors)
+            const result = manager.runTournament()
+            expect(result).to.have.lengthOf(0)
+            expect(manager.getLosers()).to.contain("8")
         })
     })
 

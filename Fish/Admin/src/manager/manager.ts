@@ -60,7 +60,7 @@ export class TournamentManager {
         // notify all the players that lost
         this.alertPlayersOfLoss()
 
-        return remainingPlayers
+        return this.competingPlayers
     }
 
     /**
