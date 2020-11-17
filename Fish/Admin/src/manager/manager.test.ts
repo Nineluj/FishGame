@@ -21,7 +21,7 @@ class PlayerRecordsTournamentUpdates extends AIPlayer {
         this.output.write("Tournament Is Starting")
     }
 
-    notifyVictoryOrLoss(didIWin: boolean) {
+    notifyTournamentOver(didIWin: boolean) {
         this.output.write(`I ${didIWin ? "won" : "lost"}`)
     }
 }
@@ -309,8 +309,57 @@ describe("Tournament Manager", () => {
     })
 
     describe("#alertPlayersOfVictory", () => {
-        it("alerts players that the tournament is over and they won")
-        it("makes players that error losers")
+        it("alerts players that the tournament is over and they won", () => {
+            let data = { written: "" }
+            const customWriter = {
+                write(s: string): void {
+                    data.written = s
+                },
+            }
+
+            const recordPlayer = new PlayerRecordsTournamentUpdates(
+                customWriter
+            )
+
+            const normalPlayer = new AIPlayer()
+
+            const tm = new TournamentManager([
+                { id: "recorder", age: 1, ai: recordPlayer },
+                { id: "normy", age: 1, ai: normalPlayer },
+            ])
+
+            tm.alertPlayersOfVictory()
+            expect(data.written).to.be.equal("I won")
+        })
+        it("makes players that error losers", () => {
+            let data = { written: "" }
+            const customWriter = {
+                write(s: string): void {
+                    data.written = s
+                },
+            }
+
+            const recordPlayer = new PlayerRecordsTournamentUpdates(
+                customWriter
+            )
+
+            const normalPlayer = new AIPlayer()
+
+            const tm = new TournamentManager([
+                { id: "recorder", age: 1, ai: recordPlayer },
+                { id: "normy", age: 1, ai: normalPlayer },
+                {
+                    id: "error",
+                    age: 1000,
+                    ai: new WinningErrorPlayer(),
+                },
+            ])
+
+            expect(tm.getLosers()).to.have.lengthOf(0)
+            tm.alertPlayersOfVictory()
+            expect(data.written).to.be.equal("I won")
+            expect(tm.getLosers()).to.have.lengthOf(1)
+        })
     })
 
     describe("#alertPlayersOfLoss", () => {
