@@ -117,7 +117,7 @@ export class TournamentManager {
      * Notify a player about a tournament update and make them a loser
      * if they error
      */
-    notifyCompetitorOrMakeLoser(func: (comp: Competitor) => void) {
+    private notifyCompetitorOrMakeLoser(func: (comp: Competitor) => void) {
         const playersHandleVictoryGracefully: Competitor[] = []
 
         this.competingPlayers.forEach((competitor) => {

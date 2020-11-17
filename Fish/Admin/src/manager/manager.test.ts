@@ -109,6 +109,21 @@ describe("Tournament Manager", () => {
         })
     })
 
+    describe("#collectResults", () => {
+        it("Returns the winners of each game with all rule abiding players", () => {
+            const competitors = createCompetitorArray(5)
+            const groups = TournamentManager.splitPlayersIntoGames(competitors)
+
+            const manager = new TournamentManager(competitors)
+            const refGroups = manager.runRefereeGames(groups)
+            const results = manager.collectResults(refGroups)
+
+            expect(results.length).to.be.greaterThan(0)
+            expect(manager.getLosers()).to.have.lengthOf.greaterThan(0)
+            expect(results.length + manager.getLosers().length).to.be.equal(5)
+        })
+    })
+
     describe("#runTournament", () => {
         it("puts a failing player into the losers array", () => {
             const competitors = createCompetitorArray(6).concat([
@@ -231,7 +246,19 @@ describe("Tournament Manager", () => {
         })
     })
 
-    // TODO: need some tests with naughty player AIs
+    describe("#alertPlayersThatTournamentIsBeginning", () => {
+        it("alerts players that the tournament is beginning")
+        it("makes players that error losers")
+    })
+
+    describe("#alertPlayersOfVictory", () => {
+        it("alerts players that the tournament is over and they won")
+        it("makes players that error losers")
+    })
+
+    describe("#alertPlayersOfLoss", () => {
+        it("alerts players that the tournament is over and they lost")
+    })
 })
 
 const isCompetitorArraySorted = (competitors: Competitor[]) => {
