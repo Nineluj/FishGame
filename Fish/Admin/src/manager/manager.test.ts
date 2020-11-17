@@ -316,7 +316,28 @@ describe("Tournament Manager", () => {
     describe("#alertPlayersOfLoss", () => {
         it("alerts players that the tournament is over and they lost")
     })
-    describe("#canRunAnotherRound", () => {})
+    describe("#canRunAnotherRound", () => {
+        it("Returns false, if the last round players and next round players are the same", () => {
+            const competitors = createCompetitorArray(10)
+            const tm = new TournamentManager(competitors)
+
+            expect(tm.canRunAnotherRound(competitors, competitors)).to.be.false
+        })
+        it("Returns false, if there aren't enough players to continue", () => {
+            const competitors = createCompetitorArray(10)
+            const tm = new TournamentManager(competitors)
+
+            expect(tm.canRunAnotherRound(competitors.slice(9), competitors)).to
+                .be.false
+        })
+        it("Returns true, another round can be played", () => {
+            const competitors = createCompetitorArray(10)
+            const tm = new TournamentManager(competitors)
+
+            expect(tm.canRunAnotherRound(competitors.slice(5), competitors)).to
+                .be.true
+        })
+    })
     describe("#runOneRound", () => {})
 })
 
