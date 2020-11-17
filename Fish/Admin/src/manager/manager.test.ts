@@ -67,6 +67,27 @@ describe("Tournament Manager", () => {
             expect(splitPlayers[0]).to.have.lengthOf(2)
             expect(splitPlayers[1]).to.have.lengthOf(3)
         })
+        it("Splits an unsorted array of 6 elements, into 2 groups of 3 each sorted by age", () => {
+            const competitors = createCompetitorArray(6)
+            const shuffleCompetitors = [
+                competitors[2],
+                competitors[3],
+                competitors[5],
+                competitors[0],
+                competitors[1],
+                competitors[4],
+            ]
+            const splitPlayers = TournamentManager.splitPlayersIntoGames(
+                shuffleCompetitors
+            )
+
+            expect(splitPlayers).to.have.lengthOf(2)
+
+            splitPlayers.forEach((group) => {
+                expect(group).to.have.lengthOf(3)
+                expect(isCompetitorArraySorted(group)).to.be.true
+            })
+        })
     })
 
     describe("#runRefereeGames", () => {
