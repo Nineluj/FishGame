@@ -23,7 +23,7 @@ import {
     players,
 } from "../../../Common/src/models/testHelpers/testHelpers"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
-import { callFunctionSafely } from "src/utils/communications"
+import { callFunctionSafely } from "../../src/utils/communications"
 
 // The order in which the referee will assign the colors to the players
 export const colorOrder: Array<PenguinColor> = [

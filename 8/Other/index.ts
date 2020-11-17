@@ -29,7 +29,8 @@ const runTestCase = (input: GameDescription) => {
         players.map((player) => player[0])
     )
     referee.runGamePlay()
-    const winners = referee.getWinningPlayers()
+
+    const winners = referee.getPlayerResults().winners
     return winners.sort()
 }
 

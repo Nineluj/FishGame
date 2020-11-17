@@ -6,7 +6,7 @@ import {
     MAX_PLAYER_COUNT,
     MIN_PLAYER_COUNT,
 } from "../../../Common/src/models/gameState"
-import { callFunctionSafely } from "src/utils/communications"
+import { callFunctionSafely } from "../../src/utils/communications"
 
 /**
  * A Competitor is a participant in the tournament. A Competitor contains an id, an age, and something
@@ -80,7 +80,7 @@ export class TournamentManager {
         // notify all the players that won
         this.alertPlayersOfVictory()
 
-        // notify all the players that lost
+        // TODO: Alert only players that were in the difference between lastRoundWinners and remaining players
         this.alertPlayersOfLoss()
 
         return this.competingPlayers
