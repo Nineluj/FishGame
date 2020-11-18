@@ -83,10 +83,8 @@ export class TournamentManager {
 
         this.competingPlayers = remainingPlayers
 
-        // notify all the players that won
         this.alertPlayersOfVictory()
 
-        // TODO: Alert only players that were in the difference between lastRoundWinners and remaining players
         this.alertPlayersOfLoss()
 
         return this.competingPlayers
@@ -101,11 +99,10 @@ export class TournamentManager {
         winners: Competitor[],
         lastRoundWinners: Competitor[]
     ): boolean {
-        if (isDeepStrictEqual(winners, lastRoundWinners)) {
-            return false
-        }
-
-        if (winners.length < MIN_PLAYER_COUNT) {
+        if (
+            isDeepStrictEqual(winners, lastRoundWinners) ||
+            winners.length < MIN_PLAYER_COUNT
+        ) {
             return false
         }
 
