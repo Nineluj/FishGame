@@ -63,28 +63,28 @@ describe("Tournament Manager", () => {
             expect(splitPlayers[0]).to.have.lengthOf(3)
             expect(isCompetitorArraySorted(splitPlayers[0])).to.be.true
         })
-        it("Splits 15 players into 4 4 3 2 2 groups each sorted by age", () => {
-            const lengthArray = [4, 4, 3, 2, 2]
+        it("Splits 15 players into 4 4 4 3groups each sorted by age", () => {
+            const lengthArray = [4, 4, 4, 3]
             const competitors = createCompetitorArray(15)
             const splitPlayers = TournamentManager.splitPlayersIntoGames(
                 competitors
             )
 
-            expect(splitPlayers).to.have.lengthOf(5)
+            expect(splitPlayers).to.have.lengthOf(4)
             splitPlayers.forEach((group, index) => {
                 expect(group).to.have.lengthOf(lengthArray[index])
                 expect(isCompetitorArraySorted(group)).to.be.true
             })
         })
-        it("Splits 5 players into 2, 3 groups each sorted by age", () => {
+        it("Splits 5 players into 3, 2 groups each sorted by age", () => {
             const competitors = createCompetitorArray(5)
             const splitPlayers = TournamentManager.splitPlayersIntoGames(
                 competitors
             )
 
             expect(splitPlayers).to.have.lengthOf(2)
-            expect(splitPlayers[0]).to.have.lengthOf(2)
-            expect(splitPlayers[1]).to.have.lengthOf(3)
+            expect(splitPlayers[0]).to.have.lengthOf(3)
+            expect(splitPlayers[1]).to.have.lengthOf(2)
         })
         it("Splits an unsorted array of 6 elements, into 2 groups of 3 each sorted by age", () => {
             const competitors = createCompetitorArray(6)
@@ -101,9 +101,22 @@ describe("Tournament Manager", () => {
             )
 
             expect(splitPlayers).to.have.lengthOf(2)
+            const lengths = [4, 2]
+            splitPlayers.forEach((group, index) => {
+                expect(group).to.have.lengthOf(lengths[index])
+                expect(isCompetitorArraySorted(group)).to.be.true
+            })
+        })
+        it("Splits 17 players into 4 4 4 3 2 groups each sorted by age", () => {
+            const lengthArray = [4, 4, 4, 3, 2]
+            const competitors = createCompetitorArray(17)
+            const splitPlayers = TournamentManager.splitPlayersIntoGames(
+                competitors
+            )
 
-            splitPlayers.forEach((group) => {
-                expect(group).to.have.lengthOf(3)
+            expect(splitPlayers).to.have.lengthOf(5)
+            splitPlayers.forEach((group, index) => {
+                expect(group).to.have.lengthOf(lengthArray[index])
                 expect(isCompetitorArraySorted(group)).to.be.true
             })
         })

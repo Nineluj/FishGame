@@ -308,16 +308,13 @@ export class TournamentManager {
         let gameResult = []
 
         while (playersToPlace.length > 0) {
-            if (
-                playersToPlace.length >= currMax &&
-                currMax >= MIN_PLAYER_COUNT
-            ) {
+            if (playersToPlace.length >= currMax) {
                 const groupPlayers = playersToPlace.slice(0, currMax)
                 gameResult.push(groupPlayers)
                 playersToPlace = playersToPlace.slice(currMax)
             } else if (
                 playersToPlace.length <= MAX_PLAYER_COUNT &&
-                playersToPlace.length > currMax
+                playersToPlace.length >= MIN_PLAYER_COUNT
             ) {
                 gameResult.push(playersToPlace)
                 break
