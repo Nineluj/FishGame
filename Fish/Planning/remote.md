@@ -1,25 +1,32 @@
 # Fish Remote Protocol
+
 ## Logical Interaction Diagram
+
 ![fish communication protocol](./Fish%20Communication%20Protocol-34.jpg)
 
 ### Message specifications
-`signUpMsg` 
+
+`signUpMsg`
+
 ```typescript
 // the ID that the player wishes to be identified with in the tournament
 string
 ```
 
 `standbyMsg`:
+
 ```typescript
 "standby"
 ```
 
 `tournamentStartingMsg`:
+
 ```typescript
 "starting"
 ```
 
 `promptNextActionMsg`:
+
 ```typescript
 ["action", state]
 
@@ -46,30 +53,36 @@ string
 ```
 
 `makeActionMsg`:
+
 ```typescript
-[Position]
-// OR
-[Position, Position]
+;[Position][
+    // OR
+    (Position, Position)
+]
 ```
 
 `notifyBannedMsg`:
+
 ```typescript
 // string explains the reason why the player was banned
-["banned", string]
+;["banned", string]
 ```
 
 `updateGameStateMsg`:
+
 ```typescript
-["update", state]
+;["update", state]
 ```
 
 `alertTournamentOverMsg`:
+
 ```typescript
 // boolean represents if the player has won
-["over", boolean]
+;["over", boolean]
 ```
 
 ## English Prose
+
 The remote player can sign up by sending a `signUpMsg`. The communication layer then designates it to
 the signup system tells the communication layer to inform the player to standby. To do this the
 communication layer sends the player a `standbyMsg`.
@@ -81,10 +94,13 @@ signed up players. The tournament manager uses the communication layer to send o
 From there, the tournament manager splits players into games by allocating them to referees.
 When it is the player's turn (the diagram assumes that player goes first), the referee will
 tell the communication layer to request an action from the player. The communication layer
-will send a `promptNextAction` message. The player 
+will send a `promptNextAction` message. The player \_\_\_.
+
+Talk about loop \*\*\*\*
+
+Once the tournament is over the tournament manager tells the communication layer to send the players
+a `alertTournamentOverMsg` which lets the players know that the tournament is over and if they
+have won.
 
 If at any point in this protocol a player takes too long to respond or if the connection between the
-communication layer and the player closes
-
-
-``
+communication layer and the player closes, \_\_\_
