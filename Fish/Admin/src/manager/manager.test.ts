@@ -26,6 +26,16 @@ class PlayerRecordsTournamentUpdates extends AIPlayer {
     }
 }
 
+class ErrorPlayerRecordsTournamentUpdates extends ErrorPlayer {
+    notifyTournamentIsStarting() {
+        this.output.write("Tournament Is Starting")
+    }
+
+    notifyTournamentOver(didIWin: boolean) {
+        this.output.write(`I ${didIWin ? "won" : "lost"}`)
+    }
+}
+
 describe("Tournament Manager", () => {
     describe("#constructor", () => {})
     describe("#splitPlayersIntoGames", () => {
@@ -407,6 +417,29 @@ describe("Tournament Manager", () => {
 
             expect(data.written.length).to.be.greaterThan(0)
             expect(data.written[0]).to.be.equal("I lost")
+        })
+        it("does not update error players on their loss", () => {
+            let data = { written: "" }
+            const customWriter = {
+                write(s: string): void {
+                    data.written = s
+                },
+            }
+
+            const recordPlayer = new ErrorPlayerRecordsTournamentUpdates(
+                customWriter
+            )
+
+            const competitors = createCompetitorArray(5).concat([
+                { id: "rec", age: 1, ai: recordPlayer },
+            ])
+            const tm = new TournamentManager(competitors)
+
+            tm.runOneRound(competitors)
+            tm.alertPlayersOfLoss()
+
+            expect(data.written).to.be.equal("")
+            expect(tm.getFailures()).to.have.lengthOf(1)
         })
     })
     describe("#canRunAnotherRound", () => {
