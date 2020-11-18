@@ -36,8 +36,13 @@ type CompetitorGroup = Competitor[]
  * to the next round
  */
 export class TournamentManager {
+    // These are the players that are still competing to win the tournament
     private competingPlayers: Competitor[]
+    // These are competitors that lose their games
     private losers: Competitor[]
+    // These are competitors that errored either in their game, or when the tournament manager
+    // communicates with them
+    private failures: Competitor[]
 
     /**
      * Construct a tournament manager for the signed up players. Must have enough players to actually run a tournament
@@ -52,6 +57,7 @@ export class TournamentManager {
 
         this.competingPlayers = players
         this.losers = []
+        this.failures = []
     }
 
     /**
@@ -147,7 +153,7 @@ export class TournamentManager {
             const result = callFunctionSafely(() => func(competitor))
 
             if (result === false) {
-                this.losers.push(competitor)
+                this.failures.push(competitor)
             } else {
                 playersHandleVictoryGracefully.push(competitor)
             }
@@ -170,6 +176,13 @@ export class TournamentManager {
      */
     getLosers(): Array<string> {
         return this.losers.map((competitor) => competitor.id)
+    }
+
+    /**
+     * Get the IDs of all this tournament's failures
+     */
+    getFailures(): Array<string> {
+        return this.failures.map((competitor) => competitor.id)
     }
 
     /**
@@ -227,26 +240,39 @@ export class TournamentManager {
 
             const gameResults = ref.getPlayerResults()
 
-            gameResults.winners.forEach((playerId) => {
-                winners.push(
-                    TournamentManager.findPlayerInCompetitorGroup(
-                        compGroup,
-                        playerId
-                    )
-                )
-            })
-
-            gameResults.losers.forEach((playerId) => {
-                this.losers.push(
-                    TournamentManager.findPlayerInCompetitorGroup(
-                        compGroup,
-                        playerId
-                    )
-                )
-            })
+            this.addMatchingCompetitorsToArray(
+                winners,
+                gameResults.winners,
+                compGroup
+            )
+            this.addMatchingCompetitorsToArray(
+                this.losers,
+                gameResults.losers,
+                compGroup
+            )
+            this.addMatchingCompetitorsToArray(
+                this.failures,
+                gameResults.failures,
+                compGroup
+            )
         }
 
         return winners
+    }
+
+    addMatchingCompetitorsToArray(
+        compArray: Competitor[],
+        compsToAdd: string[],
+        compGroup: CompetitorGroup
+    ) {
+        compsToAdd.forEach((playerId) => {
+            compArray.push(
+                TournamentManager.findPlayerInCompetitorGroup(
+                    compGroup,
+                    playerId
+                )
+            )
+        })
     }
 
     /**

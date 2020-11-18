@@ -140,9 +140,11 @@ describe("Tournament Manager", () => {
             ])
 
             const manager = new TournamentManager(competitors)
-            manager.runTournament()
+            const result = manager.runTournament()
 
-            expect(manager.getLosers()).to.contain("bad")
+            expect(manager.getFailures()).to.contain("bad")
+            expect(manager.getLosers()).to.not.contain("bad")
+            expect(manager.getLosers().length + result.length).to.be.equal(6)
         })
         it("produces at least one winner", () => {
             const competitors = createCompetitorArray(8)
@@ -167,7 +169,7 @@ describe("Tournament Manager", () => {
             const manager = new TournamentManager(competitors)
             const result = manager.runTournament()
             expect(result).to.have.lengthOf(0)
-            expect(manager.getLosers()).to.contain("8")
+            expect(manager.getFailures()).to.contain("8")
         })
         it("if all players error as they are alerted the game is beginning, they are added to the losers", () => {
             const competitors = [
@@ -184,7 +186,7 @@ describe("Tournament Manager", () => {
             const manager = new TournamentManager(competitors)
             const result = manager.runTournament()
             expect(result).to.have.lengthOf(0)
-            expect(manager.getLosers()).to.have.lengthOf(8)
+            expect(manager.getFailures()).to.have.lengthOf(8)
         })
     })
 
@@ -234,7 +236,7 @@ describe("Tournament Manager", () => {
             const result = manager.runGameForEachGroup(groups)
 
             expect(result).to.have.lengthOf(0)
-            expect(manager.getLosers()).to.have.lengthOf(4)
+            expect(manager.getFailures()).to.have.lengthOf(4)
         })
 
         it("bad player doesn't make it to the second round", () => {
@@ -251,7 +253,7 @@ describe("Tournament Manager", () => {
             const result = manager.runGameForEachGroup(groups)
 
             expect(isIdInCompetitorArray(result, "bad")).to.be.false
-            expect(manager.getLosers()).to.contain("bad")
+            expect(manager.getFailures()).to.contain("bad")
         })
     })
 
@@ -304,7 +306,7 @@ describe("Tournament Manager", () => {
 
             tm.alertPlayersThatTournamentIsBeginning()
             expect(data.written).to.be.equal("Tournament Is Starting")
-            expect(tm.getLosers()).to.have.lengthOf(1)
+            expect(tm.getFailures()).to.have.lengthOf(1)
         })
     })
 
@@ -358,7 +360,7 @@ describe("Tournament Manager", () => {
             expect(tm.getLosers()).to.have.lengthOf(0)
             tm.alertPlayersOfVictory()
             expect(data.written).to.be.equal("I won")
-            expect(tm.getLosers()).to.have.lengthOf(1)
+            expect(tm.getFailures()).to.have.lengthOf(1)
         })
     })
 

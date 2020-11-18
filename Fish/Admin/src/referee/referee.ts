@@ -39,8 +39,10 @@ export const colorOrder: Array<PenguinColor> = [
 export type GameResult = {
     // players who achieved the highest score
     winners: Array<string>
-    // players who did not achieve the highest score or got kicked out
+    // players who did not achieve the highest score
     losers: Array<string>
+    // players who errored throughout the game and were kicked out
+    failures: Array<string>
 }
 
 /**
@@ -159,7 +161,8 @@ class Referee {
 
         let results: GameResult = {
             winners: [],
-            losers: Array.from(this.eliminatedPlayerIds),
+            losers: [],
+            failures: Array.from(this.eliminatedPlayerIds),
         }
 
         let bestScore = 0
