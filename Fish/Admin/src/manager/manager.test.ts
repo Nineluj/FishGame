@@ -365,7 +365,49 @@ describe("Tournament Manager", () => {
     })
 
     describe("#alertPlayersOfLoss", () => {
-        it("alerts players that the tournament is over and they lost")
+        it("alerts players that the tournament is over and they lost", () => {
+            let data = { written: [] as string[] }
+            const customWriter = {
+                write(s: string): void {
+                    data.written.push(s)
+                },
+            }
+
+            const recordPlayer1 = new PlayerRecordsTournamentUpdates(
+                customWriter
+            )
+
+            const recordPlayer2 = new PlayerRecordsTournamentUpdates(
+                customWriter
+            )
+
+            const recordPlayer3 = new PlayerRecordsTournamentUpdates(
+                customWriter
+            )
+
+            const recordPlayer4 = new PlayerRecordsTournamentUpdates(
+                customWriter
+            )
+
+            const comps = [
+                { id: "rec1", age: 6, ai: recordPlayer1 },
+                { id: "rec2", age: 6, ai: recordPlayer2 },
+                { id: "rec3", age: 6, ai: recordPlayer3 },
+                { id: "rec4", age: 3, ai: recordPlayer4 },
+                { id: "rec5", age: 6, ai: recordPlayer1 },
+                { id: "rec6", age: 6, ai: recordPlayer2 },
+                { id: "rec7", age: 6, ai: recordPlayer3 },
+            ]
+
+            const tm = new TournamentManager(comps)
+
+            tm.runOneRound(comps)
+
+            tm.alertPlayersOfLoss()
+
+            expect(data.written.length).to.be.greaterThan(0)
+            expect(data.written[0]).to.be.equal("I lost")
+        })
     })
     describe("#canRunAnotherRound", () => {
         it("Returns false, if the last round players and next round players are the same", () => {

@@ -260,6 +260,12 @@ export class TournamentManager {
         return winners
     }
 
+    /**
+     * Add the matching competitors from the competitor group to the results array
+     * @param compArray the array to add to
+     * @param compsToAdd the ids of the competitors to add
+     * @param compGroup the group of competitors to pull from
+     */
     addMatchingCompetitorsToArray(
         compArray: Competitor[],
         compsToAdd: string[],
