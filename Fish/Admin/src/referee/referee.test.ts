@@ -53,7 +53,7 @@ export class ErrorPlayer extends AIPlayer {
 /**
  * Player that generates an invalid move when getNextAction is called
  */
-class IllegalActionPlayer extends AIPlayer {
+export class IllegalActionPlayer extends AIPlayer {
     notifyBanned(s: string) {}
 
     getNextAction(gs: GameState): Action {

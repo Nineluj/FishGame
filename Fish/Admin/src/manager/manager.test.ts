@@ -3,7 +3,7 @@ import { createCompetitorArray } from "../../../Common/src/models/testHelpers"
 import { Competitor, TournamentManager } from "./manager"
 import { expect } from "chai"
 import { isDeepStrictEqual } from "util"
-import { ErrorPlayer } from "src/referee/referee.test"
+import { ErrorPlayer, IllegalActionPlayer } from "src/referee/referee.test"
 
 class WinningErrorPlayer extends AIPlayer {
     notifyTournamentOver(didIWin: boolean) {
@@ -464,7 +464,52 @@ describe("Tournament Manager", () => {
                 .be.true
         })
     })
-    describe("#runOneRound", () => {})
+    describe("#runOneRound", () => {
+        it("only returns players that win their rounds", () => {
+            const competitors = createCompetitorArray(15)
+            const tm = new TournamentManager(competitors)
+            const result = tm.runOneRound(competitors)
+            const firstSetLosers = tm.getLosers()
+
+            expect(result).to.have.lengthOf.greaterThan(4) // there are 5 games in a 15 round
+            expect(firstSetLosers).to.have.lengthOf.greaterThan(0)
+
+            const result2 = tm.runOneRound(result)
+
+            expect(result2).to.have.lengthOf.lessThan(result.length)
+            expect(result2).to.have.lengthOf.greaterThan(0)
+            expect(tm.getLosers()).to.have.lengthOf.greaterThan(
+                firstSetLosers.length
+            )
+        })
+
+        it("adds players to the failures section that error", () => {
+            const competitors = createCompetitorArray(15).concat([
+                { id: "error dude", age: 10, ai: new ErrorPlayer() },
+                { id: "illegal dude", age: 10, ai: new IllegalActionPlayer() },
+            ])
+            const tm = new TournamentManager(competitors)
+            const result = tm.runOneRound(competitors)
+            const firstSetLosers = tm.getLosers()
+
+            expect(result).to.have.lengthOf.greaterThan(4) // there are 5 games in a 15 round
+            expect(firstSetLosers).to.have.lengthOf.greaterThan(0)
+            expect(tm.getFailures()).to.have.lengthOf(2)
+            expect(tm.getFailures()).to.contain("error dude")
+            expect(tm.getFailures()).to.contain("illegal dude")
+
+            const result2 = tm.runOneRound(result)
+
+            expect(result2).to.have.lengthOf.lessThan(result.length)
+            expect(result2).to.have.lengthOf.greaterThan(0)
+            expect(tm.getLosers()).to.have.lengthOf.greaterThan(
+                firstSetLosers.length
+            )
+            expect(tm.getFailures()).to.have.lengthOf(2)
+            expect(tm.getFailures()).to.contain("error dude")
+            expect(tm.getFailures()).to.contain("illegal dude")
+        })
+    })
 })
 
 const isCompetitorArraySorted = (competitors: Competitor[]) => {
