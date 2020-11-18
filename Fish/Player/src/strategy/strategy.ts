@@ -158,13 +158,20 @@ const tiebreakMoves = (moves: Array<Action>): Action => {
     return minAction
 }
 
+/**
+ * In the context of the miniMax algorithm, represents the moves that are taken
+ * to achieve the maximum score with other players minimizing the maximizing player's score
+ * with the score that the maximizing player can achieve
+ */
 type maximiniResult = { scoreAchieved: number; moves: Array<Action> }
 const lessThan = (a: number, b: number): boolean => a < b
 const greaterThan = (a: number, b: number): boolean => a > b
 
 /**
  * Uses the minimax algorithm as described here: https://en.wikipedia.org/wiki/Minimax#Pseudocode
- * Returns the maximized score that the player with the given ID can get in `depth` turns
+ * In which the player chooses their maximum score that they can achieve given that all the other players
+ * will be trying to minimize the maximizing player's score
+ * Returns the maximiniResult that the player with the given ID can get in `depth` turns
  * @param node state of game at which the current player is making a move
  * @param depth how many turns should the maximizingPlayer still play
  * @param maximizingPlayerId the id of the player trying to maximize their score
