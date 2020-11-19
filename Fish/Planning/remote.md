@@ -2,7 +2,7 @@
 
 ## Logical Interaction Diagram
 
-![fish communication protocol](./Fish%20Communication%20Protocol-34.jpg)
+![fish communication protocol](./remote-protocol.jpg)
 
 ### Message specifications
 
