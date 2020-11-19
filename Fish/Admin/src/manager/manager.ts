@@ -30,8 +30,10 @@ type CompetitorGroup = Competitor[]
  * The TournamentManager manages a single tournament. It receives competitors from a sign up server, and then
  * runs an entire tournament. The tournament manager removes competitors from ongoing game play if
  *      a) they error in any given communication between the manager and player
- *          (notification the tournament is starting, notification of victory)
- *      b) the player loses an individual game (or is kicked out of a game by the referee)
+ *          (notification the tournament is starting, notification of victory) (or is kicked out of a game by the referee)
+ *      b) the player loses an individual game
+ * Currently, we do not manage players that take too long to respond. // TODO: This will be managed by the Communication Layer (see remote.md)
+ *
  * The TournamentManager utilizes a knockout system for tournament progression, players that win the tournament move
  * to the next round
  */
@@ -40,7 +42,7 @@ export class TournamentManager {
     private competingPlayers: Competitor[]
     // These are competitors that lose their games
     private losers: Competitor[]
-    // These are competitors that errored either in their game, or when the tournament manager
+    // These are competitors that errored either in an individual game or when the tournament manager
     // communicates with them
     private failures: Competitor[]
 
@@ -64,7 +66,7 @@ export class TournamentManager {
      * Runs a complete tournament by splitting players into groups and getting
      * a referee to run each game. Players that score the highest score in their group
      * move on to the next round until:
-     * - The same round results happen twice
+     * - Two consecutive rounds return the same set of results
      * - There are not enough players to run a final game
      *
      * Returns the winners of the tournament
@@ -99,14 +101,10 @@ export class TournamentManager {
         winners: Competitor[],
         lastRoundWinners: Competitor[]
     ): boolean {
-        if (
+        return !(
             isDeepStrictEqual(winners, lastRoundWinners) ||
             winners.length < MIN_PLAYER_COUNT
-        ) {
-            return false
-        }
-
-        return true
+        )
     }
 
     /**
@@ -121,29 +119,29 @@ export class TournamentManager {
 
     /**
      * Tells all the active competitors that the tournament is starting. If they
-     * error, make them losers
+     * error, make them failures
      */
     alertPlayersThatTournamentIsBeginning() {
-        this.notifyCompetitorOrMakeLoser((competitor) =>
+        this.notifyCompetitorOrMakeFailure((competitor) =>
             competitor.ai.notifyTournamentIsStarting()
         )
     }
 
     /**
      * Tells the winners that they have won. If they
-     * error, make them losers
+     * error, make them failures
      */
     alertPlayersOfVictory() {
-        this.notifyCompetitorOrMakeLoser((competitor) =>
+        this.notifyCompetitorOrMakeFailure((competitor) =>
             competitor.ai.notifyTournamentOver(true)
         )
     }
 
     /**
-     * Notify a player about a tournament update and make them a loser
+     * Notify a player about a tournament update and make them a failures
      * if they error
      */
-    private notifyCompetitorOrMakeLoser(func: (comp: Competitor) => void) {
+    private notifyCompetitorOrMakeFailure(func: (comp: Competitor) => void) {
         const playersHandleVictoryGracefully: Competitor[] = []
 
         this.competingPlayers.forEach((competitor) => {
@@ -183,7 +181,7 @@ export class TournamentManager {
     }
 
     /**
-     * Runs a round in the tournament
+     * Runs a round in the tournament for the given game groups
      * Returns the players that are moving on to the next round
      */
     runGameForEachGroup(groups: CompetitorGroup[]): Competitor[] {
@@ -197,7 +195,8 @@ export class TournamentManager {
      * Creates a Referee for each Competitor Group, and starts the referee running the game
      *
      * *Note: This is not currently asynchronous, but this was split to better allow that in the future
-     * Returns the connection of referee with their corresponding groups
+     *
+     * Returns the pair of referee with the group of players of their game.
      */
     runRefereeGames(
         groups: CompetitorGroup[]
@@ -205,7 +204,6 @@ export class TournamentManager {
         const allRefs: [Referee, CompetitorGroup][] = []
 
         for (let playerGroup of groups) {
-            // these are already sorted
             const playerInterfaces = playerGroup.map(
                 (competitor) => competitor.ai
             )
@@ -225,6 +223,9 @@ export class TournamentManager {
      * Collects the competitors that have won their respective games by
      * adding losers to the loser array, and returning the winners
      *
+     * Note: This is not currently asynchronous, but this was split to better allow that in the future
+     *
+     * @param allRefs An Array of Pairs of referees and the players in the referee's game
      * @return the players that have won and should therefore move on in the tournament
      */
     collectResults(
@@ -237,17 +238,17 @@ export class TournamentManager {
 
             const gameResults = ref.getPlayerResults()
 
-            this.addMatchingCompetitorsToArray(
+            TournamentManager.addMatchingCompetitorsToArray(
                 winners,
                 gameResults.winners,
                 compGroup
             )
-            this.addMatchingCompetitorsToArray(
+            TournamentManager.addMatchingCompetitorsToArray(
                 this.losers,
                 gameResults.losers,
                 compGroup
             )
-            this.addMatchingCompetitorsToArray(
+            TournamentManager.addMatchingCompetitorsToArray(
                 this.failures,
                 gameResults.failures,
                 compGroup
@@ -263,7 +264,7 @@ export class TournamentManager {
      * @param compsToAdd the ids of the competitors to add
      * @param compGroup the group of competitors to pull from
      */
-    addMatchingCompetitorsToArray(
+    static addMatchingCompetitorsToArray(
         compArray: Competitor[],
         compsToAdd: string[],
         compGroup: CompetitorGroup
@@ -295,7 +296,7 @@ export class TournamentManager {
      *   tries games of size one less than the maximal number
      *
      * @param competitors the competitors to allocate to games
-     * @return competitors grouped into games
+     * @return competitors grouped into games where each game's players are in sorted order by age
      */
     static splitPlayersIntoGames(competitors: Competitor[]): CompetitorGroup[] {
         let currMax = MAX_PLAYER_COUNT

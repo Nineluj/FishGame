@@ -4,6 +4,7 @@ import { Competitor, TournamentManager } from "./manager"
 import { expect } from "chai"
 import { isDeepStrictEqual } from "util"
 import { ErrorPlayer, IllegalActionPlayer } from "src/referee/referee.test"
+import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 
 class WinningErrorPlayer extends AIPlayer {
     notifyTournamentOver(didIWin: boolean) {
@@ -37,7 +38,21 @@ class ErrorPlayerRecordsTournamentUpdates extends ErrorPlayer {
 }
 
 describe("Tournament Manager", () => {
-    describe("#constructor", () => {})
+    describe("#constructor", () => {
+        it("errors if not enough players are given", () => {
+            expect(() => new TournamentManager([])).to.throw(
+                IllegalArgumentError,
+                "Must have at least 2 players to run a tournament"
+            )
+
+            expect(
+                () => new TournamentManager(createCompetitorArray(1))
+            ).to.throw(
+                IllegalArgumentError,
+                "Must have at least 2 players to run a tournament"
+            )
+        })
+    })
     describe("#splitPlayersIntoGames", () => {
         it("Splits 16 players into 4 groups each sorted by age", () => {
             const competitors = createCompetitorArray(16)
@@ -63,7 +78,7 @@ describe("Tournament Manager", () => {
             expect(splitPlayers[0]).to.have.lengthOf(3)
             expect(isCompetitorArraySorted(splitPlayers[0])).to.be.true
         })
-        it("Splits 15 players into 4 4 4 3groups each sorted by age", () => {
+        it("Splits 15 players into 4 4 4 3 groups each sorted by age", () => {
             const lengthArray = [4, 4, 4, 3]
             const competitors = createCompetitorArray(15)
             const splitPlayers = TournamentManager.splitPlayersIntoGames(
@@ -157,7 +172,7 @@ describe("Tournament Manager", () => {
     })
 
     describe("#runTournament", () => {
-        it("puts a failing player into the losers array", () => {
+        it("puts a failing player into the failures array", () => {
             const competitors = createCompetitorArray(6).concat([
                 { id: "bad", age: 2, ai: new ErrorPlayer() },
             ])
@@ -177,7 +192,7 @@ describe("Tournament Manager", () => {
             expect(result).to.have.lengthOf.greaterThan(0)
             expect(result.length + manager.getLosers().length).to.equal(8)
         })
-        it("if the winner errors after winning, the winner is added to the losers array", () => {
+        it("if the winner errors after winning, the winner is added to the failures array", () => {
             const competitors = [
                 { id: "1", age: 10, ai: new ErrorPlayer() },
                 { id: "2", age: 10, ai: new ErrorPlayer() },
@@ -194,7 +209,7 @@ describe("Tournament Manager", () => {
             expect(result).to.have.lengthOf(0)
             expect(manager.getFailures()).to.contain("8")
         })
-        it("if all players error as they are alerted the game is beginning, they are added to the losers", () => {
+        it("if all players error as they are alerted the game is beginning, they are added to the failures", () => {
             const competitors = [
                 { id: "1", age: 10, ai: new PlayerErrorsAsTournamentStarts() },
                 { id: "2", age: 10, ai: new PlayerErrorsAsTournamentStarts() },
@@ -214,7 +229,7 @@ describe("Tournament Manager", () => {
     })
 
     describe("#runGameForEachGroup", () => {
-        it("at least one player make it to the next round given rule abiding players", () => {
+        it("at least one player makes it to the next round given rule abiding players", () => {
             const competitors = createCompetitorArray(12)
             const groups = [
                 [
@@ -356,7 +371,7 @@ describe("Tournament Manager", () => {
             tm.alertPlayersOfVictory()
             expect(data.written).to.be.equal("I won")
         })
-        it("makes players that error losers", () => {
+        it("makes players that error failures", () => {
             let data = { written: "" }
             const customWriter = {
                 write(s: string): void {
