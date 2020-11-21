@@ -7,8 +7,8 @@ Indicate below where your TAs can find the following elements in your strategy a
 
 https://github.ccs.neu.edu/CS4500-F20/levelland/blob/84cea04e45bb1db82338a01328cf82abbdea4cfe/Fish/Admin/src/manager/manager.ts#L65-L93
 
-We did organize the main function around its pieces of functionality. First it alerts the players the tournament is starting, then it runs the tournament (we should have factored this out), and then it alerts players if they
-won or lost
+We did organize the main function around its pieces of functionality. First it alerts the players the tournament is starting, then it runs the tournament
+(we should have factored this out), and then it alerts players if they won or lost
 
 2. did you factor out a function/method for informing players about
    the beginning and the end of the tournament? Does this function catch
@@ -25,7 +25,7 @@ There are our functions that alert the player when the tournament starts and is 
 We did not, but we did factor our the running of each round into:
 https://github.ccs.neu.edu/CS4500-F20/levelland/blob/84cea04e45bb1db82338a01328cf82abbdea4cfe/Fish/Admin/src/manager/manager.ts#L110-L118
 
-Which is factoring into splitting up groups:
+Which is handles the splitting into groups:
 
 https://github.ccs.neu.edu/CS4500-F20/levelland/blob/84cea04e45bb1db82338a01328cf82abbdea4cfe/Fish/Admin/src/manager/manager.ts#L291-L330
 
