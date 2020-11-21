@@ -25,7 +25,7 @@ There are our functions that alert the player when the tournament starts and is 
 We did not, but we did factor our the running of each round into:
 https://github.ccs.neu.edu/CS4500-F20/levelland/blob/84cea04e45bb1db82338a01328cf82abbdea4cfe/Fish/Admin/src/manager/manager.ts#L110-L118
 
-Which is handles the splitting into groups:
+Which handles the splitting into groups:
 
 https://github.ccs.neu.edu/CS4500-F20/levelland/blob/84cea04e45bb1db82338a01328cf82abbdea4cfe/Fish/Admin/src/manager/manager.ts#L291-L330
 
