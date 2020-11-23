@@ -73,7 +73,7 @@ const boardGet = (board: Board, point: Point): Tile | Hole | undefined => {
 }
 
 /**
- * Returns a new board with the given tile at the given point
+ * Returns a new board with the given tile or hole at the given point
  * @param board The game board
  * @param point Where to place the tile
  * @param val Tile or hole to place

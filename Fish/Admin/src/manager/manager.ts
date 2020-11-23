@@ -17,7 +17,7 @@ export type Competitor = {
     id: string
     // the age of the player (used to determine turn order)
     age: number
-    // the ai player of the competitor, the ai competes o
+    // the ai player of the competitor, knows how to play
     ai: PlayerInterface
 }
 
@@ -73,7 +73,17 @@ export class TournamentManager {
      */
     runTournament(): Competitor[] {
         this.alertPlayersThatTournamentIsBeginning()
+        this.competingPlayers = this.runAllRounds()
+        this.alertPlayersOfVictory()
+        this.alertPlayersOfLoss()
 
+        return this.competingPlayers
+    }
+
+    /**
+     * Runs rounds until the tournament is over
+     */
+    runAllRounds(): Competitor[] {
         let remainingPlayers = this.competingPlayers
         let lastRoundWinners: Competitor[] = []
 
@@ -83,13 +93,7 @@ export class TournamentManager {
             remainingPlayers = winners
         }
 
-        this.competingPlayers = remainingPlayers
-
-        this.alertPlayersOfVictory()
-
-        this.alertPlayersOfLoss()
-
-        return this.competingPlayers
+        return remainingPlayers
     }
 
     /**
@@ -303,30 +307,31 @@ export class TournamentManager {
         let playersToPlace = TournamentManager.sortPlayersByAge([
             ...competitors,
         ])
-        let gameResult = []
+
+        let gameGroups = []
 
         while (playersToPlace.length > 0) {
             if (playersToPlace.length >= currMax) {
                 const groupPlayers = playersToPlace.slice(0, currMax)
-                gameResult.push(groupPlayers)
+                gameGroups.push(groupPlayers)
                 playersToPlace = playersToPlace.slice(currMax)
             } else if (
                 playersToPlace.length <= MAX_PLAYER_COUNT &&
                 playersToPlace.length >= MIN_PLAYER_COUNT
             ) {
-                gameResult.push(playersToPlace)
+                gameGroups.push(playersToPlace)
                 break
             } else {
                 currMax--
-                if (gameResult.length > 0) {
-                    playersToPlace = gameResult[gameResult.length - 1].concat(
+                if (gameGroups.length > 0) {
+                    playersToPlace = gameGroups[gameGroups.length - 1].concat(
                         ...playersToPlace
                     )
-                    gameResult.pop()
+                    gameGroups.pop()
                 }
             }
         }
-        return gameResult
+        return gameGroups
     }
 
     static sortPlayersByAge(playersToSort: Competitor[]) {

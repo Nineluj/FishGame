@@ -70,6 +70,7 @@ class Referee {
     private history: Array<Action>
 
     private eliminatedPlayerIds: Set<string>
+
     // references to the player objects that know how to play in a game of fish
     private players: Map<string, PlayerInterface>
 
@@ -150,7 +151,6 @@ class Referee {
     /**
      * Gets the winning and losing players from the game after it is run.
      * Throws an error if it is called before the game is completed.
-     * TODO: test this
      */
     getPlayerResults(): GameResult {
         if (this.gameState.phase !== "over") {
@@ -242,6 +242,7 @@ class Referee {
 
         // update the players with the new state
         this.players.forEach((playerInstance, playerId) => {
+            // TODO: needs to kick if bad, abstract this into sep function
             callFunctionSafely(() =>
                 playerInstance.updateGameState(this.gameState)
             )

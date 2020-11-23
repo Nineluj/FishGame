@@ -36,6 +36,7 @@ export class AIPlayer implements PlayerInterface {
         if (!movesAhead) {
             movesAhead = DEFAULT_MOVES_AHEAD
         }
+
         this.strategy = getPenguinMaxMinMoveStrategy(
             movesAhead,
             getPenguinPlacementStrategy(getSkipTurnStrategy())
