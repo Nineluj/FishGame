@@ -23,7 +23,7 @@ function createWindow(): void {
     }
 
     const numPlayers = parseInt(process.argv[2])
-    if (numPlayers === NaN) {
+    if (isNaN(numPlayers)) {
         console.log("ERR: Argument must be a number")
         app.quit()
     }
