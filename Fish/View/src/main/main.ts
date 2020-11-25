@@ -6,6 +6,10 @@
 import { app, BrowserWindow, ipcMain } from "electron"
 import * as path from "path"
 import * as url from "url"
+import {
+    MAX_PLAYER_COUNT,
+    MIN_PLAYER_COUNT,
+} from "../../../Common/src/models/gameState"
 
 let mainWindow: Electron.BrowserWindow | null
 
@@ -13,6 +17,26 @@ let mainWindow: Electron.BrowserWindow | null
  * Display the main window
  */
 function createWindow(): void {
+    if (process.argv.length != 3) {
+        console.log("ERR: Wrong number of arguments")
+        app.quit()
+    }
+
+    const numPlayers = parseInt(process.argv[2])
+    if (numPlayers === NaN) {
+        console.log("ERR: Argument must be a number")
+        app.quit()
+    }
+
+    if (numPlayers > MAX_PLAYER_COUNT || numPlayers < MIN_PLAYER_COUNT) {
+        console.log(
+            `ERR: Argument must be between ${MIN_PLAYER_COUNT} and ${MAX_PLAYER_COUNT}`
+        )
+        app.quit()
+    }
+
+    ;(<any>global).sharedObject = { numberOfPlayers: numPlayers }
+
     // Create the browser window.
     mainWindow = new BrowserWindow({
         height: 600,
@@ -67,6 +91,3 @@ app.on("activate", () => {
         createWindow()
     }
 })
-
-// In this file you can include the rest of your app"s specific main process
-// code. You can also put them in separate files and require them here.

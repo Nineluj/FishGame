@@ -4,7 +4,8 @@ import { IllegalArgumentError } from "../errors/illegalArgumentError"
 import update from "immutability-helper"
 
 const MIN_NUM_TILES = 0
-const MIN_NUM_FISH_PER_TILE = 0
+const MIN_NUM_FISH_PER_TILE = 1
+const MAX_NUM_FISH_PER_TILE = 5
 
 /**
  * A UnitsVector represents a translation by 1 tile in some direction
@@ -200,13 +201,17 @@ const getCoordinatesOfNextUnoccupiedTileToTheRight = (
 const defaultCreateBoardOptions = {
     holes: [],
     numFishPerTile: 1,
+    randomizeFishPerTile: false,
 }
 
 /**
  * Creates a board with at least minTiles number of tiles all containing one
  * fish and with holes at the given position. The initial tile will be placed at 0,0
  * @param minTiles The minimum number of tiles in the board
- * @param options Additional configuration parameters that can be specified to further customize the generated board: holes, an array of coordinates, and numFishPerTile, the number of fish per tile
+ * @param options Additional configuration parameters that can be specified to further customize the generated board:
+ * - holes, an array of coordinates
+ * - numFishPerTile, the number of fish per tile
+ * - randomizeFishPerTile, use a valid number of random fish per tile. Overrides numFishPerTile if set
  * @throws IllegalArgumentError
  */
 const createBoard = (
@@ -214,12 +219,14 @@ const createBoard = (
     options?: {
         holes?: Array<Point>
         numFishPerTile?: number
+        randomizeFishPerTile?: boolean
     }
 ): Board => {
     // Overwrite default options with user provided options
     const aggregatedOptions = { ...defaultCreateBoardOptions, ...options }
 
-    const { holes, numFishPerTile } = aggregatedOptions
+    const { holes, randomizeFishPerTile } = aggregatedOptions
+    let { numFishPerTile } = aggregatedOptions
     if (minTiles < MIN_NUM_TILES) {
         throw new IllegalArgumentError(
             `number of tiles must be at least ${MIN_NUM_TILES}, given ${minTiles}`
@@ -242,6 +249,10 @@ const createBoard = (
             if (containsPoint(holes, { x, y })) {
                 board = boardSet(board, { x, y }, "hole")
             } else {
+                if (randomizeFishPerTile) {
+                    numFishPerTile = getRandomNumberOfFish()
+                }
+
                 board = boardSet(
                     board,
                     { x, y },
@@ -252,6 +263,18 @@ const createBoard = (
     }
 
     return board
+}
+
+/**
+ * Get a random number of fish between MIN_NUM_FISH_PER_TILE to MAX_NUM_FISH_PER_TILE
+ */
+const getRandomNumberOfFish = (): number => {
+    return (
+        MIN_NUM_FISH_PER_TILE +
+        Math.floor(
+            Math.random() * (MAX_NUM_FISH_PER_TILE - MIN_NUM_FISH_PER_TILE)
+        )
+    )
 }
 
 export {

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+PRE="source /opt/rh/rh-nodejs10/enable"
+if [ ! -f "/opt/rh/rh-nodejs10/enable" ]
+then
+        PRE="true"
+fi
+
+${PRE} && cd ../Fish/View/ && npm start --silent -- "$@"

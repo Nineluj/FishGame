@@ -35,7 +35,10 @@ const setupGameWithVisualizer = (
         aiPlayers.push(new AIPlayer())
     }
 
-    const ref = new Referee(aiPlayers, createBoard(24))
+    const ref = new Referee(
+        aiPlayers,
+        createBoard(24, { randomizeFishPerTile: true })
+    )
     ref.registerGameObserver(visualizer)
 
     return ref

@@ -44,12 +44,22 @@ class Root extends React.Component<IProps, RootState> {
         super(props)
 
         this.visualizer = new GameVisualizer()
-        this.ref = setupGameWithVisualizer(4, this.visualizer)
+        const numberOfPlayers = this.getNumPlayers()
+        this.ref = setupGameWithVisualizer(numberOfPlayers, this.visualizer)
 
         this.state = {
             gameState: this.ref.getGameState(),
             gameHasStarted: false,
         }
+    }
+
+    /**
+     * Uses Electron's sharedObject to get the number of players
+     * to use for this game
+     */
+    getNumPlayers(): number {
+        const sharedObj = electron.remote.getGlobal("sharedObject")
+        return sharedObj["numberOfPlayers"]
     }
 
     /**

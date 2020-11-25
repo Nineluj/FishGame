@@ -7,7 +7,7 @@ install:
 	${PRE} cd Player && npm install
 	${PRE} cd Admin && npm install
 
-install-view:
+install-view: install
 	${PRE} cd View && npm install
 
 build: install-view

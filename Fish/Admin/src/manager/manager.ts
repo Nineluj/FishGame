@@ -1,4 +1,4 @@
-import { Referee } from "src/referee/referee"
+import { Referee } from "../referee/referee"
 import { isDeepStrictEqual } from "util"
 import { PlayerInterface } from "../../../Common/player-interface"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
