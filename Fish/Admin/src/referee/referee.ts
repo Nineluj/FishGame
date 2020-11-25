@@ -224,6 +224,13 @@ class Referee {
     }
 
     /**
+     * Get game observers
+     */
+    getGameObservers(): Array<GameObserver> {
+        return this.observers
+    }
+
+    /**
      * Runs through an entire game by going through the placement and movement phase
      *
      * Constraints: When the referee encounters failing players it kicks them out
