@@ -24,6 +24,7 @@ import {
 } from "../../../Common/src/models/testHelpers/testHelpers"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 import { callFunctionSafely } from "../../src/utils/communications"
+import { AIPlayer } from "../../../Player/src/player/player"
 
 // The order in which the referee will assign the colors to the players
 export const colorOrder: Array<PenguinColor> = [
@@ -46,6 +47,18 @@ export type GameResult = {
 }
 
 /**
+ * A Game observer is a component that gets notified about updates to a game
+ */
+interface GameObserver {
+    // Tells the observer about an update to the game
+    update: (gs: GameState) => void
+
+    // Tells the observer that the game is over, the observer won't receive
+    // any more information
+    notifyOver: (result: GameResult) => void
+}
+
+/**
  * Component that knows how to run a complete game of fish for
  * a set of players
  *
@@ -58,6 +71,9 @@ export type GameResult = {
  * not to time out. If a Player goes into an infinite loop, we will not be able to prevent that
  */
 class Referee {
+    // observers following this game
+    private observers: Array<GameObserver>
+
     // gameState keeps track of the current state of the game
     private gameState: GameState
 
@@ -101,6 +117,8 @@ class Referee {
         players.forEach((p, playerIndex) => {
             this.players.set(gamePlayers[playerIndex].id, p)
         })
+
+        this.observers = []
     }
 
     /**
@@ -132,6 +150,14 @@ class Referee {
         }
 
         return out
+    }
+
+    /**
+     * Registers a new observer to observe the game managed by
+     * this referee
+     */
+    registerGameObserver(go: GameObserver): void {
+        this.observers.push(go)
     }
 
     /**
@@ -212,6 +238,8 @@ class Referee {
     runGamePlay() {
         this.runPlacementPhase()
         this.runGameMovementPhase()
+
+        this.notifyObserversGameOver()
     }
 
     /**
@@ -239,14 +267,76 @@ class Referee {
     playTurn() {
         const nextToPlay = getPlayerWhoseTurnItIs(this.gameState)
         this.getPlayerActionOrEliminate(nextToPlay.id)
+    }
 
-        // update the players with the new state
-        this.players.forEach((playerInstance, playerId) => {
-            // TODO: needs to kick if bad, abstract this into sep function
-            callFunctionSafely(() =>
+    /**
+     * Notify the players and the observers about the new
+     * state of the game
+     */
+    notifyNewGameState() {
+        /*
+         * notify the players
+         * might have to happen more than once since kicking a
+         * player changes the game state
+         */
+        let shouldRenotifyPlayers = true
+        while (shouldRenotifyPlayers) {
+            shouldRenotifyPlayers = this.notifyAllPlayers()
+        }
+
+        this.notifyObserversNewGameState()
+    }
+
+    /**
+     * Notifies the observers of a new game state safely and removes
+     * them if they error while they are notified
+     */
+    private notifyObserversNewGameState() {
+        let wellBehavedObservers: Array<GameObserver> = []
+
+        this.observers.forEach((go: GameObserver) => {
+            let result = callFunctionSafely(() => go.update(this.gameState))
+
+            if (result !== false) {
+                wellBehavedObservers.push(go)
+            }
+        })
+
+        this.observers = wellBehavedObservers
+    }
+
+    private notifyObserversGameOver() {
+        const result = this.getPlayerResults()
+
+        this.observers.forEach((go: GameObserver) => {
+            // don't bother removing the observer if they fail since the game is over
+            callFunctionSafely(() => go.notifyOver(result))
+        })
+    }
+
+    /**
+     * Notifies all the players of the current game state, stopping if a
+     * player fails to accept the update
+     * @return if a player was kicked
+     */
+    private notifyAllPlayers(): boolean {
+        for (let [playerId, playerInstance] of this.players) {
+            let result = callFunctionSafely(() =>
                 playerInstance.updateGameState(this.gameState)
             )
-        })
+
+            if (result === false) {
+                this.kickPlayer(
+                    playerId,
+                    "failed to accept new game state",
+                    false
+                )
+
+                return true
+            }
+        }
+
+        return false
     }
 
     /**
@@ -307,4 +397,4 @@ class Referee {
     }
 }
 
-export { Referee }
+export { Referee, GameObserver }
