@@ -1,13 +1,13 @@
 .fishy {
-    position: relative;
-    bottom: 102px;
-    right: -59px;
+    position: absolute;
+    margin-left: 57px;
+    margin-top: 10px;
     width: 32px;
 }
 
 .penguin {
-    position: relative;
-    bottom: 80px;
-    right: -57px;
+    position: absolute;
     width: 32px;
+    margin-left: 57px;
+    margin-top: 32px;
 }

@@ -52,12 +52,13 @@ const Tile: React.FC<Props> = ({
         <div
             className={className}
             style={{
+                position: "relative",
                 height: TILE_SIZE * 2,
                 width: TILE_SIZE * 3,
             }}
         >
             <svg
-                style={{ position: "relative" }}
+                style={{ position: "absolute" }}
                 version="1.1"
                 xmlns="http://www.w3.org/2000/svg"
                 preserveAspectRatio="none"
@@ -69,15 +70,12 @@ const Tile: React.FC<Props> = ({
                     fill="orange"
                 />
             </svg>
-            <div className="fishy" style={{ position: "relative" }}>
-                {fishSprites}
-            </div>
+            <div className="fishy">{fishSprites}</div>
             {penguinColor && (
                 <div
                     className="penguin"
                     onClick={onPenguinClick}
                     style={{
-                        position: "relative",
                         border: `2px solid ${penguinColor}`,
                     }}
                 >
