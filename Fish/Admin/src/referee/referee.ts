@@ -267,6 +267,8 @@ class Referee {
     playTurn() {
         const nextToPlay = getPlayerWhoseTurnItIs(this.gameState)
         this.getPlayerActionOrEliminate(nextToPlay.id)
+
+        this.notifyNewGameState()
     }
 
     /**

@@ -1,163 +1,116 @@
-import React, { useState } from "react"
+import React from "react"
 import * as electron from "electron"
 import { Board } from "./board/board"
-import { Snackbar } from "@material-ui/core"
-import MuiAlert from "@material-ui/lab/Alert"
-import {
-    createGameState,
-    movePenguin,
-    getPlayerWhoseTurnItIs,
-    placePenguin,
-} from "../../../Common/src/models/gameState/gameState"
-import { Point } from "../../../Common/src/models/point"
+import { GameState } from "../../../Common/src/models/gameState/gameState"
 import { getViewBoard } from "./utils"
 import { Players } from "./players/players"
+import {
+    GameVisualizer,
+    setupGameWithVisualizer,
+} from "../../../Admin/src/visualizer/game-visualizer"
+import { Referee } from "../../../Admin/src/referee/referee"
+
+const TIME_BETWEEN_ACTIONS_MS = 500
+
+interface RootState {
+    /**
+     * Game state that is shown in the view
+     */
+    gameState: undefined | GameState
+
+    gameHasStarted: boolean
+}
+
+interface IProps {}
 
 /**
- * Draws the main view
+ * Draws the main view.
+ *
+ * It has a game visualizer but does not use it since we could not
+ * figure out how make the observer pattern work with React and the
+ * fact that this language is single threaded and doesn't have
+ * limited continuations.
+ *
+ * Instead calls the referee's playTurn function so that it
+ * can play one turn at a time and render the gameState after each
+ * turn has been taken
  */
-const Root: React.FC = () => {
+class Root extends React.Component<IProps, RootState> {
+    private visualizer: GameVisualizer
+    private ref: Referee
+    private interval: any
+
+    constructor(props: IProps) {
+        super(props)
+
+        this.visualizer = new GameVisualizer()
+        this.ref = setupGameWithVisualizer(4, this.visualizer)
+
+        this.state = {
+            gameState: this.ref.getGameState(),
+            gameHasStarted: false,
+        }
+    }
+
     /**
      * Terminates the program
      * @param _ Event calling the function, is disregarded
      */
-    const closeApp = (_: Event): void => {
+    closeApp = (_: Event): void => {
         electron.ipcRenderer.send("close-me")
     }
 
     /**
-     * Dummy gameState used to showcase the functionality of the view.
+     * Play a single turn of the game
      */
-    const [gameState, setGameState] = useState(
-        createGameState([
-            {
-                id: "bar",
-                penguinColor: "brown",
-                penguins: [],
-                score: 0,
-            },
-            {
-                id: "baz",
-                penguinColor: "red",
-                penguins: [],
-                score: 0,
-            },
-            {
-                id: "foo",
-                penguinColor: "black",
-                penguins: [],
-                score: 0,
-            },
-        ])
-    )
+    stepGame(ref: Referee) {
+        if (ref.getGamePhase() !== "over") {
+            ref.playTurn()
+            this.setState({ gameState: ref.getGameState() })
+        } else {
+            clearInterval(this.interval)
+        }
+    }
 
     /**
-     * The penguin that has been selected by being clicked. A penguin must first be selected
-     * in order to be moved. A penguin cannot be selected during the placement phase
+     * Start a game of fish
      */
-    const [selectedPenguin, setSelectedPenguin] = useState<undefined | Point>()
-
-    /**
-     * Error message that gets displayed to the user
-     */
-    const [errorMessage, setErrorMessage] = useState<null | string>(null)
-
-    /**
-     * Places a penguin for the player on their view
-     * when a penguin clicks a tile during the penguin placement phase
-     */
-    const onTileClickPenguinPlacement = (x: number, y: number) => {
-        setGameState(
-            placePenguin(gameState, getPlayerWhoseTurnItIs(gameState).id, {
-                x,
-                y,
-            })
+    startGame(ref: Referee) {
+        this.setState({ gameHasStarted: true })
+        this.interval = setInterval(
+            () => this.stepGame(ref),
+            TIME_BETWEEN_ACTIONS_MS
         )
     }
 
-    /**
-     * Moves a penguin for the player on their view
-     * when a penguin clicks a tile during the penguin placement phase
-     */
+    render() {
+        const { gameState, gameHasStarted } = this.state
 
-    const onTileClickPlaying = (x: number, y: number) => {
-        if (!selectedPenguin) {
-            setErrorMessage("You must select the penguin you want to move")
-        } else {
-            try {
-                setGameState(
-                    movePenguin(
-                        gameState,
-                        getPlayerWhoseTurnItIs(gameState).id,
-                        selectedPenguin,
-                        { x, y }
-                    )
-                )
-            } catch (e) {
-                setErrorMessage(e.message)
-            }
-        }
-    }
-
-    console.log(getPlayerWhoseTurnItIs(gameState))
-
-    /**
-     * Delegates the handling of the tile click action based
-     * on the phase of the game
-     */
-    const onTileClick = (x: number, y: number) => {
-        if (gameState.phase === "playing") {
-            onTileClickPlaying(x, y)
+        if (gameState === undefined) {
+            return <h1>Loading game...</h1>
         }
 
-        if (gameState.phase === "penguinPlacement") {
-            onTileClickPenguinPlacement(x, y)
-        }
-    }
-
-    /**
-     * Selects the penguin at the given location to be
-     * the player's selectedPenguin
-     */
-    const onPenguinClick = (x: number, y: number) => {
-        if (
-            selectedPenguin &&
-            selectedPenguin.x === x &&
-            selectedPenguin.y === y
-        ) {
-            setSelectedPenguin(undefined)
-        }
-        setSelectedPenguin({ x, y })
-    }
-
-    console.log(gameState)
-
-    /**
-     * Render functionality
-     */
-    return (
-        <>
-            <Players gameState={gameState} />
-            <div className="center">
-                <Snackbar
-                    open={errorMessage !== null}
-                    autoHideDuration={4000}
-                    onClose={() => {
-                        setErrorMessage(null)
-                    }}
-                >
-                    <MuiAlert elevation={6} variant="filled" severity="error">
-                        {errorMessage}
-                    </MuiAlert>
-                </Snackbar>
-                <Board
-                    onPenguinClick={onPenguinClick}
-                    onTileClick={onTileClick}
-                    board={getViewBoard(gameState)}
-                />
+        /**
+         * Render functionality
+         */
+        return (
+            <div style={{ background: "#ADD8E6" }}>
+                {!gameHasStarted && (
+                    <button onClick={() => this.startGame(this.ref)}>
+                        Start
+                    </button>
+                )}
+                <Players gameState={gameState} />
+                <div className="center">
+                    <Board
+                        onPenguinClick={() => {}}
+                        onTileClick={() => {}}
+                        board={getViewBoard(gameState)}
+                    />
+                </div>
             </div>
-        </>
-    )
+        )
+    }
 }
 
 export default Root

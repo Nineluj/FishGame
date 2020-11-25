@@ -257,4 +257,6 @@ describe("Referee", () => {
             expect(ref.getPlayerStatuses().players[0].score).to.be.equal(4)
         })
     })
+
+    describe("#observers", () => {})
 })
