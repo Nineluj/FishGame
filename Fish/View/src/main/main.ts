@@ -39,7 +39,7 @@ function createWindow(): void {
 
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        height: 600,
+        height: 780,
         width: 800,
         webPreferences: {
             webSecurity: false,
