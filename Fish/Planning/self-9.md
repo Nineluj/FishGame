@@ -7,21 +7,16 @@ grader.
 Indicate below where your TA can find the following elements in your strategy 
 and/or player-interface modules: 
 
-1. for human players, point the TA to
-   - the interface (signature) that an AI player implements
-   - the interface that the human-GUI component implements
-   - the implementation of the player GUI
-
 2. for game observers, point the TA to
-   - the `game-observer` interface that observers implement 
-   - the point where the `referee` consumes observers 
+   - the `game-observer` interface that observers implement
+      https://github.ccs.neu.edu/CS4500-F20/tenaha/blob/1ebb990a9e725449d5a7f5f08431aaf147c32427/Fish/Admin/src/referee/referee.ts#L49-L59
+      
+   - the point where the `referee` consumes observers
+      https://github.ccs.neu.edu/CS4500-F20/tenaha/blob/1ebb990a9e725449d5a7f5f08431aaf147c32427/Fish/Admin/src/referee/referee.ts#L155-L161
+      
    - the callback from `referee` to observers concerning turns
-
-3. for tournament observers, point the TA to
-   - the `tournament-observer` interface that observers implement 
-   - the point where the `manager` consumes observers 
-   - the callback to observes concerning the results of rounds 
-
+      https://github.ccs.neu.edu/CS4500-F20/tenaha/blob/1ebb990a9e725449d5a7f5f08431aaf147c32427/Fish/Admin/src/referee/referee.ts#L299-L315
+      
 
 Do not forget to meet the assigned TA for a demo; see bottom.  If the
 TA's office hour overlaps with other obligations, sign up for a 1-1.
