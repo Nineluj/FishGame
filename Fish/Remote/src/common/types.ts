@@ -1,13 +1,24 @@
 import { PenguinColor } from "../../../Common/src/models/player"
+import Ajv from "ajv"
+import { startMessageSchema } from "./schemas"
 
 /* Types for messages sent between the server and the client */
 type Message = [string, Array<any>]
-type StartMessage = ["start", [boolean]]
-type PlayingAsMessage = ["playing-as", [ExternalColor]]
-type PlayingWithMessage = ["playing-with", [Array<ExternalColor>]]
-type SetupMessage = ["setup", [ExternalState]]
-type TakeTurnMessage = ["take-turn", [ExternalState, Array<ExternalAction>]]
-type EndMessage = ["end", [boolean]]
+type StartMessage = Message & ["start", [boolean]]
+type PlayingAsMessage = Message & ["playing-as", [ExternalColor]]
+type PlayingWithMessage = Message & ["playing-with", [Array<ExternalColor>]]
+type SetupMessage = Message & ["setup", [ExternalState]]
+type TakeTurnMessage = Message &
+    ["take-turn", [ExternalState, Array<ExternalAction>]]
+type EndMessage = Message & ["end", [boolean]]
+
+const verify = (data: any, schema: Object): boolean => {
+    const ajv = new Ajv()
+    const validate = ajv.compile(schema)
+    const valid = validate(data)
+
+    return !!valid
+}
 
 /* JSON serializable representations for the data related to the game */
 type ExternalColor = PenguinColor
@@ -67,6 +78,7 @@ export {
     SetupMessage,
     TakeTurnMessage,
     EndMessage,
+    verify,
 }
 
 export {

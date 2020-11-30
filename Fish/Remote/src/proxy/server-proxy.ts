@@ -1,11 +1,7 @@
 import { PlayerInterface } from "../../../Common/player-interface"
-import { Message } from "../common/types"
-
-/*
-server:
-    ...
-    callbackConnection(..., ServerProxyInstance.receiveMessage, ...)
- */
+import { StartMessage, verify } from "../common/types"
+import { messageSchema, startMessageSchema } from "../common/schemas"
+import assert from "assert"
 
 class Client {
     private playerInterface: PlayerInterface
@@ -14,14 +10,22 @@ class Client {
         this.playerInterface = playerInterface
     }
 
-    private checkStartMessageSyntax() {}
+    handleStartMessage(data: any) {
+        assert(verify(data, startMessageSchema))
+        const startMessage = data as StartMessage
 
-    handleStartMessage(args: Array<any>) {}
+        if (startMessage[1][0]) {
+            this.playerInterface.notifyTournamentIsStarting()
+        }
+    }
 
-    receiveMessage(msg: Message): any {
-        switch (msg[0]) {
+    receive(data: any): any {
+        // TODO: maybe not crash here?
+        assert(verify(data, messageSchema))
+
+        switch (data[0]) {
             case "start":
-                this.handleStartMessage(msg[1])
+                this.handleStartMessage(data)
         }
     }
 }
