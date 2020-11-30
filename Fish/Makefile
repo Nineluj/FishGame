@@ -6,6 +6,7 @@ install:
 	${PRE} cd Common && npm install
 	${PRE} cd Player && npm install
 	${PRE} cd Admin && npm install
+	${PRE} cd Remote && npm install
 
 install-view: install
 	${PRE} cd View && npm install

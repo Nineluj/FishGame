@@ -1,30 +1,21 @@
-import { Player, PenguinColor } from "../../../Common/src/models/player"
+import { PenguinColor, Player } from "../../../Common/src/models/player"
 import {
     GameState,
-    MIN_PLAYER_COUNT,
     MAX_PLAYER_COUNT,
+    MIN_PLAYER_COUNT,
 } from "../../../Common/src/models/gameState"
 import { Action } from "../../../Common/src/models/action"
 import {
     createGameState,
-    getPlayerWhoseTurnItIs,
     createGameStateCustomBoard,
+    getPlayerWhoseTurnItIs,
 } from "../../../Common/src/models/gameState/gameState"
-import {
-    GameNode,
-    createGameNode,
-    completeAction,
-} from "../../../Common/src/models/tree/tree"
 import { PlayerInterface } from "../../../Common/player-interface"
 import { createEliminatePlayerAction } from "../../../Common/src/models/action/action"
 import { Board } from "../../../Common/src/models/board"
-import {
-    createPlayer,
-    players,
-} from "../../../Common/src/models/testHelpers/testHelpers"
+import { createPlayer } from "../../../Common/src/models/testHelpers/testHelpers"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
-import { callFunctionSafely } from "../../src/utils/communications"
-import { AIPlayer } from "../../../Player/src/player/player"
+import { callFunctionSafely } from "../utils/communications"
 
 // The order in which the referee will assign the colors to the players
 export const colorOrder: Array<PenguinColor> = [

@@ -4,6 +4,9 @@ const Parser = require("jsonparse")
 
 const PLAYER_CALL_TIMEOUT_MS = 1000
 
+/**
+ * ...
+ */
 class Connection {
     private tcpConnection: net.Socket
     private jsonParser: any
@@ -31,6 +34,10 @@ class Connection {
                 this.jsonParser.write(body)
             })
         })
+    }
+
+    close(): void {
+        this.tcpConnection.destroy()
     }
 }
 

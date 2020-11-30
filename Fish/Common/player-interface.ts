@@ -1,5 +1,6 @@
 import { Action } from "./src/models/action"
 import { GameState } from "./src/models/gameState"
+import { PenguinColor } from "./src/models/player"
 
 /**
  * A player is an software component that knows how to interact with a referee
@@ -8,10 +9,17 @@ import { GameState } from "./src/models/gameState"
 
 export interface PlayerInterface {
     /**
-     * Notify players of of the start of the game.
-     * @param gs The initial Game State
+     * Notify a player that they are playing in a new game
+     * @param color Color that the player is using for this game
      */
-    notifyGameStart(gs: GameState): void
+    notifyPlayAs(color: PenguinColor): void
+
+    /**
+     * Notify a player of its opponents.
+     * TODO: check piazza to see if we have to repeat this phase
+     * if a player fails
+     */
+    notifyPlayWith(opponentColors: Array<PenguinColor>): void
 
     /**
      * Notify a player that they have been banned, along with the reason for it. Any other calls they make to
@@ -20,9 +28,9 @@ export interface PlayerInterface {
     notifyBanned(reason: string): void
 
     /**
-     * Notify the player there is a new game state
+     * Notifies the player of an action that was taken by an opponent
      */
-    updateGameState(gs: GameState): void
+    notifyOpponentAction(action: Action): void
 
     /**
      * Asks the player for its next action. The player can assume that it is their turn.

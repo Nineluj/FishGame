@@ -10,4 +10,7 @@
 
 ### Changes
 
--   Added `notifyGameStart` to PlayerInterface
+-   Added `notifyPlayingAs` to PlayerInterface
+-   Added `notifyPlayingWith` to PlayerInterface
+-   Added `convertToOutputState` harness adapter
+-   Changed `updateGameState` -> `notifyOpponentAction`

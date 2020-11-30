@@ -8,6 +8,7 @@ import {
 } from "../strategy/strategy"
 import { Referee } from "../../../Admin/src/referee/referee"
 import { Action } from "../../../Common/src/models/action"
+import { PenguinColor } from "../../../Common/src/models/player"
 
 export const DEFAULT_MOVES_AHEAD = 2
 
@@ -53,19 +54,17 @@ export class AIPlayer implements PlayerInterface {
         this.output.write(`We were banned. Referee's explanation: ${reason}`)
     }
 
-    updateGameState(gs: GameState): void {}
-
     getNextAction(gs: GameState): Action {
         return this.strategy.getNextAction(gs)
     }
 
-    /**
-     * Notify the player that the tournament is starting
-     */
     notifyTournamentIsStarting(): void {}
 
-    /**
-     * Notify the player that the tournament is over
-     */
     notifyTournamentOver(didIWin: boolean): void {}
+
+    notifyPlayAs(color: PenguinColor): void {}
+
+    notifyPlayWith(opponentColors: Array<PenguinColor>): void {}
+
+    notifyOpponentAction(action: Action): void {}
 }
