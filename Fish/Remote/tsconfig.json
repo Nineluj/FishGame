@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "jsx": "react",
+        "baseUrl": ".",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "sourceMap": true,
+        "target": "esnext",
+        "strict": true,
+        "noImplicitReturns": true,
+        "outDir": "tsbuild/"
+    },
+    "exclude": ["node_modules"],
+    "include": [
+        "custom.d.ts",
+        "src/",
+        "../Common/harness",
+        "../Common/src/models"
+    ]
+}

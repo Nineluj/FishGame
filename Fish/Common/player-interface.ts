@@ -8,6 +8,12 @@ import { GameState } from "./src/models/gameState"
 
 export interface PlayerInterface {
     /**
+     * Notify players of of the start of the game.
+     * @param gs The initial Game State
+     */
+    notifyGameStart(gs: GameState): void
+
+    /**
      * Notify a player that they have been banned, along with the reason for it. Any other calls they make to
      * the referee will be immediately rejected.
      */
