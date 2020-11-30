@@ -1,7 +1,7 @@
 // InternalPlayer is the representation of the player by our project
 import { Player as InternalPlayer } from "../models/player"
 import { convertToBoardLocation, convertToOutputLocation } from "./boardAdapter"
-import { ExternalPlayer } from "../../../Remote/src/common/types"
+import { ExternalPlayer } from "./types"
 
 export const makePlayersFromTestInput = (
     players: Array<ExternalPlayer>

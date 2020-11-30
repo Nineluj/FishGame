@@ -1,7 +1,7 @@
-import { parseJsonObjectsFromStdIn } from "../../Fish/Common/src/harness/parseJson"
+import { parseJsonObjectsFromStdIn } from "../../Fish/Common/src/adapters/parseJson"
 import { AIPlayer } from "../../Fish/Player/src/player/player"
 import { colorOrder, Referee } from "../../Fish/Admin/src/referee/referee"
-import { makeBoardFromTestInput } from "../../Fish/Common/src/harness/boardAdapter"
+import { makeBoardFromTestInput } from "../../Fish/Common/src/adapters/boardAdapter"
 
 type GameDescription = {
     row: 2 | 3 | 4 | 5

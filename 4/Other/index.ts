@@ -1,12 +1,12 @@
 import {
     makeBoardFromTestInput,
     toOutputBoard,
-} from "../../Fish/Common/src/harness/boardAdapter"
+} from "../../Fish/Common/src/adapters/boardAdapter"
 import { parseJsonObjectsFromStdIn } from "./parseJson"
 import {
     makePlayersFromTestInput,
     toOutputPlayer,
-} from "../../Fish/Common/src/harness/playerAdapter"
+} from "../../Fish/Common/src/adapters/playerAdapter"
 import {
     GameState,
     movePenguin,

@@ -1,5 +1,5 @@
-import { parseJsonObjectsFromStdIn } from "../../Fish/Common/src/harness/parseJson"
-import { makePlayersFromTestInput } from "../../Fish/Common/src/harness/playerAdapter"
+import { parseJsonObjectsFromStdIn } from "../../Fish/Common/src/adapters/parseJson"
+import { makePlayersFromTestInput } from "../../Fish/Common/src/adapters/playerAdapter"
 import {
     GameState,
     getPlayerWhoseTurnItIs,
@@ -10,7 +10,7 @@ import {
     makeBoardFromTestInput,
     convertToBoardLocation,
     convertToOutputLocation,
-} from "../../Fish/Common/src/harness/boardAdapter"
+} from "../../Fish/Common/src/adapters/boardAdapter"
 import { getReachableTilesFrom } from "../../Fish/Common/src/models/board"
 import {
     createMoveAction,

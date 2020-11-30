@@ -26,6 +26,11 @@ import {
     convertToBoardLocation,
     convertToOutputLocation,
 } from "../../../Common/src/adapters/boardAdapter"
+import {
+    ExternalAction,
+    externalActionFromAny,
+    externalPositionFromAny,
+} from "../../../Common/src/adapters/types"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 import { Point } from "../../../Common/src/models/point"
 const deasync = require("deasync")

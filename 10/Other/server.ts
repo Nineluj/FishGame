@@ -1,4 +1,5 @@
 import { createServer } from "net"
+import { panic } from "./util"
 const Parser = require("jsonparse")
 
 const TURN_TIMEOUT_MS = 1000
@@ -30,16 +31,6 @@ server.on("connection", (connection) => {
         process.exit(0)
     })
 })
-
-/**
- * Display usage information for the program and exit with an error code
- * @param message Custom message to display to user after terminating program
- */
-const panic = (message: string): void => {
-    console.error(`Incorrect usage: ${message}`)
-    console.log("usage: ./xserver <port>")
-    process.exit(-1)
-}
 
 /**
  * Returns the port to listen for connections on.

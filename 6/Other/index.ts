@@ -1,11 +1,11 @@
-import { parseJsonObjectsFromStdIn } from "../../Fish/Common/src/harness/parseJson"
-import { makePlayersFromTestInput } from "../../Fish/Common/src/harness/playerAdapter"
+import { parseJsonObjectsFromStdIn } from "../../Fish/Common/src/adapters/parseJson"
+import { makePlayersFromTestInput } from "../../Fish/Common/src/adapters/playerAdapter"
 import { GameState } from "../../Fish/Common/src/models/gameState"
 
 import {
     makeBoardFromTestInput,
     convertToOutputLocation,
-} from "../../Fish/Common/src/harness/boardAdapter"
+} from "../../Fish/Common/src/adapters/boardAdapter"
 import {
     getPenguinMaxMinMoveStrategy,
     getSkipTurnStrategy,

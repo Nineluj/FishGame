@@ -1,7 +1,7 @@
 import { GameState } from "../models/gameState"
 import { makeBoardFromTestInput, toOutputBoard } from "./boardAdapter"
 import { makePlayersFromTestInput, toOutputPlayer } from "./playerAdapter"
-import { createGameStateCustomBoard } from "src/models/gameState/gameState"
+import { createGameStateCustomBoard } from "../models/gameState/gameState"
 
 import { ExternalState } from "./types"
 

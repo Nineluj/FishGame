@@ -1,5 +1,4 @@
 import net from "net"
-import { parseJsonFromStreamAsync } from "../../../Common/src/harness/parseJson"
 const Parser = require("jsonparse")
 
 const PLAYER_CALL_TIMEOUT_MS = 1000
@@ -13,6 +12,7 @@ class Connection {
 
     constructor(tcpConnection: net.Socket) {
         this.tcpConnection = tcpConnection
+        this.jsonParser = new Parser()
     }
 
     /**
@@ -27,9 +27,11 @@ class Connection {
                 reject()
             })
             this.tcpConnection.on("data", (body) => {
-                this.jsonParser.on("data", (parsedBody: any) => {
-                    resolve(parsedBody)
-                })
+                this.jsonParser.onValue = function (val: any) {
+                    if (this.stack.length == 0) {
+                        resolve(val)
+                    }
+                }
                 this.jsonParser.write(body)
             })
 
@@ -57,11 +59,14 @@ class CallbackConnection {
 
     constructor(tcpConnection: net.Socket, fn: (a: any) => any) {
         this.tcpConnection = tcpConnection
+        this.jsonParser = new Parser()
 
-        this.jsonParser.on("data", (parsedBody: any) => {
-            const response = fn(parsedBody)
-            this.sendResponse(response)
-        })
+        this.jsonParser.onValue = function (val: any) {
+            if (this.stack.length == 0) {
+                const response = fn(val)
+                this.sendResponse(response)
+            }
+        }
 
         this.tcpConnection.on("data", (body) => {
             this.jsonParser.write(body)

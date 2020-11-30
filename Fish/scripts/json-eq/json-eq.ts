@@ -5,7 +5,7 @@ Usage: ./json-eq file1 file2
 const fs = require("fs")
 const chalk = require("chalk")
 import { isDeepStrictEqual } from "util"
-import { getJsonArrFromStream } from "../../Common/src/harness/parseJson"
+import { getJsonArrFromStream } from "../../Common/src/adapters/parseJson"
 
 const main = (): void => {
     if (process.argv.length !== 4) {

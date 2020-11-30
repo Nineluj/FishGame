@@ -28,7 +28,7 @@ import { boardGet } from "../../../Common/src/models/board"
 import { Tile } from "../../../Common/src/models/tile"
 import { Point } from "../../../Common/src/models/point"
 import { isDeepStrictEqual } from "util"
-import { convertToBoardLocation } from "../../../Common/src/harness/boardAdapter"
+import { convertToBoardLocation } from "../../../Common/src/adapters/boardAdapter"
 
 describe("Player Strategy", () => {
     describe("#tiebreakMoves", () => {

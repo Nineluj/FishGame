@@ -1,4 +1,5 @@
 import { PenguinColor } from "src/models/player"
+
 /* JSON serializable representations for the data related to the game */
 type ExternalColor = PenguinColor
 type ExternalPosition = [number, number]
