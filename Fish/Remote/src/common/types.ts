@@ -1,14 +1,33 @@
 import { PenguinColor } from "../../../Common/src/models/player"
 
-type ExternalColor = PenguinColor
+/* Types for messages sent between the server and the client */
+type Message = [string, Array<any>]
+type StartMessage = ["start", [boolean]]
+type PlayingAsMessage = ["playing-as", [ExternalColor]]
+type PlayingWithMessage = ["playing-with", [Array<ExternalColor>]]
+type SetupMessage = ["setup", [ExternalState]]
+type TakeTurnMessage = ["take-turn", [ExternalState, Array<ExternalAction>]]
+type EndMessage = ["end", [boolean]]
 
+/* JSON serializable representations for the data related to the game */
+type ExternalColor = PenguinColor
 type ExternalPosition = [number, number]
+type ExternalAction = false | [ExternalPosition, ExternalPosition]
+interface ExternalPlayer {
+    color: ExternalColor
+    score: number
+    places: Array<ExternalPosition>
+}
+interface ExternalState {
+    players: Array<ExternalPlayer>
+    board: Array<Array<number>>
+}
 
 /**
  * Tries to convert the given argument into an external position, if it fails
  * returns false
  */
-export const externalPositionFromAny = (arg: any): ExternalPosition | false => {
+const externalPositionFromAny = (arg: any): ExternalPosition | false => {
     if (
         Array.isArray(arg) &&
         arg.length === 2 &&
@@ -27,7 +46,7 @@ export const externalPositionFromAny = (arg: any): ExternalPosition | false => {
  * Tries to convert the given argument into an external action, if it fails
  * returns false
  */
-export const externalActionFromAny = (arg: any): ExternalAction => {
+const externalActionFromAny = (arg: any): ExternalAction => {
     if (Array.isArray(arg) && arg.length === 2) {
         const p1 = externalPositionFromAny(arg[0])
         const p2 = externalPositionFromAny(arg[1])
@@ -40,17 +59,14 @@ export const externalActionFromAny = (arg: any): ExternalAction => {
     return false
 }
 
-type ExternalAction = false | [ExternalPosition, ExternalPosition]
-
-interface ExternalPlayer {
-    color: ExternalColor
-    score: number
-    places: Array<ExternalPosition>
-}
-
-interface ExternalState {
-    players: Array<ExternalPlayer>
-    board: Array<Array<number>>
+export {
+    Message,
+    StartMessage,
+    PlayingAsMessage,
+    PlayingWithMessage,
+    SetupMessage,
+    TakeTurnMessage,
+    EndMessage,
 }
 
 export {
@@ -59,4 +75,6 @@ export {
     ExternalAction,
     ExternalPlayer,
     ExternalState,
+    externalPositionFromAny,
+    externalActionFromAny,
 }

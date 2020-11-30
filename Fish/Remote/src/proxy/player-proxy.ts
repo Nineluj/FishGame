@@ -6,11 +6,16 @@ import {
     getPlayerWhoseTurnItIs,
 } from "../../../Common/src/models/gameState"
 import {
+    EndMessage,
     ExternalAction,
     externalActionFromAny,
-    ExternalColor,
     externalPositionFromAny,
-    ExternalState,
+    Message,
+    PlayingAsMessage,
+    PlayingWithMessage,
+    SetupMessage,
+    StartMessage,
+    TakeTurnMessage,
 } from "../common/types"
 import { IllegalResponseError } from "../../../Common/src/models/errors/illegalResponseError"
 import { PenguinColor } from "../../../Common/src/models/player"
@@ -27,15 +32,6 @@ import {
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 import { Point } from "../../../Common/src/models/point"
 const deasync = require("deasync")
-
-type Message = [string, Array<any>]
-
-type StartMessage = ["start", [boolean]]
-type PlayingAsMessage = ["playing-as", [ExternalColor]]
-type PlayingWithMessage = ["playing-with", [Array<ExternalColor>]]
-type SetupMessage = ["setup", [ExternalState]]
-type TakeTurnMessage = ["take-turn", [ExternalState, Array<ExternalAction>]]
-type EndMessage = ["end", [boolean]]
 
 class PlayerProxy implements PlayerInterface {
     private connection: Connection

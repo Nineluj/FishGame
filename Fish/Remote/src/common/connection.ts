@@ -22,8 +22,7 @@ class Connection {
     async send(method: Array<any>): Promise<any> {
         return new Promise((resolve, reject) => {
             const json = JSON.stringify(method)
-            this.tcpConnection.setTimeout(PLAYER_CALL_TIMEOUT_MS)
-            this.tcpConnection.write(json)
+
             this.tcpConnection.on("timeout", () => {
                 reject()
             })
@@ -33,7 +32,15 @@ class Connection {
                 })
                 this.jsonParser.write(body)
             })
+
+            this.tcpConnection.write(json)
+            this.tcpConnection.setTimeout(PLAYER_CALL_TIMEOUT_MS)
         })
+    }
+
+    sendNoResponse(data: any) {
+        const json = JSON.stringify(data)
+        this.tcpConnection.write(json)
     }
 
     close(): void {
@@ -41,4 +48,34 @@ class Connection {
     }
 }
 
-export { Connection }
+/**
+ * ...
+ */
+class CallbackConnection {
+    private tcpConnection: net.Socket
+    private jsonParser: any
+
+    constructor(tcpConnection: net.Socket, fn: (a: any) => any) {
+        this.tcpConnection = tcpConnection
+
+        this.jsonParser.on("data", (parsedBody: any) => {
+            const response = fn(parsedBody)
+            this.sendResponse(response)
+        })
+
+        this.tcpConnection.on("data", (body) => {
+            this.jsonParser.write(body)
+        })
+    }
+
+    sendResponse(data: any) {
+        const json = JSON.stringify(data)
+        this.tcpConnection.write(json)
+    }
+
+    close(): void {
+        this.tcpConnection.destroy()
+    }
+}
+
+export { Connection, CallbackConnection }
