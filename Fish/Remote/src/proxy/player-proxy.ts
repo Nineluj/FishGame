@@ -20,13 +20,13 @@ import {
     createPlacePenguinAction,
     createSkipTurnAction,
 } from "../../../Common/src/models/action/action"
-import { convertToBoardLocation } from "../../../Common/src/harness/boardAdapter"
+import {
+    convertToBoardLocation,
+    convertToOutputLocation,
+} from "../../../Common/src/harness/boardAdapter"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
-
-type method = {
-    input: [string, Array<any>]
-    output: any
-}
+import { Point } from "../../../Common/src/models/point"
+const deasync = require("deasync")
 
 type Message = [string, Array<any>]
 
@@ -48,8 +48,27 @@ class PlayerProxy implements PlayerInterface {
         this.actionHistory = []
     }
 
+    // TODO: test this
     private static deasync<T>(p: Promise<T>): T {
-        throw new Error("not implemented")
+        let done = false
+        let data: T
+        let err
+
+        p.then((out) => {
+            data = out
+            done = true
+        }).catch((promiseErr) => {
+            err = promiseErr
+            done = true
+        })
+
+        deasync.loopWhile(() => !done)
+
+        if (err) {
+            throw new IllegalResponseError(err)
+        }
+
+        return data!
     }
 
     private sendAndReceive(msg: Message) {
@@ -99,9 +118,17 @@ class PlayerProxy implements PlayerInterface {
     notifyOpponentAction(action: Action): void {
         if (action.data.actionType === "eliminatePlayer") {
             this.playerEliminatedSinceLastCall = true
-        } else {
-            // TODO: make external action
-            this.actionHistory.push(action)
+        } else if (action.data.actionType === "move") {
+            const origin = action.data.origin as Point
+            const dst = action.data.dst as Point
+
+            // TODO: check that arguments to convert are passed in this order
+            this.actionHistory.push([
+                convertToOutputLocation(origin.x, origin.y),
+                convertToOutputLocation(dst.x, dst.y),
+            ])
+        } else if (action.data.actionType === "skipTurn") {
+            this.actionHistory.push(false)
         }
     }
 
@@ -124,7 +151,10 @@ class PlayerProxy implements PlayerInterface {
         )
     }
 
-    private getMoveActionFromResponse(response: any, playerId: string): Action {
+    private static getMoveActionFromResponse(
+        response: any,
+        playerId: string
+    ): Action {
         if (response === false) {
             return createSkipTurnAction(playerId)
         }
@@ -162,7 +192,6 @@ class PlayerProxy implements PlayerInterface {
         this.actionHistory = []
     }
 
-    // TODO: left off here
     private getNextPenguinMove(gs: GameState): Action {
         const msg: TakeTurnMessage = [
             "take-turn",
@@ -173,7 +202,7 @@ class PlayerProxy implements PlayerInterface {
         const playerId = getPlayerWhoseTurnItIs(gs).id
 
         this.resetHistory()
-        return this.getMoveActionFromResponse(response, playerId)
+        return PlayerProxy.getMoveActionFromResponse(response, playerId)
     }
 
     getNextAction(gs: GameState): Action {
@@ -189,7 +218,8 @@ class PlayerProxy implements PlayerInterface {
     }
 
     notifyTournamentOver(didIWin: boolean): void {
-        throw new Error("Method not implemented.")
+        const msg: EndMessage = ["end", [didIWin]]
+        this.sendAndAssertVoid(msg)
     }
 }
 

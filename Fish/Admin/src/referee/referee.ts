@@ -266,82 +266,42 @@ class Referee {
         const nextToPlay = getPlayerWhoseTurnItIs(this.gameState)
         this.getPlayerActionOrEliminate(nextToPlay.id)
 
-        this.notifyNewGameState()
-    }
-
-    /**
-     * Notify the players and the observers about the new
-     * state of the game
-     */
-    notifyNewGameState() {
-        /*
-         * notify the players
-         * might have to happen more than once since kicking a
-         * player changes the game state
-         */
-        let shouldRenotifyPlayers = true
-        while (shouldRenotifyPlayers) {
-            shouldRenotifyPlayers = this.notifyAllPlayers()
-        }
-
+        this.notifyPlayersOfNewMove(nextToPlay.id, this.getLastAction())
         this.notifyObserversNewGameState()
     }
 
     /**
-     * Notifies the observers of a new game state safely and removes
-     * them if they error while they are notified
+     *
+     * @private
      */
-    private notifyObserversNewGameState() {
-        let wellBehavedObservers: Array<GameObserver> = []
-
-        this.observers.forEach((go: GameObserver) => {
-            let result = callFunctionSafely(() => go.update(this.gameState))
-
-            if (result !== false) {
-                wellBehavedObservers.push(go)
-            }
-        })
-
-        this.observers = wellBehavedObservers
-    }
-
-    private notifyObserversGameOver() {
-        const result = this.getPlayerResults()
-
-        this.observers.forEach((go: GameObserver) => {
-            // don't bother removing the observer if they fail since the game is over
-            callFunctionSafely(() => go.notifyOver(result))
-        })
+    private getLastAction(): Action {
+        return this.history[this.history.length - 1]
     }
 
     /**
-     * Notifies all the players of the current game state, stopping if a
-     * player fails to accept the update
-     * @return if a player was kicked
+     * Notify all the player except the current player about the last action
+     * taken in the game. Eliminates players if they fail to accept the
+     * notification. Does nothing when no moves have yet to be made.
      */
-    private notifyAllPlayers(): boolean {
+    notifyPlayersOfNewMove(currentPlayerId: string, action: Action) {
         for (let [playerId, playerInstance] of this.players) {
+            if (playerId === currentPlayerId) {
+                continue
+            }
+
             let result = callFunctionSafely(() =>
-                playerInstance.updateGameState(this.gameState)
+                playerInstance.notifyOpponentAction(action)
             )
 
             if (result === false) {
-                this.kickPlayer(
-                    playerId,
-                    "failed to accept new game state",
-                    false
-                )
-
-                return true
+                this.kickPlayer(playerId, "", false)
             }
         }
-
-        return false
     }
 
     /**
      * Kicks out the player from this game and optionally notify them and give them
-     * a reason.
+     * a reason. Then announces to all the remaining players that the given player was kicked.
      */
     kickPlayer(
         playerId: string,
@@ -361,6 +321,7 @@ class Referee {
         }
 
         this.players.delete(playerId)
+        this.notifyPlayersOfNewMove(playerId, elimAction)
     }
 
     /**
@@ -394,6 +355,33 @@ class Referee {
      */
     getGameState(): GameState {
         return this.gameState
+    }
+
+    /**
+     * Notifies the observers of a new game state safely and removes
+     * them if they error while they are notified
+     */
+    private notifyObserversNewGameState() {
+        let wellBehavedObservers: Array<GameObserver> = []
+
+        this.observers.forEach((go: GameObserver) => {
+            let result = callFunctionSafely(() => go.update(this.gameState))
+
+            if (result !== false) {
+                wellBehavedObservers.push(go)
+            }
+        })
+
+        this.observers = wellBehavedObservers
+    }
+
+    private notifyObserversGameOver() {
+        const result = this.getPlayerResults()
+
+        this.observers.forEach((go: GameObserver) => {
+            // don't bother removing the observer if they fail since the game is over
+            callFunctionSafely(() => go.notifyOver(result))
+        })
     }
 }
 

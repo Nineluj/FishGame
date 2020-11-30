@@ -3,7 +3,7 @@ import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalA
 import {
     getPlacementState,
     getPlayingState,
-} from "../../../Common/src/models/testHelpers/testHelpers"
+} from "../../../Common/src/models/testHelpers"
 import { GameObserver, GameResult, Referee } from "./referee"
 import { isDeepStrictEqual } from "util"
 import {
