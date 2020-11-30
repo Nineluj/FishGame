@@ -8,3 +8,4 @@ playground/
 .vscode/
 */**fest**
 ignore/
+**.DS_Store

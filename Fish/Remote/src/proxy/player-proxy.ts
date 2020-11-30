@@ -7,9 +7,6 @@ import {
 } from "../../../Common/src/models/gameState"
 import {
     EndMessage,
-    ExternalAction,
-    externalActionFromAny,
-    externalPositionFromAny,
     Message,
     PlayingAsMessage,
     PlayingWithMessage,
@@ -19,7 +16,7 @@ import {
 } from "../common/types"
 import { IllegalResponseError } from "../../../Common/src/models/errors/illegalResponseError"
 import { PenguinColor } from "../../../Common/src/models/player"
-import { convertToOutputState } from "../../../Common/src/harness/stateAdapter"
+import { convertToOutputState } from "../../../Common/src/adapters/stateAdapter"
 import {
     createMoveAction,
     createPlacePenguinAction,
@@ -28,7 +25,7 @@ import {
 import {
     convertToBoardLocation,
     convertToOutputLocation,
-} from "../../../Common/src/harness/boardAdapter"
+} from "../../../Common/src/adapters/boardAdapter"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 import { Point } from "../../../Common/src/models/point"
 const deasync = require("deasync")
