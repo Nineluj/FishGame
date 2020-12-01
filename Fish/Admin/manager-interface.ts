@@ -1,4 +1,9 @@
-import { Referee } from "../Admin/src/referee/referee"
+/**
+ * THIS FILE IS NOT USED, WAS CREATED FOR PLANNING. THERE IS ONLY ONE
+ * MANAGER WHICH CAN BE FOUND IN Fish/Admin/src/manager/manager.ts
+ */
+
+import { Referee } from "./src/referee/referee"
 
 /**
  * Represents a player that has signed up for the tournament

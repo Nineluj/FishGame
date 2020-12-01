@@ -1,24 +1,31 @@
 import React from "react"
 import * as electron from "electron"
 import { Board } from "./board/board"
-import { GameState } from "../../../Common/src/models/gameState/gameState"
+import { GameState } from "../../../Common/src/models/gameState"
 import { getViewBoard } from "./utils"
 import { Players } from "./players/players"
 import {
     GameVisualizer,
-    setupGameWithVisualizer,
+    runGameWithVisualizer,
 } from "../../../Admin/src/visualizer/game-visualizer"
-import { Referee } from "../../../Admin/src/referee/referee"
 
-const TIME_BETWEEN_ACTIONS_MS = 500
+/**
+ * Uses Electron's sharedObject to get the number of players
+ * to use for this game
+ */
+const getNumPlayers = (): number => {
+    const sharedObj = electron.remote.getGlobal("sharedObject")
+    return sharedObj["numberOfPlayers"]
+}
+
+const INITIAL_RENDER_DELAY_MS = 2000
+const TIME_BETWEEN_ACTIONS_MS = 1000
 
 interface RootState {
     /**
      * Game state that is shown in the view
      */
     gameState: undefined | GameState
-
-    gameHasStarted: boolean
 }
 
 interface IProps {}
@@ -36,30 +43,40 @@ interface IProps {}
  * turn has been taken
  */
 class Root extends React.Component<IProps, RootState> {
-    private visualizer: GameVisualizer
-    private ref: Referee
-    private interval: any
+    private queuedRenders: number
 
     constructor(props: IProps) {
         super(props)
 
-        this.visualizer = new GameVisualizer()
-        const numberOfPlayers = this.getNumPlayers()
-        this.ref = setupGameWithVisualizer(numberOfPlayers, this.visualizer)
-
+        this.queuedRenders = 0
         this.state = {
-            gameState: this.ref.getGameState(),
-            gameHasStarted: false,
+            gameState: undefined,
         }
     }
 
-    /**
-     * Uses Electron's sharedObject to get the number of players
-     * to use for this game
-     */
-    getNumPlayers(): number {
-        const sharedObj = electron.remote.getGlobal("sharedObject")
-        return sharedObj["numberOfPlayers"]
+    async changeGameToRender(gs: GameState) {
+        this.queuedRenders++
+        setTimeout(
+            () =>
+                this.setState(
+                    {
+                        gameState: gs,
+                    },
+                    () => {
+                        this.queuedRenders--
+                    }
+                ),
+            TIME_BETWEEN_ACTIONS_MS * this.queuedRenders
+        )
+    }
+
+    componentDidMount() {
+        setTimeout(() => {
+            const visualizer = new GameVisualizer(async (gs) =>
+                this.changeGameToRender(gs)
+            )
+            runGameWithVisualizer(getNumPlayers(), visualizer)
+        }, INITIAL_RENDER_DELAY_MS)
     }
 
     /**
@@ -70,34 +87,16 @@ class Root extends React.Component<IProps, RootState> {
         electron.ipcRenderer.send("close-me")
     }
 
-    /**
-     * Play a single turn of the game
-     */
-    stepGame(ref: Referee) {
-        if (ref.getGamePhase() !== "over") {
-            ref.playTurn()
-            this.setState({ gameState: ref.getGameState() })
-        } else {
-            clearInterval(this.interval)
-        }
-    }
-
-    /**
-     * Start a game of fish
-     */
-    startGame(ref: Referee) {
-        this.setState({ gameHasStarted: true })
-        this.interval = setInterval(
-            () => this.stepGame(ref),
-            TIME_BETWEEN_ACTIONS_MS
-        )
-    }
-
     render() {
-        const { gameState, gameHasStarted } = this.state
+        const { gameState } = this.state
 
         if (gameState === undefined) {
-            return <h1>Loading game...</h1>
+            return (
+                <div>
+                    <h1>The Fish Game!</h1>
+                    Starting shortly...
+                </div>
+            )
         }
 
         /**
@@ -105,11 +104,6 @@ class Root extends React.Component<IProps, RootState> {
          */
         return (
             <div style={{ background: "#ADD8E6" }}>
-                {!gameHasStarted && (
-                    <button onClick={() => this.startGame(this.ref)}>
-                        Start
-                    </button>
-                )}
                 <Players gameState={gameState} />
                 <div className="center">
                     <Board

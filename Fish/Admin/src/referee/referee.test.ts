@@ -61,36 +61,36 @@ export class IllegalActionPlayer extends AIPlayer {
     updateGameState(gs: GameState) {}
 }
 
-/**
- * Observer that keeps all updates received by referee.
- */
-class LoggingObserver implements GameObserver {
-    public states: Array<GameState>
-    public result: GameResult | undefined
-    constructor() {
-        this.states = []
-        this.result = undefined
-    }
-
-    update(gs: GameState): void {
-        this.states.push(gs)
-    }
-    notifyOver(result: GameResult): void {
-        this.result = result
-    }
-}
-
-/**
- *  Observer which raises errors when update is called.
- */
-class ErroringObserver implements GameObserver {
-    update(gs: GameState): void {
-        throw new IllegalArgumentError("receiving a state I will not accept")
-    }
-    notifyOver(result: GameResult): void {
-        // won't do anything
-    }
-}
+// /**
+//  * Observer that keeps all updates received by referee.
+//  */
+// class LoggingObserver implements GameObserver {
+//     public states: Array<GameState>
+//     public result: GameResult | undefined
+//     constructor() {
+//         this.states = []
+//         this.result = undefined
+//     }
+//
+//     update(gs: GameState): void {
+//         this.states.push(gs)
+//     }
+//     notifyOver(result: GameResult): void {
+//         this.result = result
+//     }
+// }
+//
+// /**
+//  *  Observer which raises errors when update is called.
+//  */
+// class ErroringObserver implements GameObserver {
+//     update(gs: GameState): void {
+//         throw new IllegalArgumentError("receiving a state I will not accept")
+//     }
+//     notifyOver(result: GameResult): void {
+//         // won't do anything
+//     }
+// }
 
 describe("Referee", () => {
     describe("#constructor", () => {
@@ -287,36 +287,36 @@ describe("Referee", () => {
         })
     })
 
-    describe("#observers", () => {
-        it("successful register game observer", () => {
-            const ref = new Referee(allPlayers)
-            const observer = new LoggingObserver()
-            expect(ref.getGameObservers()).to.be.empty
-            ref.registerGameObserver(observer)
-            expect(ref.getGameObservers().length).to.be.equal(1)
-        })
-        it("observer receives updates about the game", () => {
-            const ref = new Referee(allPlayers)
-            const observer = new LoggingObserver()
-            ref.registerGameObserver(observer)
-            ref.runGamePlay()
-            expect(observer.states).to.not.be.empty
-
-            const expectedRes = {
-                failures: [],
-                losers: ["red", "white"],
-                winners: ["brown"],
-            }
-            expect(isDeepStrictEqual(observer.result, expectedRes)).to.be.true
-        })
-
-        it("observer which throws error is removed", () => {
-            const ref = new Referee(allPlayers)
-            const observer = new ErroringObserver()
-            ref.registerGameObserver(observer)
-            expect(ref.getGameObservers().length).to.be.equal(1)
-            ref.playTurn()
-            expect(ref.getGameObservers()).to.be.empty
-        })
-    })
+    // describe("#observers", () => {
+    //     it("successful register game observer", () => {
+    //         const ref = new Referee(allPlayers)
+    //         const observer = new LoggingObserver()
+    //         expect(ref.getGameObservers()).to.be.empty
+    //         ref.registerGameObserver(observer)
+    //         expect(ref.getGameObservers().length).to.be.equal(1)
+    //     })
+    //     it("observer receives updates about the game", () => {
+    //         const ref = new Referee(allPlayers)
+    //         const observer = new LoggingObserver()
+    //         ref.registerGameObserver(observer)
+    //         ref.runGamePlay()
+    //         expect(observer.states).to.not.be.empty
+    //
+    //         const expectedRes = {
+    //             failures: [],
+    //             losers: ["red", "white"],
+    //             winners: ["brown"],
+    //         }
+    //         expect(isDeepStrictEqual(observer.result, expectedRes)).to.be.true
+    //     })
+    //
+    //     it("observer which throws error is removed", () => {
+    //         const ref = new Referee(allPlayers)
+    //         const observer = new ErroringObserver()
+    //         ref.registerGameObserver(observer)
+    //         expect(ref.getGameObservers().length).to.be.equal(1)
+    //         ref.playTurn()
+    //         expect(ref.getGameObservers()).to.be.empty
+    //     })
+    // })
 })

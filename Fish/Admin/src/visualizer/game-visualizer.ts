@@ -4,6 +4,8 @@ import { AIPlayer } from "../../../Player/src/player/player"
 import { PlayerInterface } from "../../../Common/player-interface"
 import { createBoard } from "../../../Common/src/models/board"
 
+type Notify = (gs: GameState) => Promise<void>
+
 /**
  * A game visualizer is an Game Observer with a public
  * state that can be used by a view to draw game states
@@ -12,11 +14,18 @@ class GameVisualizer implements GameObserver {
     public state: GameState | undefined
     public result: GameResult | undefined
 
-    update(gs: GameState): void {
-        this.state = gs
+    private notifyFun: Notify
+
+    constructor(fn: Notify) {
+        this.notifyFun = fn
     }
 
-    notifyOver(result: GameResult): void {
+    async update(gs: GameState) {
+        this.state = gs
+        this.notifyFun(gs)
+    }
+
+    async notifyOver(result: GameResult) {
         this.result = result
     }
 }
@@ -26,10 +35,10 @@ class GameVisualizer implements GameObserver {
  * given number of AI players. Returns the referee
  * that manages the game.
  */
-const setupGameWithVisualizer = (
+const runGameWithVisualizer = async (
     numPlayers: number,
     visualizer: GameVisualizer
-): Referee => {
+) => {
     const aiPlayers: Array<PlayerInterface> = []
     for (let i = 0; i < numPlayers; i++) {
         aiPlayers.push(new AIPlayer())
@@ -39,9 +48,9 @@ const setupGameWithVisualizer = (
         aiPlayers,
         createBoard(24, { randomizeFishPerTile: true })
     )
-    ref.registerGameObserver(visualizer)
 
-    return ref
+    ref.registerGameObserver(visualizer)
+    ref.runGamePlay()
 }
 
-export { GameVisualizer, setupGameWithVisualizer }
+export { GameVisualizer, runGameWithVisualizer }

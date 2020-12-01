@@ -6,7 +6,7 @@ import {
 } from "./boardAdapter"
 import { expect } from "chai"
 import { isDeepStrictEqual } from "util"
-import { Board } from "src/models/board"
+import { Board } from "../models/board"
 
 describe("Board Adapter", () => {
     describe("#convertToBoardLocation", () => {

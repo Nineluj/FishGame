@@ -7,7 +7,7 @@ import { isDeepStrictEqual } from "util"
 describe("Game Visualizer", () => {
     describe("#update", () => {
         it("changes the public state when it receives a game state update", () => {
-            const gv = new GameVisualizer()
+            const gv = new GameVisualizer(async (gs) => {})
             const oldState = gv.state
             gv.update(createGameState(players))
             expect(isDeepStrictEqual(oldState, gv.state)).to.be.false
@@ -16,7 +16,7 @@ describe("Game Visualizer", () => {
 
     describe("#notifyOver", () => {
         it("changes the public game result when it receives a game over", () => {
-            const gv = new GameVisualizer()
+            const gv = new GameVisualizer(async (gs) => {})
             const oldRes = gv.result
             gv.notifyOver({
                 failures: ["red", "orange", "magenta"],

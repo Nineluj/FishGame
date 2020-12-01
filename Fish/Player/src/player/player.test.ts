@@ -12,7 +12,7 @@ import {
     getPenguinMaxMinMoveStrategy,
     getPenguinPlacementStrategy,
     getSkipTurnStrategy,
-} from "src/strategy/strategy"
+} from "../strategy/strategy"
 import { skipTurn } from "../../../Common/src/models/gameState/gameState"
 
 // class RefereeStub extends Referee {

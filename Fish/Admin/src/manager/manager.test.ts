@@ -3,8 +3,8 @@ import { createCompetitorArray } from "../../../Common/src/models/testHelpers"
 import { Competitor, TournamentManager } from "./manager"
 import { expect } from "chai"
 import { isDeepStrictEqual } from "util"
-import { ErrorPlayer, IllegalActionPlayer } from "src/referee/referee.test"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
+import { ErrorPlayer, IllegalActionPlayer } from "../referee/referee.test"
 
 class WinningErrorPlayer extends AIPlayer {
     notifyTournamentOver(didIWin: boolean) {
@@ -138,32 +138,37 @@ describe("Tournament Manager", () => {
     })
 
     describe("#runRefereeGames", () => {
-        it("creates a referee for each group", () => {
+        it("creates future results for each group", () => {
             const competitors = createCompetitorArray(5)
             const groups = TournamentManager.splitPlayersIntoGames(competitors)
 
             const manager = new TournamentManager(competitors)
-            const refGroups = manager.runRefereeGames(groups)
+            const resultGroups = manager.runRefereeGames(groups)
 
-            refGroups.forEach((rg, index) => {
-                expect(isDeepStrictEqual(rg[1], groups[index])).to.be.true
-                rg[0]
-                    .getPlayerStatuses()
-                    .players.forEach((p) =>
-                        expect(isIdInCompetitorArray(groups[index], p.id))
-                    )
-            })
+            expect(resultGroups.length).to.equal(groups.length)
+        })
+
+        it("creates future result for all the given competitor groups", async () => {
+            const competitors = createCompetitorArray(5)
+            const groups = TournamentManager.splitPlayersIntoGames(competitors)
+
+            const manager = new TournamentManager(competitors)
+            const resultGroups = manager.runRefereeGames(groups)
+
+            expect(
+                resultGroups.map((resGroup) => resGroup.competitors)
+            ).to.have.members(groups)
         })
     })
 
     describe("#collectResults", () => {
-        it("Returns the winners of each game with all rule abiding players", () => {
+        it("Returns the winners of each game with all rule abiding players", async () => {
             const competitors = createCompetitorArray(5)
             const groups = TournamentManager.splitPlayersIntoGames(competitors)
 
             const manager = new TournamentManager(competitors)
             const refGroups = manager.runRefereeGames(groups)
-            const results = manager.collectResults(refGroups)
+            const results = await manager.collectResults(refGroups)
 
             expect(results.length).to.be.greaterThan(0)
             expect(manager.getLosers()).to.have.lengthOf.greaterThan(0)
@@ -172,27 +177,29 @@ describe("Tournament Manager", () => {
     })
 
     describe("#runTournament", () => {
-        it("puts a failing player into the failures array", () => {
+        it("puts a failing player into the failures array", async () => {
             const competitors = createCompetitorArray(6).concat([
                 { id: "bad", age: 2, ai: new ErrorPlayer() },
             ])
 
             const manager = new TournamentManager(competitors)
-            const result = manager.runTournament()
+            const result = await manager.runTournament()
 
             expect(manager.getFailures()).to.contain("bad")
             expect(manager.getLosers()).to.not.contain("bad")
             expect(manager.getLosers().length + result.length).to.be.equal(6)
         })
-        it("produces at least one winner", () => {
+
+        it("produces at least one winner", async () => {
             const competitors = createCompetitorArray(8)
 
             const manager = new TournamentManager(competitors)
-            const result = manager.runTournament()
+            const result = await manager.runTournament()
             expect(result).to.have.lengthOf.greaterThan(0)
             expect(result.length + manager.getLosers().length).to.equal(8)
         })
-        it("if the winner errors after winning, the winner is added to the failures array", () => {
+
+        it("if the winner errors after winning, the winner is added to the failures array", async () => {
             const competitors = [
                 { id: "1", age: 10, ai: new ErrorPlayer() },
                 { id: "2", age: 10, ai: new ErrorPlayer() },
@@ -205,11 +212,11 @@ describe("Tournament Manager", () => {
             ]
 
             const manager = new TournamentManager(competitors)
-            const result = manager.runTournament()
+            const result = await manager.runTournament()
             expect(result).to.have.lengthOf(0)
             expect(manager.getFailures()).to.contain("8")
         })
-        it("if all players error as they are alerted the game is beginning, they are added to the failures", () => {
+        it("if all players error as they are alerted the game is beginning, they are added to the failures", async () => {
             const competitors = [
                 { id: "1", age: 10, ai: new PlayerErrorsAsTournamentStarts() },
                 { id: "2", age: 10, ai: new PlayerErrorsAsTournamentStarts() },
@@ -222,14 +229,14 @@ describe("Tournament Manager", () => {
             ]
 
             const manager = new TournamentManager(competitors)
-            const result = manager.runTournament()
+            const result = await manager.runTournament()
             expect(result).to.have.lengthOf(0)
             expect(manager.getFailures()).to.have.lengthOf(8)
         })
     })
 
     describe("#runGameForEachGroup", () => {
-        it("at least one player makes it to the next round given rule abiding players", () => {
+        it("at least one player makes it to the next round given rule abiding players", async () => {
             const competitors = createCompetitorArray(12)
             const groups = [
                 [
@@ -253,11 +260,11 @@ describe("Tournament Manager", () => {
             ]
 
             const manager = new TournamentManager(competitors)
-            const result = manager.runGameForEachGroup(groups)
+            const result = await manager.runGameForEachGroup(groups)
             expect(result).to.have.length.greaterThan(2) // each group should produce at least one winner
         })
 
-        it("no players make it to the next round if they are all bad", () => {
+        it("no players make it to the next round if they are all bad", async () => {
             const cs = [
                 { id: "bad1", age: 1, ai: new ErrorPlayer() },
                 { id: "bad2", age: 2, ai: new ErrorPlayer() },
@@ -271,13 +278,13 @@ describe("Tournament Manager", () => {
             ]
 
             const manager = new TournamentManager(cs)
-            const result = manager.runGameForEachGroup(groups)
+            const result = await manager.runGameForEachGroup(groups)
 
             expect(result).to.have.lengthOf(0)
             expect(manager.getFailures()).to.have.lengthOf(4)
         })
 
-        it("bad player doesn't make it to the second round", () => {
+        it("bad player doesn't make it to the second round", async () => {
             const cs = createCompetitorArray(6).concat([
                 { id: "bad", age: 2, ai: new ErrorPlayer() },
             ])
@@ -288,7 +295,7 @@ describe("Tournament Manager", () => {
             ]
 
             const manager = new TournamentManager(cs)
-            const result = manager.runGameForEachGroup(groups)
+            const result = await manager.runGameForEachGroup(groups)
 
             expect(isIdInCompetitorArray(result, "bad")).to.be.false
             expect(manager.getFailures()).to.contain("bad")
@@ -403,7 +410,7 @@ describe("Tournament Manager", () => {
     })
 
     describe("#alertPlayersOfLoss", () => {
-        it("alerts players that the tournament is over and they lost", () => {
+        it("alerts players that the tournament is over and they lost", async () => {
             let data = { written: [] as string[] }
             const customWriter = {
                 write(s: string): void {
@@ -439,14 +446,13 @@ describe("Tournament Manager", () => {
 
             const tm = new TournamentManager(comps)
 
-            tm.runOneRound(comps)
-
+            await tm.runOneRound(comps)
             tm.alertPlayersOfLoss()
 
             expect(data.written.length).to.be.greaterThan(0)
             expect(data.written[0]).to.be.equal("I lost")
         })
-        it("does not update error players on their loss", () => {
+        it("does not update error players on their loss", async () => {
             let data = { written: "" }
             const customWriter = {
                 write(s: string): void {
@@ -463,7 +469,7 @@ describe("Tournament Manager", () => {
             ])
             const tm = new TournamentManager(competitors)
 
-            tm.runOneRound(competitors)
+            await tm.runOneRound(competitors)
             tm.alertPlayersOfLoss()
 
             expect(data.written).to.be.equal("")
@@ -493,16 +499,16 @@ describe("Tournament Manager", () => {
         })
     })
     describe("#runOneRound", () => {
-        it("only returns players that win their rounds", () => {
+        it("only returns players that win their rounds", async () => {
             const competitors = createCompetitorArray(15)
             const tm = new TournamentManager(competitors)
-            const result = tm.runOneRound(competitors)
+            const result = await tm.runOneRound(competitors)
             const firstSetLosers = tm.getLosers()
 
             expect(result).to.have.lengthOf.greaterThan(4) // there are 5 games in a 15 round
             expect(firstSetLosers).to.have.lengthOf.greaterThan(0)
 
-            const result2 = tm.runOneRound(result)
+            const result2 = await tm.runOneRound(result)
 
             expect(result2).to.have.lengthOf.lessThan(result.length)
             expect(result2).to.have.lengthOf.greaterThan(0)
@@ -511,13 +517,13 @@ describe("Tournament Manager", () => {
             )
         })
 
-        it("adds players to the failures section that error", () => {
+        it("adds players to the failures section that error", async () => {
             const competitors = createCompetitorArray(15).concat([
                 { id: "error dude", age: 10, ai: new ErrorPlayer() },
                 { id: "illegal dude", age: 10, ai: new IllegalActionPlayer() },
             ])
             const tm = new TournamentManager(competitors)
-            const result = tm.runOneRound(competitors)
+            const result = await tm.runOneRound(competitors)
             const firstSetLosers = tm.getLosers()
 
             expect(result).to.have.lengthOf.greaterThan(4) // there are 5 games in a 15 round
@@ -526,7 +532,7 @@ describe("Tournament Manager", () => {
             expect(tm.getFailures()).to.contain("error dude")
             expect(tm.getFailures()).to.contain("illegal dude")
 
-            const result2 = tm.runOneRound(result)
+            const result2 = await tm.runOneRound(result)
 
             expect(result2).to.have.lengthOf.lessThan(result.length)
             expect(result2).to.have.lengthOf.greaterThan(0)

@@ -1,4 +1,4 @@
-import { Referee } from "../referee/referee"
+import { GameResult, Referee } from "../referee/referee"
 import { isDeepStrictEqual } from "util"
 import { PlayerInterface } from "../../../Common/player-interface"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
@@ -6,7 +6,7 @@ import {
     MAX_PLAYER_COUNT,
     MIN_PLAYER_COUNT,
 } from "../../../Common/src/models/gameState"
-import { callFunctionSafely } from "../../src/utils/communications"
+import { callFunctionSafely } from "../utils/communications"
 
 /**
  * A Competitor is a participant in the tournament. A Competitor contains an id, an age, and something
@@ -25,6 +25,11 @@ export type Competitor = {
  * A Competitor Group represents a grouping of players for the purpose of a single game in the tournament
  */
 type CompetitorGroup = Competitor[]
+
+type ResultWithCompetitors = {
+    competitors: CompetitorGroup
+    results: Promise<GameResult>
+}
 
 /**
  * The TournamentManager manages a single tournament. It receives competitors from a sign up server, and then
@@ -71,9 +76,9 @@ export class TournamentManager {
      *
      * Returns the winners of the tournament
      */
-    runTournament(): Competitor[] {
+    async runTournament(): Promise<Competitor[]> {
         this.alertPlayersThatTournamentIsBeginning()
-        this.competingPlayers = this.runAllRounds()
+        this.competingPlayers = await this.runAllRounds()
         this.alertPlayersOfVictory()
         this.alertPlayersOfLoss()
 
@@ -83,12 +88,12 @@ export class TournamentManager {
     /**
      * Runs rounds until the tournament is over
      */
-    runAllRounds(): Competitor[] {
+    async runAllRounds(): Promise<Competitor[]> {
         let remainingPlayers = this.competingPlayers
         let lastRoundWinners: Competitor[] = []
 
         while (this.canRunAnotherRound(remainingPlayers, lastRoundWinners)) {
-            let winners = this.runOneRound(remainingPlayers)
+            let winners = await this.runOneRound(remainingPlayers)
             lastRoundWinners = remainingPlayers
             remainingPlayers = winners
         }
@@ -114,11 +119,9 @@ export class TournamentManager {
     /**
      * Runs a single round of this tournament with the given competitors
      */
-    runOneRound(competitors: Competitor[]): Competitor[] {
+    async runOneRound(competitors: Competitor[]): Promise<Competitor[]> {
         const groups = TournamentManager.splitPlayersIntoGames(competitors)
-        const winners = this.runGameForEachGroup(groups)
-
-        return winners
+        return this.runGameForEachGroup(groups)
     }
 
     /**
@@ -188,24 +191,18 @@ export class TournamentManager {
      * Runs a round in the tournament for the given game groups
      * Returns the players that are moving on to the next round
      */
-    runGameForEachGroup(groups: CompetitorGroup[]): Competitor[] {
-        let refCompGroups = this.runRefereeGames(groups)
-        let winners = this.collectResults(refCompGroups)
-
-        return winners
+    async runGameForEachGroup(
+        groups: CompetitorGroup[]
+    ): Promise<Competitor[]> {
+        let futureResults = this.runRefereeGames(groups)
+        return this.collectResults(futureResults)
     }
 
     /**
      * Creates a Referee for each Competitor Group, and starts the referee running the game
-     *
-     * *Note: This is not currently asynchronous, but this was split to better allow that in the future
-     *
-     * Returns the pair of referee with the group of players of their game.
      */
-    runRefereeGames(
-        groups: CompetitorGroup[]
-    ): Array<[Referee, CompetitorGroup]> {
-        const allRefs: [Referee, CompetitorGroup][] = []
+    runRefereeGames(groups: CompetitorGroup[]): Array<ResultWithCompetitors> {
+        const allResults: Array<ResultWithCompetitors> = []
 
         for (let playerGroup of groups) {
             const playerInterfaces = playerGroup.map(
@@ -213,14 +210,15 @@ export class TournamentManager {
             )
 
             const playerIds = playerGroup.map((competitor) => competitor.id)
-
             const ref = new Referee(playerInterfaces, undefined, playerIds)
-            ref.runGamePlay()
 
-            allRefs.push([ref, playerGroup])
+            allResults.push({
+                results: ref.runGamePlay(),
+                competitors: playerGroup,
+            })
         }
 
-        return allRefs
+        return allResults
     }
 
     /**
@@ -229,18 +227,17 @@ export class TournamentManager {
      *
      * Note: This is not currently asynchronous, but this was split to better allow that in the future
      *
-     * @param allRefs An Array of Pairs of referees and the players in the referee's game
+     * @param allResults The results of all the game for this round along with the players that participated in them
      * @return the players that have won and should therefore move on in the tournament
      */
-    collectResults(
-        allRefs: Array<[Referee, CompetitorGroup]>
-    ): Array<Competitor> {
+    async collectResults(
+        allResults: Array<ResultWithCompetitors>
+    ): Promise<Array<Competitor>> {
         let winners: Competitor[] = []
 
-        for (let outcome of allRefs) {
-            let [ref, compGroup] = outcome
-
-            const gameResults = ref.getPlayerResults()
+        for (let outcome of allResults) {
+            const compGroup = outcome.competitors
+            const gameResults = await outcome.results
 
             TournamentManager.addMatchingCompetitorsToArray(
                 winners,

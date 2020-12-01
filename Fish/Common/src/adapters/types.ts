@@ -1,4 +1,4 @@
-import { PenguinColor } from "src/models/player"
+import { PenguinColor } from "../models/player"
 
 /* JSON serializable representations for the data related to the game */
 type ExternalColor = PenguinColor

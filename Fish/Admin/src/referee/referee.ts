@@ -42,11 +42,11 @@ export type GameResult = {
  */
 interface GameObserver {
     // Tells the observer about an update to the game
-    update: (gs: GameState) => void
+    update: (gs: GameState) => Promise<void>
 
     // Tells the observer that the game is over, the observer won't receive
     // any more information
-    notifyOver: (result: GameResult) => void
+    notifyOver: (result: GameResult) => Promise<void>
 }
 
 /**
@@ -85,6 +85,8 @@ class Referee {
      * Constructs a new referee and begins the game.
      * @param players the set of players playing in the game sorted for the desired order of play
      * @param board optionally, a specific board that should be used for this game
+     * @param playerIds optionally, the IDs to assign for the participating players,
+     *        otherwise use colors to identify the players instead
      */
     constructor(
         players: Array<PlayerInterface>,
@@ -233,11 +235,12 @@ class Referee {
      * We leave the timeout feature to the tcp player to monitor. We trust the house players
      * not to time out. If a Player goes into an infinite loop, we will not be able to prevent that
      */
-    runGamePlay() {
+    async runGamePlay(): Promise<GameResult> {
         this.runPlacementPhase()
         this.runGameMovementPhase()
 
-        this.notifyObserversGameOver()
+        this.notifyObserversGameOver().then()
+        return this.getPlayerResults()
     }
 
     /**
@@ -362,25 +365,25 @@ class Referee {
      * them if they error while they are notified
      */
     private notifyObserversNewGameState() {
-        let wellBehavedObservers: Array<GameObserver> = []
-
         this.observers.forEach((go: GameObserver) => {
-            let result = callFunctionSafely(() => go.update(this.gameState))
-
-            if (result !== false) {
-                wellBehavedObservers.push(go)
-            }
+            go.update(this.gameState).catch(() => this.removeObserver(go))
         })
-
-        this.observers = wellBehavedObservers
     }
 
-    private notifyObserversGameOver() {
+    /**
+     * Removes an observer
+     * @param badObs
+     * @private
+     */
+    private removeObserver(badObs: GameObserver) {
+        this.observers = this.observers.filter((obs) => obs !== badObs)
+    }
+
+    private async notifyObserversGameOver() {
         const result = this.getPlayerResults()
 
         this.observers.forEach((go: GameObserver) => {
-            // don't bother removing the observer if they fail since the game is over
-            callFunctionSafely(() => go.notifyOver(result))
+            go.notifyOver(result)
         })
     }
 }
