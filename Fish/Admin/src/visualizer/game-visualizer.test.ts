@@ -19,9 +19,9 @@ describe("Game Visualizer", () => {
             const gv = new GameVisualizer(async (gs) => {})
             const oldRes = gv.result
             gv.notifyOver({
-                failures: ["red", "orange", "magenta"],
+                failures: ["red", "brown", "black"],
                 losers: [],
-                winners: ["salmon"],
+                winners: ["white"],
             })
             expect(isDeepStrictEqual(oldRes, gv.result)).to.be.false
         })

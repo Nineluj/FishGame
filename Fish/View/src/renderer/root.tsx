@@ -31,16 +31,12 @@ interface RootState {
 interface IProps {}
 
 /**
- * Draws the main view.
+ * React component to draw the entire game board.
+ * Includes visualization of the hexagonal tile board, with number of fish,
+ * as well as placement of each players' penguins, and whose turn it is.
  *
- * It has a game visualizer but does not use it since we could not
- * figure out how make the observer pattern work with React and the
- * fact that this language is single threaded and doesn't have
- * limited continuations.
- *
- * Instead calls the referee's playTurn function so that it
- * can play one turn at a time and render the gameState after each
- * turn has been taken
+ * Has the ability to queue subsequent GameStates so the view can
+ * be rendered with a delay after each game action.
  */
 class Root extends React.Component<IProps, RootState> {
     private queuedRenders: number

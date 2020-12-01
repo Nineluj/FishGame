@@ -274,15 +274,16 @@ class Referee {
     }
 
     /**
-     *
-     * @private
+     * Get the last action of the the game.
+     * Used to alert players of the last action on the game state,
+     * and is only called after at least one action has been called.
      */
     private getLastAction(): Action {
         return this.history[this.history.length - 1]
     }
 
     /**
-     * Notify all the player except the current player about the last action
+     * Notify all the players except the current player about the last action
      * taken in the game. Eliminates players if they fail to accept the
      * notification. Does nothing when no moves have yet to be made.
      */
@@ -372,18 +373,22 @@ class Referee {
 
     /**
      * Removes an observer
-     * @param badObs
-     * @private
+     * @param badObs The instance of observer to remove
      */
     private removeObserver(badObs: GameObserver) {
         this.observers = this.observers.filter((obs) => obs !== badObs)
     }
 
+    /**
+     * Notify all game observers that the game is over.
+     * None of the observers will be called again after the game is over,
+     * but still remove the observer if they fail or error when notified.
+     */
     private async notifyObserversGameOver() {
         const result = this.getPlayerResults()
 
         this.observers.forEach((go: GameObserver) => {
-            go.notifyOver(result)
+            go.notifyOver(result).catch(() => this.removeObserver(go))
         })
     }
 }

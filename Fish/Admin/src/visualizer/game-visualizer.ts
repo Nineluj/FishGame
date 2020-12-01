@@ -7,7 +7,7 @@ import { createBoard } from "../../../Common/src/models/board"
 type Notify = (gs: GameState) => Promise<void>
 
 /**
- * A game visualizer is an Game Observer with a public
+ * A game visualizer is a Game Observer with a public
  * state that can be used by a view to draw game states
  */
 class GameVisualizer implements GameObserver {
@@ -32,8 +32,8 @@ class GameVisualizer implements GameObserver {
 
 /**
  * Sets up a game of fish with a game visualizer and the
- * given number of AI players. Returns the referee
- * that manages the game.
+ * given number of AI players. The referee will run the game
+ * until the game is over.
  */
 const runGameWithVisualizer = async (
     numPlayers: number,
