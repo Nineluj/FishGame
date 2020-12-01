@@ -31,9 +31,9 @@ class GameVisualizer implements GameObserver {
 }
 
 /**
- * Sets up a game of fish with a game visualizer and the
- * given number of AI players. The referee will run the game
- * until the game is over.
+ * Runs a complete game of fish with the given game visualizer and the
+ * given number of AI players. Uses a board with 25 (5 x 5) tiles, and
+ * randomizes the fish values on each tile.
  */
 const runGameWithVisualizer = async (
     numPlayers: number,
@@ -46,7 +46,7 @@ const runGameWithVisualizer = async (
 
     const ref = new Referee(
         aiPlayers,
-        createBoard(24, { randomizeFishPerTile: true })
+        createBoard(25, { randomizeFishPerTile: true })
     )
 
     ref.registerGameObserver(visualizer)
