@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-
-for i in $(seq 1 $1)
+for _ in $(seq 1 "$1")
     do
-        cd Other && npm run --silent client -- $2 $3 &
+        cd Other && npm run --silent client -- "$2" "$3" &
     done

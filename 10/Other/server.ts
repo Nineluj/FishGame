@@ -57,6 +57,8 @@ const getPort = (): number => {
     return -1
 }
 
+const startTournament = () => {}
+
 /**
  * Checks if the server has any active connections, if not, terminates the server and program.
  */
@@ -79,7 +81,7 @@ const terminateIfNoConnection = (): void => {
  * waiting period ends early if 10 people connect
  *
  * after people have signed up:
- * - if enough --> start the tournamanet
+ * - if enough --> start the tournament
  *  - when finished, shut the entire program down, prints results [# winners, # failures/cheaters]
  * - if not enough --> exit program and print something to show not enough people connected
  *
