@@ -1,32 +1,15 @@
 import { expect } from "chai"
 import { AIPlayer, DEFAULT_MOVES_AHEAD } from "./player"
-import { Referee } from "../../../Admin/src/referee/referee"
 import {
-    players,
-    getPlayingState,
     getPlacementState,
-} from "../../../Common/src/models/testHelpers/testHelpers"
-import { Action } from "../../../Common/src/models/action"
+    getPlayingState,
+} from "../../../Common/src/models/testHelpers"
 import { actionsEqual } from "../../../Common/src/models/action/action"
 import {
     getPenguinMaxMinMoveStrategy,
     getPenguinPlacementStrategy,
     getSkipTurnStrategy,
 } from "../strategy/strategy"
-import { skipTurn } from "../../../Common/src/models/gameState/gameState"
-
-// class RefereeStub extends Referee {
-//     numberOfTimesMakeActionCalled = 0
-
-//     constructor() {
-//         super([players[0], players[1]])
-//         this.numberOfTimesMakeActionCalled = 0
-//     }
-
-//     makeAction(action: Action): void {
-//         this.numberOfTimesMakeActionCalled++
-//     }
-// }
 
 describe("Player", () => {
     describe("#notifyBanned", () => {
