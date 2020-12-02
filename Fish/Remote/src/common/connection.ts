@@ -4,7 +4,8 @@ const Parser = require("jsonparse")
 const PLAYER_CALL_TIMEOUT_MS = 1000
 
 /**
- * ...
+ * Represents a TCP connection wrapper which can send and receive data using JSON.
+ * Used by the server side to send and receive data to the client
  */
 class Connection {
     private tcpConnection: net.Socket
@@ -16,8 +17,10 @@ class Connection {
     }
 
     /**
+     * Method to send a type of Message, and expect a response from client.
      *
-     * @param method
+     * @param method Message sent from server to client
+     * @returns the client response
      */
     async send(method: Array<any>): Promise<any> {
         return new Promise((resolve, reject) => {
@@ -40,6 +43,12 @@ class Connection {
         })
     }
 
+    /**
+     * Method to send a type data through this connection,
+     * does not expect a response.
+     *
+     * @param data JSON data to send
+     */
     sendNoResponse(data: any) {
         const json = JSON.stringify(data)
         this.tcpConnection.write(json)
@@ -51,7 +60,10 @@ class Connection {
 }
 
 /**
- * ...
+ * Represents a TCP connection wrapper which can send responses and listen for
+ * incoming data.
+ * Used by the client to listen for data from the server. Takes a callback
+ * function to be able to send data received to specific client side components.
  */
 class CallbackConnection {
     private tcpConnection: net.Socket
@@ -73,11 +85,19 @@ class CallbackConnection {
         })
     }
 
+    /**
+     * Send a response from the client to the server.
+     *
+     * @param data JSON data to send to server
+     */
     sendResponse(data: any) {
         const json = JSON.stringify(data)
         this.tcpConnection.write(json)
     }
 
+    /**
+     * Close this TCP connection.
+     */
     close(): void {
         this.tcpConnection.destroy()
     }
