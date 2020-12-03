@@ -1,36 +1,50 @@
-import { createServer } from "net"
-import { panic } from "./util"
-const Parser = require("jsonparse")
+import net, { createServer } from "net"
+import { debugPrint, panic } from "./util"
+import { runWaitingPhase } from "./waiting"
+import { PlayerProxy } from "../../Fish/Remote/src/proxy/player-proxy"
+import { Connection } from "../../Fish/Remote/src/common/connection"
+import {
+    Competitor,
+    getCompetitorIds,
+    TournamentManager,
+} from "../../Fish/Admin/src/manager/manager"
+import { createBoardWithDimensions } from "../../Fish/Common/src/adapters/boardAdapter"
 
-const TURN_TIMEOUT_MS = 1000
-const CONNECTION_TIMEOUT_MS = 3000
+const MIN_PLAYERS_NEEDED = 5
+const MAX_PLAYERS_ALLOWED = 10
 
-const jsonParser = new Parser()
-const parsedObjects: Array<string> = []
+const BOARD_WIDTH = 5
+const BOARD_HEIGHT = 5
+const NUM_FISH_PER_TILE = 2
 
-// Every time another json value is parsed, add it to the list of parsed objects
-jsonParser.onValue = function (val: any) {
-    // Check that the parsed value is at the top level of the stream, and not nested
-    if (this.stack.length == 0) {
-        parsedObjects.push(val)
-    }
+type ServerTournamentResults = {
+    winnerIds: Array<string>
+    failureIds: Array<string>
 }
 
-const server = createServer({
-    allowHalfOpen: false,
-})
+export type SocketWithName = {
+    name: string
+    conn: net.Socket
+}
 
-server.on("connection", (connection) => {
-    connection.on("data", (data) => {
-        jsonParser.write(data)
-    })
+/**
+ * Completes all the tasks for the server:
+ * - Get players in a waiting room
+ * -
+ */
+const run = async (port: number) => {
+    const server = makeServer(port)
+    const registeredRemotePlayers = await runWaitingPhase(server)
 
-    connection.on("end", () => {
-        connection.destroy() // Close socket
-        server.close() // Shutdown server
-        process.exit(0)
-    })
-})
+    if (registeredRemotePlayers.length < MIN_PLAYERS_NEEDED) {
+        panic(
+            `Not enough players joined, only got ${registeredRemotePlayers.length}`
+        )
+    }
+
+    const results = await runTournamentWithManager(registeredRemotePlayers)
+    printTournamentResults(results)
+}
 
 /**
  * Returns the port to listen for connections on.
@@ -57,36 +71,61 @@ const getPort = (): number => {
     return -1
 }
 
-const startTournament = () => {}
+const makeServer = (port: number): net.Server => {
+    const server = createServer({
+        allowHalfOpen: false,
+    })
+
+    debugPrint("Starting to listen for connections")
+    server.listen(port)
+    return server
+}
+
+const printTournamentResults = (results: ServerTournamentResults) => {
+    console.log(
+        JSON.stringify([results.winnerIds.length, results.failureIds.length])
+    )
+}
 
 /**
- * Checks if the server has any active connections, if not, terminates the server and program.
+ * Runs a tournament with the registered players
  */
-const terminateIfNoConnection = (): void => {
-    server.getConnections((error, count) => {
-        if (count === 0) {
-            server.close()
-            console.error(
-                `Timeout error: No connection within ${
-                    CONNECTION_TIMEOUT_MS / 1000
-                } seconds`
-            )
-            process.exit(-1)
+const runTournamentWithManager = async (
+    remotePlayersConns: Array<SocketWithName>
+): Promise<ServerTournamentResults> => {
+    const competitors = createRemoteCompetitors(remotePlayersConns)
+
+    const manager = new TournamentManager(competitors, () =>
+        createBoardWithDimensions(BOARD_WIDTH, BOARD_HEIGHT, NUM_FISH_PER_TILE)
+    )
+    const winners = await manager.runTournament()
+    const failureIds = manager.getFailures()
+
+    return {
+        winnerIds: getCompetitorIds(winners),
+        failureIds: failureIds,
+    }
+}
+
+/**
+ * Creates competitors from the socket and names
+ */
+const createRemoteCompetitors = (
+    registeredRemotePlayers: Array<SocketWithName>
+): Array<Competitor> =>
+    registeredRemotePlayers.map((sockWithName, index) => {
+        const connObj = new Connection(sockWithName.conn)
+        const playerInterface = new PlayerProxy(connObj)
+
+        return {
+            age: index,
+            ai: playerInterface,
+            id: sockWithName.name,
         }
     })
-}
-/**
- * wait 30s for 5 people to connect
- * if not 5 people, then wait another 30 seconds
- * waiting period ends early if 10 people connect
- *
- * after people have signed up:
- * - if enough --> start the tournament
- *  - when finished, shut the entire program down, prints results [# winners, # failures/cheaters]
- * - if not enough --> exit program and print something to show not enough people connected
- *
- */
-const startServer = async (port: number) => {}
 
-server.listen(getPort())
-setTimeout(terminateIfNoConnection, CONNECTION_TIMEOUT_MS)
+if (require.main === module) {
+    run(getPort())
+}
+
+export { MIN_PLAYERS_NEEDED, MAX_PLAYERS_ALLOWED }

@@ -15,7 +15,7 @@ import { createEliminatePlayerAction } from "../../../Common/src/models/action/a
 import { Board } from "../../../Common/src/models/board"
 import { createPlayer } from "../../../Common/src/models/testHelpers/testHelpers"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
-import { callFunctionSafely } from "../utils/communications"
+import { callFunctionSafely, didFail } from "../utils/communications"
 
 // The order in which the referee will assign the colors to the players
 export const colorOrder: Array<PenguinColor> = [
@@ -111,7 +111,24 @@ class Referee {
             this.players.set(gamePlayers[playerIndex].id, p)
         })
 
+        this.notifyPlayersOfColorInformation(gamePlayers)
+
         this.observers = []
+    }
+
+    /**
+     * Tells the players what color they are playing as and all the colors
+     * that have been assigned for this game
+     */
+    private async notifyPlayersOfColorInformation(models: Player[]) {
+        const colors = models.map((playerModel) => playerModel.penguinColor)
+
+        for (const playerModel of models) {
+            const playerInterface = this.players.get(playerModel.id)!
+            // TODO: use callAndKickIfFail
+            await playerInterface.notifyPlayAs(playerModel.penguinColor)
+            await playerInterface.notifyPlayWith(colors)
+        }
     }
 
     /**
@@ -139,6 +156,7 @@ class Referee {
             if (playerIds) {
                 playerId = playerIds[playerIndex]
             }
+
             out.push(createPlayer(colorOrder[playerIndex], playerId))
         }
 
@@ -297,9 +315,18 @@ class Referee {
                 playerInstance.notifyOpponentAction(action)
             )
 
-            if (result === false) {
+            if (didFail(result)) {
                 this.kickPlayer(playerId, "", false)
             }
+        }
+    }
+
+    // TODO
+    private async callAndKickIfFail(fn: () => Promise<any>, playerId: string) {
+        let result = await callFunctionSafely(async () => await fn())
+
+        if (didFail(result)) {
+            this.kickPlayer(playerId)
         }
     }
 
@@ -334,17 +361,19 @@ class Referee {
      * @param player the current player
      * @param playerId the player id
      */
-    private getPlayerActionOrEliminate(playerId: string): void {
+    private async getPlayerActionOrEliminate(playerId: string): void {
         const player = this.players.get(playerId)!
 
-        const playerAction = callFunctionSafely(() =>
+        const maybePlayerAction = await callFunctionSafely(() =>
             player.getNextAction(this.gameState)
         )
 
-        if (!playerAction) {
+        if (didFail(maybePlayerAction)) {
             this.kickPlayer(playerId)
             return
         }
+
+        const playerAction = maybePlayerAction as Action
 
         try {
             this.gameState = playerAction.apply(this.gameState)

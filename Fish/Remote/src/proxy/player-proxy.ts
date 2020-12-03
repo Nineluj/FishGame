@@ -33,7 +33,6 @@ import {
 } from "../../../Common/src/adapters/types"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 import { Point } from "../../../Common/src/models/point"
-const deasync = require("deasync")
 
 class PlayerProxy implements PlayerInterface {
     private connection: Connection
@@ -46,39 +45,16 @@ class PlayerProxy implements PlayerInterface {
         this.actionHistory = []
     }
 
-    // TODO: test this
-    private static deasync<T>(p: Promise<T>): T {
-        let done = false
-        let data: T
-        let err
-
-        p.then((out) => {
-            data = out
-            done = true
-        }).catch((promiseErr) => {
-            err = promiseErr
-            done = true
-        })
-
-        deasync.loopWhile(() => !done)
-
-        if (err) {
-            throw new IllegalResponseError(err)
-        }
-
-        return data!
-    }
-
-    private sendAndReceive(msg: Message) {
-        return PlayerProxy.deasync(this.connection.send(msg))
+    private async sendAndReceive(msg: Message): Promise<any> {
+        return await this.connection.send(msg)
     }
 
     /**
      * Sends the given message, reads the result and asserts
      * that it is equal to the string void
      */
-    private sendAndAssertVoid(msg: Message) {
-        const result = this.sendAndReceive(msg)
+    private async sendAndAssertVoid(msg: Message) {
+        const result = await this.sendAndReceive(msg)
         PlayerProxy.assertVoid(result)
     }
 
@@ -94,26 +70,26 @@ class PlayerProxy implements PlayerInterface {
         }
     }
 
-    notifyTournamentIsStarting(): void {
+    async notifyTournamentIsStarting() {
         const msg: StartMessage = ["start", [true]]
-        this.sendAndAssertVoid(msg)
+        await this.sendAndAssertVoid(msg)
     }
 
-    notifyPlayAs(color: PenguinColor): void {
+    async notifyPlayAs(color: PenguinColor) {
         const msg: PlayingAsMessage = ["playing-as", [color]]
-        this.sendAndAssertVoid(msg)
+        await this.sendAndAssertVoid(msg)
     }
 
-    notifyPlayWith(opponentColors: Array<PenguinColor>): void {
+    async notifyPlayWith(opponentColors: Array<PenguinColor>) {
         const msg: PlayingWithMessage = ["playing-with", [opponentColors]]
-        this.sendAndAssertVoid(msg)
+        await this.sendAndAssertVoid(msg)
     }
 
-    notifyBanned(reason: string): void {
+    async notifyBanned(reason: string) {
         this.connection.close()
     }
 
-    notifyOpponentAction(action: Action): void {
+    async notifyOpponentAction(action: Action): Promise<void> {
         if (action.data.actionType === "eliminatePlayer") {
             this.playerEliminatedSinceLastCall = true
         } else if (action.data.actionType === "move") {
@@ -130,7 +106,7 @@ class PlayerProxy implements PlayerInterface {
         }
     }
 
-    private getNextPenguinPlacement(gs: GameState): Action {
+    private async getNextPenguinPlacement(gs: GameState): Promise<Action> {
         const msg: SetupMessage = ["setup", [convertToOutputState(gs)]]
         const result = this.sendAndReceive(msg)
 
@@ -190,20 +166,20 @@ class PlayerProxy implements PlayerInterface {
         this.actionHistory = []
     }
 
-    private getNextPenguinMove(gs: GameState): Action {
+    private async getNextPenguinMove(gs: GameState): Promise<Action> {
         const msg: TakeTurnMessage = [
             "take-turn",
             [convertToOutputState(gs), this.getHistory()],
         ]
 
-        const response = this.sendAndReceive(msg)
+        const response = await this.sendAndReceive(msg)
         const playerId = getPlayerWhoseTurnItIs(gs).id
 
         this.resetHistory()
         return PlayerProxy.getMoveActionFromResponse(response, playerId)
     }
 
-    getNextAction(gs: GameState): Action {
+    async getNextAction(gs: GameState): Promise<Action> {
         if (gs.phase === "penguinPlacement") {
             return this.getNextPenguinPlacement(gs)
         } else if (gs.phase === "playing") {
@@ -215,9 +191,9 @@ class PlayerProxy implements PlayerInterface {
         }
     }
 
-    notifyTournamentOver(didIWin: boolean): void {
+    async notifyTournamentOver(didIWin: boolean): Promise<void> {
         const msg: EndMessage = ["end", [didIWin]]
-        this.sendAndAssertVoid(msg)
+        return this.sendAndAssertVoid(msg)
     }
 }
 

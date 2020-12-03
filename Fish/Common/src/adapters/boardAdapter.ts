@@ -81,6 +81,24 @@ export const makeBoardFromTestInput = (
     return board
 }
 
+export const createBoardWithDimensions = (
+    width: number,
+    height: number,
+    numFish: number
+): Board => {
+    const externalBoard = []
+
+    for (let h = 0; h < height; h++) {
+        const row = []
+        for (let w = 0; w < width; w++) {
+            row.push(numFish)
+        }
+        externalBoard.push(row)
+    }
+
+    return makeBoardFromTestInput(externalBoard, [])
+}
+
 /**
  * Pads the input matrix with zeroes so that all rows are of equal length
  * @param input A 2d array of numbers

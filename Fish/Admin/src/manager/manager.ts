@@ -6,7 +6,8 @@ import {
     MAX_PLAYER_COUNT,
     MIN_PLAYER_COUNT,
 } from "../../../Common/src/models/gameState"
-import { callFunctionSafely } from "../utils/communications"
+import { callFunctionSafely, didFail } from "../utils/communications"
+import { Board } from "../../../Common/src/models/board"
 
 /**
  * A Competitor is a participant in the tournament. A Competitor contains an id, an age, and something
@@ -31,13 +32,14 @@ type ResultWithCompetitors = {
     results: Promise<GameResult>
 }
 
+type BoardCreateFn = () => Board
+
 /**
  * The TournamentManager manages a single tournament. It receives competitors from a sign up server, and then
  * runs an entire tournament. The tournament manager removes competitors from ongoing game play if
  *      a) they error in any given communication between the manager and player
  *          (notification the tournament is starting, notification of victory) (or is kicked out of a game by the referee)
  *      b) the player loses an individual game
- * Currently, we do not manage players that take too long to respond. // TODO: This will be managed by the Communication Layer (see remote.md)
  *
  * The TournamentManager utilizes a knockout system for tournament progression, players that win the tournament move
  * to the next round
@@ -50,12 +52,15 @@ export class TournamentManager {
     // These are competitors that errored either in an individual game or when the tournament manager
     // communicates with them
     private failures: Competitor[]
+    private boardCreateFn: undefined | BoardCreateFn
 
     /**
      * Construct a tournament manager for the signed up players. Must have enough players to actually run a tournament
      * @param players an array of signed up players containing ids, ages, and their corresponding ai
+     * @param createBoardFn Optionally, function that can create a board that will be used for all the games in this tournament
+     *      If not passed, the board creation is handled by the referee
      */
-    constructor(players: Competitor[]) {
+    constructor(players: Competitor[], createBoardFn?: BoardCreateFn) {
         if (players.length < MIN_PLAYER_COUNT) {
             throw new IllegalArgumentError(
                 `Must have at least ${MIN_PLAYER_COUNT} players to run a tournament`
@@ -65,6 +70,7 @@ export class TournamentManager {
         this.competingPlayers = players
         this.losers = []
         this.failures = []
+        this.boardCreateFn = createBoardFn
     }
 
     /**
@@ -154,7 +160,7 @@ export class TournamentManager {
         this.competingPlayers.forEach((competitor) => {
             const result = callFunctionSafely(() => func(competitor))
 
-            if (result === false) {
+            if (didFail(result)) {
                 this.failures.push(competitor)
             } else {
                 playersHandleVictoryGracefully.push(competitor)
@@ -168,6 +174,7 @@ export class TournamentManager {
      * Tells all this tournament's losers that they have lost
      */
     alertPlayersOfLoss() {
+        // TODO: handle async differently?
         this.losers.forEach((competitor) => {
             callFunctionSafely(() => competitor.ai.notifyTournamentOver(false))
         })
@@ -177,14 +184,14 @@ export class TournamentManager {
      * Get the IDs of all this tournament's losers
      */
     getLosers(): Array<string> {
-        return this.losers.map((competitor) => competitor.id)
+        return getCompetitorIds(this.losers)
     }
 
     /**
      * Get the IDs of all this tournament's failures
      */
     getFailures(): Array<string> {
-        return this.failures.map((competitor) => competitor.id)
+        return getCompetitorIds(this.failures)
     }
 
     /**
@@ -210,7 +217,13 @@ export class TournamentManager {
             )
 
             const playerIds = playerGroup.map((competitor) => competitor.id)
-            const ref = new Referee(playerInterfaces, undefined, playerIds)
+
+            let board: Board | undefined = undefined
+            if (this.boardCreateFn !== undefined) {
+                board = this.boardCreateFn()
+            }
+
+            const ref = new Referee(playerInterfaces, board, playerIds)
 
             allResults.push({
                 results: ref.runGamePlay(),
@@ -224,8 +237,6 @@ export class TournamentManager {
     /**
      * Collects the competitors that have won their respective games by
      * adding losers to the loser array, and returning the winners
-     *
-     * Note: This is not currently asynchronous, but this was split to better allow that in the future
      *
      * @param allResults The results of all the game for this round along with the players that participated in them
      * @return the players that have won and should therefore move on in the tournament
@@ -338,3 +349,6 @@ export class TournamentManager {
         )
     }
 }
+
+export const getCompetitorIds = (competitors: Array<Competitor>) =>
+    competitors.map((comp) => comp.id)

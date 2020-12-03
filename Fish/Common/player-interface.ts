@@ -12,38 +12,37 @@ export interface PlayerInterface {
      * Notify a player that they are playing in a new game
      * @param color Color that the player is using for this game
      */
-    notifyPlayAs(color: PenguinColor): void
+    notifyPlayAs(color: PenguinColor): Promise<void>
 
     /**
      * Notify a player of its opponents.
-     * TODO: check piazza to see if we have to repeat this phase
      * if a player fails
      */
-    notifyPlayWith(opponentColors: Array<PenguinColor>): void
+    notifyPlayWith(opponentColors: Array<PenguinColor>): Promise<void>
 
     /**
      * Notify a player that they have been banned, along with the reason for it. Any other calls they make to
      * the referee will be immediately rejected.
      */
-    notifyBanned(reason: string): void
+    notifyBanned(reason: string): Promise<void>
 
     /**
      * Notifies the player of an action that was taken by an opponent
      */
-    notifyOpponentAction(action: Action): void
+    notifyOpponentAction(action: Action): Promise<void>
 
     /**
      * Asks the player for its next action. The player can assume that it is their turn.
      */
-    getNextAction(gs: GameState): Action
+    getNextAction(gs: GameState): Promise<Action>
 
     /**
      * Notify the player that the tournament is starting
      */
-    notifyTournamentIsStarting(): void
+    notifyTournamentIsStarting(): Promise<void>
 
     /**
      * Notify the player that the tournament is over
      */
-    notifyTournamentOver(didIWin: boolean): void
+    notifyTournamentOver(didIWin: boolean): Promise<void>
 }

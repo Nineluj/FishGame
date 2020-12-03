@@ -1,5 +1,5 @@
 /**
- * Display usage information for the program and exit with an error code
+ * Display usage information for the program and terminates the program with an error code
  * @param message Custom message to display to user after terminating program
  */
 const panic = (message: string): void => {
@@ -8,4 +8,12 @@ const panic = (message: string): void => {
     process.exit(-1)
 }
 
-export { panic }
+const printDebug = !!process.env.DEBUG
+
+const debugPrint = (message: string): void => {
+    if (printDebug) {
+        console.log(">", message)
+    }
+}
+
+export { panic, debugPrint }
