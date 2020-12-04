@@ -49,6 +49,8 @@ const runWaitingRoom = async (
     return new Promise((resolve) => {
         const clients: Array<SocketWithName> = []
 
+        // TODO: handle clients that quit unexpectedly here
+
         server.on("connection", (conn: net.Socket) => {
             tryRegisterClient(conn)
                 .then((sockAndName) => {

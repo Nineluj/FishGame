@@ -44,6 +44,7 @@ const run = async (port: number) => {
 
     const results = await runTournamentWithManager(registeredRemotePlayers)
     printTournamentResults(results)
+    process.exit(0)
 }
 
 /**

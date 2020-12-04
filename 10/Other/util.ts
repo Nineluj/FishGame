@@ -3,17 +3,21 @@
  * @param message Custom message to display to user after terminating program
  */
 const panic = (message: string): void => {
-    console.error(`Incorrect usage: ${message}`)
-    console.log("usage: ./xserver <port>")
+    console.error(`Exited with error: ${message}`)
     process.exit(-1)
 }
 
 const printDebug = !!process.env.DEBUG
+let printPrefix = { prefix: ">" }
+
+const setDebugPrintPrefix = (prefix: string): void => {
+    printPrefix.prefix = prefix
+}
 
 const debugPrint = (message: string): void => {
     if (printDebug) {
-        console.log(">", message)
+        console.log(printPrefix.prefix, message)
     }
 }
 
-export { panic, debugPrint }
+export { panic, debugPrint, setDebugPrintPrefix }
