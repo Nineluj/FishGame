@@ -314,7 +314,7 @@ class Referee {
      * notification. Does nothing when no moves have yet to be made.
      */
     async notifyPlayersOfNewMove(currentPlayerId: string, action: Action) {
-        for (let [playerId, playerInstance] of this.players) {
+        for (const [playerId, playerInstance] of this.players) {
             if (playerId === currentPlayerId) {
                 continue
             }

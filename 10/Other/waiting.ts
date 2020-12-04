@@ -12,12 +12,19 @@ const PLAYER_NAME_WAIT_MS = 10000
 const runWaitingPhase = async (
     server: net.Server
 ): Promise<Array<SocketWithName>> => {
+    debugPrint("Starting waiting phase")
+
     let initialPlayers = await runWaitingRoom(server, MAX_PLAYERS_ALLOWED)
     const playersCount = initialPlayers.length
 
     if (playersCount >= MIN_PLAYERS_NEEDED) {
+        debugPrint(`Got enough players to begin (${playersCount})`)
         return initialPlayers
     } else {
+        debugPrint(
+            `Got too few players to begin (${playersCount}), running waiting room again`
+        )
+
         // run waiting again
         const morePlayers = await runWaitingRoom(
             server,
@@ -45,9 +52,13 @@ const runWaitingRoom = async (
         server.on("connection", (conn: net.Socket) => {
             tryRegisterClient(conn)
                 .then((sockAndName) => {
+                    debugPrint("New client registered")
                     clients.push(sockAndName)
 
                     if (clients.length === waitForNumPlayers) {
+                        debugPrint(
+                            `Got enough players in waiting room. Closing it.`
+                        )
                         resolve(clients)
                     }
                 })
