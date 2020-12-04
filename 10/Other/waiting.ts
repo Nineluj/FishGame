@@ -8,31 +8,44 @@ import {
 
 const INITIAL_WAITING_PERIOD_MS = 30000 // 30s
 const PLAYER_NAME_WAIT_MS = 10000
+const ROUNDS_TO_RUN = 2
 
+/**
+ * Runs the waiting phase. The phase ends when:
+ * - MAX_PLAYERS_ALLOWED players register with the server
+ * - Two waiting rounds have been run
+ * @param server
+ */
 const runWaitingPhase = async (
     server: net.Server
 ): Promise<Array<SocketWithName>> => {
     debugPrint("Starting waiting phase")
 
-    let initialPlayers = await runWaitingRoom(server, MAX_PLAYERS_ALLOWED)
-    const playersCount = initialPlayers.length
+    let collectedPlayers: Array<SocketWithName> = []
+    let roundsRun = 0
 
-    if (playersCount >= MIN_PLAYERS_NEEDED) {
-        debugPrint(`Got enough players to begin (${playersCount})`)
-        return initialPlayers
-    } else {
+    while (
+        collectedPlayers.length < MIN_PLAYERS_NEEDED &&
+        roundsRun < ROUNDS_TO_RUN
+    ) {
         debugPrint(
-            `Got too few players to begin (${playersCount}), running waiting room again`
+            `Running round ${roundsRun} of waiting room. Have (${collectedPlayers.length}) players`
         )
 
-        // run waiting again
-        const morePlayers = await runWaitingRoom(
+        let newlyRegisteredPlayers = await runWaitingRoom(
             server,
-            MAX_PLAYERS_ALLOWED - playersCount
+            MAX_PLAYERS_ALLOWED - collectedPlayers.length
         )
 
-        return initialPlayers.concat(morePlayers)
+        roundsRun++
+        collectedPlayers = collectedPlayers.concat(newlyRegisteredPlayers)
     }
+
+    debugPrint(
+        `Completed waiting phase with (${collectedPlayers.length}) players`
+    )
+
+    return collectedPlayers
 }
 
 /**
@@ -49,26 +62,31 @@ const runWaitingRoom = async (
     return new Promise((resolve) => {
         const clients: Array<SocketWithName> = []
 
-        // TODO: handle clients that quit unexpectedly here
+        const connectionListener = server.on(
+            "connection",
+            (conn: net.Socket) => {
+                tryRegisterClient(conn)
+                    .then((sockAndName) => {
+                        debugPrint("New client registered")
+                        clients.push(sockAndName)
 
-        server.on("connection", (conn: net.Socket) => {
-            tryRegisterClient(conn)
-                .then((sockAndName) => {
-                    debugPrint("New client registered")
-                    clients.push(sockAndName)
+                        if (clients.length === waitForNumPlayers) {
+                            debugPrint(
+                                `Got enough players in waiting room. Closing it.`
+                            )
 
-                    if (clients.length === waitForNumPlayers) {
-                        debugPrint(
-                            `Got enough players in waiting room. Closing it.`
-                        )
-                        resolve(clients)
-                    }
-                })
-                .catch((err) => {
-                    debugPrint(`Didn't register client, reason ${err}`)
-                    conn.destroy()
-                })
-        })
+                            // removing all the listeners will stop
+                            // new clients from connecting
+                            server.removeAllListeners()
+                            resolve(clients)
+                        }
+                    })
+                    .catch((err) => {
+                        debugPrint(`Didn't register client, reason: ${err}`)
+                        conn.destroy()
+                    })
+            }
+        )
 
         setTimeout(() => {
             resolve(clients)
@@ -100,12 +118,13 @@ const tryRegisterClient = async (conn: net.Socket): Promise<SocketWithName> => {
 
 const NAME_MAX_LEN = 12
 const NAME_MIN_LEN = 1
-const CHAR_MIN = "a".charCodeAt(0)
+const CHAR_MIN = "A".charCodeAt(0)
 const CHAR_MAX = "z".charCodeAt(0)
 
 /**
- *
- * @param name
+ * Does the given username fit the requirements? Uses length constants
+ * - Within length constraints set by NAME_MIN_LEN and NAME_MAX_LEN
+ * - Only allows alphabetical characters
  */
 const validateUsername = (name: string): boolean => {
     const len = name.length
