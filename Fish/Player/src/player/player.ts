@@ -29,9 +29,11 @@ export class AIPlayer implements PlayerInterface {
     protected output: Writeable
 
     /**
-     * @param referee is the referee that the player interacts with
      * to make actions. The referee is tasked with calling the methods
      * on this player to give it information about the game
+     * @param output Optional writeable which player will use to log misc information
+     * @param movesAhead How many moves ahead the AI should look for the planning
+     *      uses 2 as the default if not passed
      */
     constructor(output?: Writeable, movesAhead?: number) {
         if (!movesAhead) {
@@ -50,21 +52,21 @@ export class AIPlayer implements PlayerInterface {
         }
     }
 
-    notifyBanned(reason: string): void {
+    async notifyBanned(reason: string): Promise<void> {
         this.output.write(`We were banned. Referee's explanation: ${reason}`)
     }
 
-    getNextAction(gs: GameState): Action {
+    async getNextAction(gs: GameState): Promise<Action> {
         return this.strategy.getNextAction(gs)
     }
 
-    notifyTournamentIsStarting(): void {}
+    async notifyTournamentIsStarting(): Promise<void> {}
 
-    notifyTournamentOver(didIWin: boolean): void {}
+    async notifyTournamentOver(didIWin: boolean): Promise<void> {}
 
-    notifyPlayAs(color: PenguinColor): void {}
+    async notifyPlayAs(color: PenguinColor): Promise<void> {}
 
-    notifyPlayWith(opponentColors: Array<PenguinColor>): void {}
+    async notifyPlayWith(opponentColors: Array<PenguinColor>): Promise<void> {}
 
-    notifyOpponentAction(action: Action): void {}
+    async notifyOpponentAction(action: Action): Promise<void> {}
 }

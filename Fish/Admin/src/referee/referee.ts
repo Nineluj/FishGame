@@ -15,7 +15,12 @@ import { createEliminatePlayerAction } from "../../../Common/src/models/action/a
 import { Board } from "../../../Common/src/models/board"
 import { createPlayer } from "../../../Common/src/models/testHelpers/testHelpers"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
-import { callFunctionSafely, didFail } from "../utils/communications"
+import {
+    callAsyncFunctionSafely,
+    callFunctionSafely,
+    didFail,
+    didFailAsync,
+} from "../utils/communications"
 
 // The order in which the referee will assign the colors to the players
 export const colorOrder: Array<PenguinColor> = [
@@ -111,23 +116,46 @@ class Referee {
             this.players.set(gamePlayers[playerIndex].id, p)
         })
 
-        this.notifyPlayersOfColorInformation(gamePlayers)
-
         this.observers = []
+    }
+
+    /**
+     * Runs through an entire game by going through the placement and movement phase
+     *
+     * Constraints: When the referee encounters failing players it kicks them out
+     * The cases the referee considers before kicking out the player are:
+     *  - Players that error
+     *  - Players that submit invalid moves
+     * The Game State is immutable so players are unable to change the ground truth of the game
+     *
+     * We leave the timeout feature to the tcp player to monitor. We trust the house players
+     * not to time out. If a Player goes into an infinite loop, we will not be able to prevent that
+     */
+    async runGamePlay(): Promise<GameResult> {
+        await this.notifyPlayersOfColorInformation()
+        await this.runPlacementPhase()
+        await this.runGameMovementPhase()
+
+        this.notifyObserversGameOver().then()
+        return this.getPlayerResults()
     }
 
     /**
      * Tells the players what color they are playing as and all the colors
      * that have been assigned for this game
      */
-    private async notifyPlayersOfColorInformation(models: Player[]) {
+    private async notifyPlayersOfColorInformation() {
+        const models = this.initialGame.players
         const colors = models.map((playerModel) => playerModel.penguinColor)
 
         for (const playerModel of models) {
-            const playerInterface = this.players.get(playerModel.id)!
-            // TODO: use callAndKickIfFail
-            await playerInterface.notifyPlayAs(playerModel.penguinColor)
-            await playerInterface.notifyPlayWith(colors)
+            const playerId = playerModel.id
+
+            const playerInterface = this.players.get(playerId)!
+            await this.callAndKickIfFail(async () => {
+                await playerInterface.notifyPlayAs(playerModel.penguinColor)
+                await playerInterface.notifyPlayWith(colors)
+            }, playerId)
         }
     }
 
@@ -242,52 +270,32 @@ class Referee {
     }
 
     /**
-     * Runs through an entire game by going through the placement and movement phase
-     *
-     * Constraints: When the referee encounters failing players it kicks them out
-     * The cases the referee considers before kicking out the player are:
-     *  - Players that error
-     *  - Players that submit invalid moves
-     * The Game State is immutable so players are unable to change the ground truth of the game
-     *
-     * We leave the timeout feature to the tcp player to monitor. We trust the house players
-     * not to time out. If a Player goes into an infinite loop, we will not be able to prevent that
-     */
-    async runGamePlay(): Promise<GameResult> {
-        this.runPlacementPhase()
-        this.runGameMovementPhase()
-
-        this.notifyObserversGameOver().then()
-        return this.getPlayerResults()
-    }
-
-    /**
      * Loops through game state until the game has ended. Requests player actions for each turn.
      * Handles invalid actions appropriately.
      */
-    runGameMovementPhase() {
+    async runGameMovementPhase() {
         while (this.gameState.phase === "playing") {
-            this.playTurn()
+            await this.playTurn()
         }
     }
 
     /**
      * Loop through the placement phase of the game. Requests the player placements for each turn.
      */
-    runPlacementPhase() {
+    async runPlacementPhase() {
         while (this.gameState.phase === "penguinPlacement") {
-            this.playTurn()
+            await this.playTurn()
         }
     }
 
     /**
      * Plays a single turn and updates all the players of the changes in the game.
      */
-    playTurn() {
+    async playTurn() {
         const nextToPlay = getPlayerWhoseTurnItIs(this.gameState)
-        this.getPlayerActionOrEliminate(nextToPlay.id)
+        await this.getPlayerActionOrEliminate(nextToPlay.id)
 
-        this.notifyPlayersOfNewMove(nextToPlay.id, this.getLastAction())
+        await this.notifyPlayersOfNewMove(nextToPlay.id, this.getLastAction())
         this.notifyObserversNewGameState()
     }
 
@@ -305,28 +313,27 @@ class Referee {
      * taken in the game. Eliminates players if they fail to accept the
      * notification. Does nothing when no moves have yet to be made.
      */
-    notifyPlayersOfNewMove(currentPlayerId: string, action: Action) {
+    async notifyPlayersOfNewMove(currentPlayerId: string, action: Action) {
         for (let [playerId, playerInstance] of this.players) {
             if (playerId === currentPlayerId) {
                 continue
             }
 
-            let result = callFunctionSafely(() =>
-                playerInstance.notifyOpponentAction(action)
-            )
-
-            if (didFail(result)) {
-                this.kickPlayer(playerId, "", false)
-            }
+            await this.callAndKickIfFail(async () => {
+                await playerInstance.notifyOpponentAction(action)
+            }, playerId)
         }
     }
 
-    // TODO
+    /**
+     * Calls the given asynchronous function and if it fails kick the player
+     * with the given playerId
+     */
     private async callAndKickIfFail(fn: () => Promise<any>, playerId: string) {
-        let result = await callFunctionSafely(async () => await fn())
+        let result = await callAsyncFunctionSafely(async () => fn())
 
-        if (didFail(result)) {
-            this.kickPlayer(playerId)
+        if (await didFailAsync(result)) {
+            await this.kickPlayer(playerId)
         }
     }
 
@@ -334,11 +341,11 @@ class Referee {
      * Kicks out the player from this game and optionally notify them and give them
      * a reason. Then announces to all the remaining players that the given player was kicked.
      */
-    kickPlayer(
+    async kickPlayer(
         playerId: string,
         reason: string = "",
         notify: boolean = false
-    ): void {
+    ): Promise<void> {
         const elimAction = createEliminatePlayerAction(playerId)
         this.history.push(elimAction)
         this.eliminatedPlayerIds.add(playerId)
@@ -346,30 +353,32 @@ class Referee {
         this.gameState = elimAction.apply(this.gameState)
 
         if (notify) {
-            callFunctionSafely(() =>
-                this.players.get(playerId)!.notifyBanned(reason)
-            )
+            // we don't care about any return value
+            callAsyncFunctionSafely(async () => {
+                await this.players.get(playerId)!.notifyBanned(reason)
+            })
         }
 
         this.players.delete(playerId)
-        this.notifyPlayersOfNewMove(playerId, elimAction)
+        // TODO: when should this be called?
+        await this.notifyPlayersOfNewMove(playerId, elimAction)
     }
 
     /**
      * Asks the player for it's action based on the current game state. If this action is valid, it modifies the game state.
      * Otherwise it removes the player from the game.
-     * @param player the current player
-     * @param playerId the player id
+     * @param playerId the id of the player that will make an action
      */
-    private async getPlayerActionOrEliminate(playerId: string): void {
+    private async getPlayerActionOrEliminate(playerId: string): Promise<void> {
         const player = this.players.get(playerId)!
 
-        const maybePlayerAction = await callFunctionSafely(() =>
-            player.getNextAction(this.gameState)
+        const maybePlayerAction = await callAsyncFunctionSafely(
+            async (): Promise<Action> =>
+                await player.getNextAction(this.gameState)
         )
 
-        if (didFail(maybePlayerAction)) {
-            this.kickPlayer(playerId)
+        if (await didFailAsync(maybePlayerAction)) {
+            await this.kickPlayer(playerId)
             return
         }
 
@@ -379,7 +388,7 @@ class Referee {
             this.gameState = playerAction.apply(this.gameState)
             this.history.push(playerAction)
         } catch (e) {
-            this.kickPlayer(playerId, e.message, true)
+            await this.kickPlayer(playerId, e.message, true)
         }
     }
 

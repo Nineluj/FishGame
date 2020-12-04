@@ -21,8 +21,9 @@ export interface PlayerInterface {
     notifyPlayWith(opponentColors: Array<PenguinColor>): Promise<void>
 
     /**
-     * Notify a player that they have been banned, along with the reason for it. Any other calls they make to
-     * the referee will be immediately rejected.
+     * Notify a player that they have been banned, along with the reason for it.
+     * A referee may optionally call this method if the player has submitted an invalid
+     * move.
      */
     notifyBanned(reason: string): Promise<void>
 

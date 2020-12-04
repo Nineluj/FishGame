@@ -6,7 +6,12 @@ import {
     MAX_PLAYER_COUNT,
     MIN_PLAYER_COUNT,
 } from "../../../Common/src/models/gameState"
-import { callFunctionSafely, didFail } from "../utils/communications"
+import {
+    callAsyncFunctionSafely,
+    callFunctionSafely,
+    didFail,
+    didFailAsync,
+} from "../utils/communications"
 import { Board } from "../../../Common/src/models/board"
 
 /**
@@ -83,10 +88,10 @@ export class TournamentManager {
      * Returns the winners of the tournament
      */
     async runTournament(): Promise<Competitor[]> {
-        this.alertPlayersThatTournamentIsBeginning()
+        await this.alertPlayersThatTournamentIsBeginning()
         this.competingPlayers = await this.runAllRounds()
-        this.alertPlayersOfVictory()
-        this.alertPlayersOfLoss()
+        await this.alertPlayersOfVictory()
+        await this.alertPlayersOfLoss()
 
         return this.competingPlayers
     }
@@ -134,8 +139,8 @@ export class TournamentManager {
      * Tells all the active competitors that the tournament is starting. If they
      * error, make them failures
      */
-    alertPlayersThatTournamentIsBeginning() {
-        this.notifyCompetitorOrMakeFailure((competitor) =>
+    async alertPlayersThatTournamentIsBeginning() {
+        await this.notifyCompetitorOrMakeFailure((competitor) =>
             competitor.ai.notifyTournamentIsStarting()
         )
     }
@@ -144,8 +149,8 @@ export class TournamentManager {
      * Tells the winners that they have won. If they
      * error, make them failures
      */
-    alertPlayersOfVictory() {
-        this.notifyCompetitorOrMakeFailure((competitor) =>
+    async alertPlayersOfVictory() {
+        await this.notifyCompetitorOrMakeFailure((competitor) =>
             competitor.ai.notifyTournamentOver(true)
         )
     }
@@ -154,18 +159,22 @@ export class TournamentManager {
      * Notify a player about a tournament update and make them a failures
      * if they error
      */
-    private notifyCompetitorOrMakeFailure(func: (comp: Competitor) => void) {
+    private async notifyCompetitorOrMakeFailure(
+        func: (comp: Competitor) => Promise<void>
+    ) {
         const playersHandleVictoryGracefully: Competitor[] = []
 
-        this.competingPlayers.forEach((competitor) => {
-            const result = callFunctionSafely(() => func(competitor))
+        for (const competitor of this.competingPlayers) {
+            const result = callAsyncFunctionSafely(
+                async () => await func(competitor)
+            )
 
-            if (didFail(result)) {
+            if (await didFailAsync(result)) {
                 this.failures.push(competitor)
             } else {
                 playersHandleVictoryGracefully.push(competitor)
             }
-        })
+        }
 
         this.competingPlayers = playersHandleVictoryGracefully
     }
@@ -173,10 +182,11 @@ export class TournamentManager {
     /**
      * Tells all this tournament's losers that they have lost
      */
-    alertPlayersOfLoss() {
-        // TODO: handle async differently?
+    async alertPlayersOfLoss() {
         this.losers.forEach((competitor) => {
-            callFunctionSafely(() => competitor.ai.notifyTournamentOver(false))
+            callAsyncFunctionSafely(
+                async () => await competitor.ai.notifyTournamentOver(false)
+            )
         })
     }
 

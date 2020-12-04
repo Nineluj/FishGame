@@ -69,14 +69,15 @@ class CallbackConnection {
     private tcpConnection: net.Socket
     private jsonParser: any
 
-    constructor(tcpConnection: net.Socket, fn: (a: any) => any) {
+    constructor(tcpConnection: net.Socket, fn: (a: any) => Promise<any>) {
         this.tcpConnection = tcpConnection
         this.jsonParser = new Parser()
 
-        this.jsonParser.onValue = function (val: any) {
+        const sendResponse = this.sendResponse
+        this.jsonParser.onValue = async function (val: any) {
             if (this.stack.length == 0) {
-                const response = fn(val)
-                this.sendResponse(response)
+                const response = await fn(val)
+                sendResponse(response)
             }
         }
 
