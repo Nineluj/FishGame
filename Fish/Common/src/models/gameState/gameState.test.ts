@@ -21,7 +21,7 @@ import {
 } from "../testHelpers"
 import { IllegalArgumentError } from "../errors/illegalArgumentError"
 import { InvalidMoveError } from "../errors/invalidMoveError"
-import { getOverState } from "../testHelpers/testHelpers"
+import { getOverState, getPlayingMinusOne } from "../testHelpers/testHelpers"
 
 describe("Game State", () => {
     describe("#helpers", () => {
@@ -214,6 +214,13 @@ describe("Game State", () => {
                     getPlayerById(newGs, "p1")
                 }).to.throw(IllegalArgumentError)
             })
+
+            it("the original positions of the player's penguins are marked as unoccupied", () => {
+                getPlayerById(gs, "p1").penguins.forEach((point) => {
+                    const tile = boardGet(newGs.board, point) as Tile
+                    expect(tile.occupied).to.be.false
+                })
+            })
         })
 
         describe(">a player whose turn it isn't", () => {
@@ -228,8 +235,32 @@ describe("Game State", () => {
                 expect(() => {
                     getPlayerById(newGs, "p3")
                 }).to.throw(IllegalArgumentError)
+                expect(newGs.players).to.have.lengthOf(2)
+            })
+
+            it("the original positions of the player's penguins are marked as unoccupied", () => {
+                getPlayerById(gs, "p3").penguins.forEach((point) => {
+                    const tile = boardGet(newGs.board, point) as Tile
+                    expect(tile.occupied).to.be.false
+                })
             })
         })
+        //
+        // describe(">eliminating a player when they should be the one last to place a penguin", () => {
+        //     gs = getPlayingMinusOne()
+        //     const newGs = eliminatePlayer(gs, "p3")
+        //
+        //     it("changes the game phase", () => {
+        //         expect(newGs.phase).to.equal("playing")
+        //     })
+        //
+        //     it("the original positions of the player's penguins are marked as unoccupied", () => {
+        //         getPlayerById(gs, "p3").penguins.forEach((point) => {
+        //             const tile = boardGet(newGs.board, point) as Tile
+        //             expect(tile.occupied).to.be.false
+        //         })
+        //     })
+        // })
     })
 
     describe("#playing", () => {

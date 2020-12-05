@@ -80,8 +80,11 @@ export const getPlacementState = (): GameState => {
 /**
  * Helper for getting a game state that is actively being played
  */
-export const getPlayingState = (): GameState => {
-    return placeMultiple(
+export const getPlayingState = (): GameState =>
+    placePenguin(getPlayingMinusOne(), "p3", { x: 2, y: 2 })
+
+export const getPlayingMinusOne = (): GameState =>
+    placeMultiple(
         getPlacementState(),
         [
             [0, 0],
@@ -92,11 +95,9 @@ export const getPlayingState = (): GameState => {
             [4, 0],
             [2, 1],
             [3, 0],
-            [2, 2],
         ],
         ["p1", "p2", "p3"]
     )
-}
 
 export const getOverState = (): GameState => {
     let cState = getPlayingState()

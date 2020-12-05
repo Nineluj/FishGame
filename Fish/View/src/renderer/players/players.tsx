@@ -3,7 +3,7 @@ import {
     GameState,
     getPlayerWhoseTurnItIs,
 } from "../../../../Common/src/models/gameState"
-import { ListItem, List, ListItemText, Typography } from "@material-ui/core"
+import { List, ListItem, ListItemText, Typography } from "@material-ui/core"
 import { Player } from "../../../../Common/src/models/player"
 
 interface Props {

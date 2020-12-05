@@ -22,18 +22,12 @@ import {
     createPlacePenguinAction,
     createSkipTurnAction,
 } from "../../../Common/src/models/action/action"
+import { convertToBoardLocation } from "../../../Common/src/adapters/boardAdapter"
 import {
-    convertToBoardLocation,
-    convertToOutputLocation,
-} from "../../../Common/src/adapters/boardAdapter"
-import {
-    ExternalAction,
     externalActionFromAny,
     externalPositionFromAny,
 } from "../../../Common/src/adapters/types"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
-import { Point } from "../../../Common/src/models/point"
-import { debugPrint } from "../../../../10/Other/util"
 
 class PlayerProxy implements PlayerInterface {
     private connection: Connection
