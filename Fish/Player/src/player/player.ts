@@ -1,12 +1,11 @@
 import { PlayerInterface } from "../../../Common/player-interface"
 import { GameState } from "../../../Common/src/models/gameState"
 import {
-    Strategy,
+    getPenguinMaxMinMoveStrategy,
     getPenguinPlacementStrategy,
     getSkipTurnStrategy,
-    getPenguinMaxMinMoveStrategy,
+    Strategy,
 } from "../strategy/strategy"
-import { Referee } from "../../../Admin/src/referee/referee"
 import { Action } from "../../../Common/src/models/action"
 import { PenguinColor } from "../../../Common/src/models/player"
 
@@ -25,7 +24,8 @@ const dummyWriteable = {
  * strategies and communicates with the referee to play a game of Fish
  */
 export class AIPlayer implements PlayerInterface {
-    private strategy: Strategy
+    private moveStrategy: Strategy
+    private placementStrategy: Strategy
     protected output: Writeable
 
     /**
@@ -40,9 +40,12 @@ export class AIPlayer implements PlayerInterface {
             movesAhead = DEFAULT_MOVES_AHEAD
         }
 
-        this.strategy = getPenguinMaxMinMoveStrategy(
+        this.placementStrategy = getPenguinPlacementStrategy(
+            getSkipTurnStrategy()
+        )
+        this.moveStrategy = getPenguinMaxMinMoveStrategy(
             movesAhead,
-            getPenguinPlacementStrategy(getSkipTurnStrategy())
+            getSkipTurnStrategy()
         )
 
         if (output) {
@@ -56,10 +59,6 @@ export class AIPlayer implements PlayerInterface {
         this.output.write(`We were banned. Referee's explanation: ${reason}`)
     }
 
-    async getNextAction(gs: GameState): Promise<Action> {
-        return this.strategy.getNextAction(gs)
-    }
-
     async notifyTournamentIsStarting(): Promise<void> {}
 
     async notifyTournamentOver(didIWin: boolean): Promise<void> {}
@@ -67,4 +66,12 @@ export class AIPlayer implements PlayerInterface {
     async notifyPlayAs(color: PenguinColor): Promise<void> {}
 
     async notifyPlayWith(opponentColors: Array<PenguinColor>): Promise<void> {}
+
+    async getNextMove(gs: GameState): Promise<Action> {
+        return this.moveStrategy.getNextAction(gs)
+    }
+
+    async getNextPlacement(gs: GameState): Promise<Action> {
+        return this.placementStrategy.getNextAction(gs)
+    }
 }

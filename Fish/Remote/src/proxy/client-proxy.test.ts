@@ -19,6 +19,7 @@ class TestPlayer implements PlayerInterface {
     constructor(writable: Writeable) {
         this.output = writable
     }
+
     async notifyPlayAs(color: PenguinColor): Promise<void> {
         this.output.write(`playing-as ${color}`)
     }
@@ -28,9 +29,15 @@ class TestPlayer implements PlayerInterface {
     async notifyBanned(reason: string): Promise<void> {
         throw new Error("Method not implemented.")
     }
-    async getNextAction(gs: GameState): Promise<Action> {
-        this.output.write(gs.phase)
-        return createIdentityAction()
+    // async getNextAction(gs: GameState): Promise<Action> {
+    //     this.output.write(gs.phase)
+    //     return createIdentityAction()
+    // }
+    getNextMove(gs: GameState): Promise<Action> {
+        throw new Error("Method not implemented.")
+    }
+    getNextPlacement(gs: GameState): Promise<Action> {
+        throw new Error("Method not implemented.")
     }
     async notifyTournamentIsStarting(): Promise<void> {
         this.output.write("start")

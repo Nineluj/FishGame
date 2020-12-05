@@ -62,10 +62,6 @@ const getCoordinateBelow = (board: Board, p: Point): Point | false => {
 const getPenguinPlacementStrategy = (fallbackStrategy: Strategy): Strategy => {
     return {
         getNextAction: (gs: GameState): Action => {
-            if (gs.phase !== "penguinPlacement") {
-                return fallbackStrategy.getNextAction(gs)
-            }
-
             let player = getPlayerWhoseTurnItIs(gs)
 
             // prettier-ignore
@@ -226,7 +222,7 @@ const getPenguinMaxMinMoveStrategy = (
     fallbackStrategy: Strategy
 ): Strategy => ({
     getNextAction: (gs: GameState): Action => {
-        if (gs.phase !== "playing") {
+        if (gs.phase === "over") {
             return fallbackStrategy.getNextAction(gs)
         }
 

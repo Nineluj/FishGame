@@ -343,8 +343,15 @@ class Referee {
         const player = this.players.get(playerId)!
 
         const playerAction = await callAsyncFunctionSafely(
-            async (): Promise<Action> =>
-                await player.getNextAction(this.game.getGameState())
+            async (): Promise<Action> => {
+                if (this.game.isPlacement()) {
+                    return await player.getNextPlacement(
+                        this.game.getGameState()
+                    )
+                } else {
+                    return await player.getNextMove(this.game.getGameState())
+                }
+            }
         )
 
         if (await didFailAsync(playerAction)) {

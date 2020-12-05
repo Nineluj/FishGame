@@ -565,6 +565,21 @@ describe("Tournament Manager", () => {
             expect(tm.getFailures()).to.contain("error dude")
             expect(tm.getFailures()).to.contain("illegal dude")
         })
+
+        it("adds player to the failures section that error", async () => {
+            // const competitors = createCompetitorArray(15).concat([
+            //     {
+            //         id: "error dude",
+            //         age: 10,
+            //         ai: makeGetNextActionErrorPlayer(),
+            //     },
+            //     { id: "illegal dude", age: 10, ai: new IllegalActionPlayer() },
+            // ])
+            const competitors = createCompetitorArray(4)
+            const tm = new TournamentManager(competitors)
+            const out = await tm.runTournament()
+            let a = 5
+        })
     })
 })
 

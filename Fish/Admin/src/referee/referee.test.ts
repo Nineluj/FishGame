@@ -95,13 +95,23 @@ export class ErrorPlayer extends AIPlayer {
         }
     }
 
-    async getNextAction(gs: GameState): Promise<Action> {
+    getNextPlacement(gs: GameState): Promise<Action> {
         if (this.failWhich[3]) {
             throw new IllegalArgumentError(
-                "error player does not like getNextAction"
+                "error player does not like getNextPlacement"
             )
         } else {
-            return super.getNextAction(gs)
+            return super.getNextPlacement(gs)
+        }
+    }
+
+    async getNextMove(gs: GameState): Promise<Action> {
+        if (this.failWhich[3]) {
+            throw new IllegalArgumentError(
+                "error player does not like getNextMove"
+            )
+        } else {
+            return super.getNextMove(gs)
         }
     }
 
@@ -132,7 +142,7 @@ export class ErrorPlayer extends AIPlayer {
 export class IllegalActionPlayer extends AIPlayer {
     async notifyBanned(s: string) {}
 
-    async getNextAction(gs: GameState): Promise<Action> {
+    async getNextMove(gs: GameState): Promise<Action> {
         return createMoveAction("red", { x: 0, y: 0 }, { x: 6, y: 1 })
     }
 
@@ -146,8 +156,8 @@ class NotifyBannedCrasher extends ErrorPlayer {
         super(failWhich)
     }
 
-    async getNextAction(gs: GameState): Promise<Action> {
-        return new IllegalActionPlayer().getNextAction(gs)
+    async getNextMove(gs: GameState): Promise<Action> {
+        return new IllegalActionPlayer().getNextMove(gs)
     }
 }
 

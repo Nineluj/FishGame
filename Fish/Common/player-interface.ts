@@ -28,9 +28,14 @@ export interface PlayerInterface {
     notifyBanned(reason: string): Promise<void>
 
     /**
-     * Asks the player for its next action. The player can assume that it is their turn.
+     * Gets the next penguin move from the player
      */
-    getNextAction(gs: GameState): Promise<Action>
+    getNextMove(gs: GameState): Promise<Action>
+
+    /**
+     * Gets the next penguin placement from the player
+     */
+    getNextPlacement(gs: GameState): Promise<Action>
 
     /**
      * Notify the player that the tournament is starting

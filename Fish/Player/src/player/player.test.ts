@@ -33,7 +33,7 @@ describe("Player", () => {
             const playingState = getPlayingState()
             expect(
                 actionsEqual(
-                    await p.getNextAction(playingState),
+                    await p.getNextMove(playingState),
                     getPenguinMaxMinMoveStrategy(
                         DEFAULT_MOVES_AHEAD,
                         getSkipTurnStrategy()
@@ -41,12 +41,12 @@ describe("Player", () => {
                 )
             )
         })
-        it("returns consist actions with the strategy in the movement phase", async () => {
+        it("returns consist actions with the strategy in the placement phase", async () => {
             const p = new AIPlayer()
             const placement = getPlacementState()
             expect(
                 actionsEqual(
-                    await p.getNextAction(placement),
+                    await p.getNextPlacement(placement),
                     getPenguinPlacementStrategy(
                         getSkipTurnStrategy()
                     ).getNextAction(placement)

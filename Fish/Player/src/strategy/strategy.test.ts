@@ -149,20 +149,8 @@ describe("Player Strategy", () => {
             expect(fourthAction.actionType).to.equal("place")
         })
 
-        it("Returns a skip turn action when game is not in penguin placement phase", () => {
-            const strategy = getPenguinPlacementStrategy(getSkipTurnStrategy())
-            const gs = getPlayingState()
-
-            const expectedActionData = {
-                playerId: "p1",
-            }
-
-            const action = strategy.getNextAction(gs)
-
-            expect(isDeepStrictEqual(action.data, expectedActionData)).to.be
-                .true
-            expect(action.actionType).to.equal("skip")
-        })
+        // TODO
+        it("Returns a skip turn action when there are no more spots to place a penguin", () => {})
     })
 
     describe("#getPenguinMaxMinMoveStrategy", () => {

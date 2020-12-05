@@ -27,7 +27,6 @@ import {
     externalActionFromAny,
     externalPositionFromAny,
 } from "../../../Common/src/adapters/types"
-import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 
 class PlayerProxy implements PlayerInterface {
     private connection: Connection
@@ -80,7 +79,7 @@ class PlayerProxy implements PlayerInterface {
         this.connection.close()
     }
 
-    private async getNextPenguinPlacement(gs: GameState): Promise<Action> {
+    async getNextPlacement(gs: GameState): Promise<Action> {
         const outState = convertToOutputState(gs)
         const msg: SetupMessage = ["setup", [outState]]
         const result = await this.sendAndReceive(msg)
@@ -128,7 +127,7 @@ class PlayerProxy implements PlayerInterface {
         return createMoveAction(playerId, p1, p2)
     }
 
-    private async getNextPenguinMove(gs: GameState): Promise<Action> {
+    async getNextMove(gs: GameState): Promise<Action> {
         // not reporting the list of actions, only the new gameState
         const msg: TakeTurnMessage = [
             "take-turn",
@@ -139,18 +138,6 @@ class PlayerProxy implements PlayerInterface {
         const playerId = getPlayerWhoseTurnItIs(gs).id
 
         return PlayerProxy.getMoveActionFromResponse(response, playerId)
-    }
-
-    async getNextAction(gs: GameState): Promise<Action> {
-        if (gs.phase === "penguinPlacement") {
-            return this.getNextPenguinPlacement(gs)
-        } else if (gs.phase === "playing") {
-            return this.getNextPenguinMove(gs)
-        } else {
-            throw new IllegalArgumentError(
-                "cannot make an action in the over state"
-            )
-        }
     }
 
     async notifyTournamentOver(didIWin: boolean): Promise<void> {

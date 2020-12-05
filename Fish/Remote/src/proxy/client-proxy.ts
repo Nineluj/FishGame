@@ -97,8 +97,8 @@ class Client {
             setupMessage[1][0],
             "penguinPlacement"
         )
-        const position = (await this.playerInterface.getNextAction(state)).data
-            .dst
+        const position = (await this.playerInterface.getNextPlacement(state))
+            .data.dst
         return convertToOutputLocation(position.x, position.y)
     }
 
@@ -110,7 +110,7 @@ class Client {
             "playing"
         )
 
-        const action = await this.playerInterface.getNextAction(state)
+        const action = await this.playerInterface.getNextMove(state)
 
         if (action.actionType === "skip") {
             return false
