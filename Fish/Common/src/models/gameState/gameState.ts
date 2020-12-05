@@ -416,31 +416,23 @@ const skipTurn = (gameState: GameState, playerId: string): GameState => {
 }
 
 /**
- * Eliminates the player with the given ID from the game
- * TODO: test
+ * Can the GameState's phase be advanced to the over phase?
  */
-const eliminatePlayer = (gameState: GameState, playerId: string): GameState => {
-    const newGs = { ...gameState }
-    const newBoard = [...gameState.board]
-
-    // mark the player's tiles as unoccupied
-    getPlayerById(gameState, playerId).penguins.forEach((point) => {
-        const oldTile = boardGet(newBoard, point) as Tile
-        boardSet(newBoard, point, makeUnoccupied(oldTile))
-    })
-
-    newGs.board = newBoard
-    newGs.players = gameState.players.filter((p) => p.id !== playerId)
-
-    if (canAdvanceToPlaying(newGs)) {
-        newGs.phase = "playing"
+const canAdvanceToPlaying = (gs: GameState): boolean => {
+    if (gs.phase !== "penguinPlacement") {
+        return false
     }
 
-    if (newGs.players.length === 1 || canAdvanceToOver(newGs)) {
-        newGs.phase = "over"
+    // check that all the players have placed the necessary number of penguins
+    for (let player of gs.players) {
+        if (
+            player.penguins.length !== getNumberOfPenguinsToPlacePerPlayer(gs)
+        ) {
+            return false
+        }
     }
 
-    return newGs
+    return true
 }
 
 /**
@@ -464,45 +456,30 @@ const canAdvanceToOver = (gs: GameState): boolean => {
 }
 
 /**
- * Can the GameState's phase be advanced to the over phase?
+ * Eliminates the player with the given ID from the game
  */
-const canAdvanceToPlaying = (gs: GameState): boolean => {
-    if (gs.phase !== "penguinPlacement") {
-        return false
-    }
+const eliminatePlayer = (gameState: GameState, playerId: string): GameState => {
+    const newGs = { ...gameState }
+    const newBoard = [...gameState.board]
 
-    // check that all the players have placed the necessary number of penguins
-    for (let player of gs.players) {
-        if (
-            player.penguins.length !== getNumberOfPenguinsToPlacePerPlayer(gs)
-        ) {
-            return false
-        }
-    }
-
-    return true
-}
-
-/**
- * Creates a game state without the player with the given ID
- */
-const createGameStateAfterElimination = (
-    gs: GameState,
-    playerId: string
-): GameState => {
-    const player = getPlayerById(gs, playerId)
-    const newBoard = [...gs.board]
-
-    player.penguins.forEach((point) => {
+    // mark the player's tiles as unoccupied
+    getPlayerById(gameState, playerId).penguins.forEach((point) => {
         const oldTile = boardGet(newBoard, point) as Tile
         boardSet(newBoard, point, makeUnoccupied(oldTile))
     })
 
-    return {
-        board: newBoard,
-        phase: gs.phase,
-        players: gs.players.filter((p) => p.id !== playerId),
+    newGs.board = newBoard
+    newGs.players = gameState.players.filter((p) => p.id !== playerId)
+
+    if (canAdvanceToPlaying(newGs)) {
+        newGs.phase = "playing"
     }
+
+    if (newGs.players.length <= 1 || canAdvanceToOver(newGs)) {
+        newGs.phase = "over"
+    }
+
+    return newGs
 }
 
 export {
@@ -515,5 +492,4 @@ export {
     eliminatePlayer,
     skipTurn,
     getPlayerWhoseTurnItIs,
-    createGameStateAfterElimination,
 }

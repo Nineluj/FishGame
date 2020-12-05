@@ -7,8 +7,8 @@ import {
 import { Action } from "../../../Common/src/models/action"
 import {
     createGameState,
-    createGameStateAfterElimination,
     createGameStateCustomBoard,
+    eliminatePlayer,
     getPlayerWhoseTurnItIs,
 } from "../../../Common/src/models/gameState/gameState"
 import { PlayerInterface } from "../../../Common/player-interface"
@@ -308,10 +308,7 @@ class Referee {
         reason: string = "",
         notify: boolean = false
     ): Promise<GameState> {
-        const newGs = createGameStateAfterElimination(
-            this.game.getGameState(),
-            playerId
-        )
+        const newGs = eliminatePlayer(this.game.getGameState(), playerId)
         this.game = createVerifiableGameState(newGs)
 
         this.eliminatedPlayerIds.add(playerId)

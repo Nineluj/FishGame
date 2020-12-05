@@ -245,23 +245,25 @@ describe("Game State", () => {
                 })
             })
         })
-        //
-        // describe(">eliminating a player when they should be the one last to place a penguin", () => {
-        //     gs = getPlayingMinusOne()
-        //     const newGs = eliminatePlayer(gs, "p3")
-        //
-        //     it("changes the game phase", () => {
-        //         expect(newGs.phase).to.equal("playing")
-        //     })
-        //
-        //     it("the original positions of the player's penguins are marked as unoccupied", () => {
-        //         getPlayerById(gs, "p3").penguins.forEach((point) => {
-        //             const tile = boardGet(newGs.board, point) as Tile
-        //             expect(tile.occupied).to.be.false
-        //         })
-        //     })
-        // })
     })
+
+    // describe("#createGameStateAfterElimination", () => {
+    //     describe(">eliminating a player when they should be the one last to place a penguin", () => {
+    //         gs = getPlayingMinusOne()
+    //         const newGs = eliminatePlayer(gs, "p3")
+    //
+    //         it("changes the game phase", () => {
+    //             expect(newGs.phase).to.equal("playing")
+    //         })
+    //
+    //         it("the original positions of the player's penguins are marked as unoccupied", () => {
+    //             getPlayerById(gs, "p3").penguins.forEach((point) => {
+    //                 const tile = boardGet(newGs.board, point) as Tile
+    //                 expect(tile.occupied).to.be.false
+    //             })
+    //         })
+    //     })
+    // })
 
     describe("#playing", () => {
         it("prevents a player from playing out of turn", () => {
