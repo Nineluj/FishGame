@@ -15,12 +15,7 @@ import { PlayerInterface } from "../../../Common/player-interface"
 import { Board } from "../../../Common/src/models/board"
 import { createPlayer } from "../../../Common/src/models/testHelpers/testHelpers"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
-import {
-    callAsyncFunctionSafely,
-    callFunctionSafely,
-    didFail,
-    didFailAsync,
-} from "../utils/communications"
+import { callAsyncFunctionSafely, didFailAsync } from "../utils/communications"
 import {
     createVerifiableGameState,
     VerifiableGameState,
@@ -140,17 +135,32 @@ class Referee {
      */
     private async notifyPlayersOfColorInformation() {
         const models = this.game.getGameState().players
-        const colors = models.map((playerModel) => playerModel.penguinColor)
 
         for (const playerModel of models) {
             const playerId = playerModel.id
-
+            const opponentColors = this.getOpponentColors(playerId, models)
             const playerInterface = this.players.get(playerId)!
             await this.callAndKickIfFail(async () => {
                 await playerInterface.notifyPlayAs(playerModel.penguinColor)
-                await playerInterface.notifyPlayWith(colors)
+                await playerInterface.notifyPlayWith(opponentColors)
             }, playerId)
         }
+    }
+
+    /**
+     * Get the other player's colors for this game.
+     * Do not include the give player's color in the output list.
+     */
+    private getOpponentColors(
+        playerId: string,
+        playersModels: Array<Player>
+    ): Array<PenguinColor> {
+        return playersModels.reduce((colors, currPlayer) => {
+            if (currPlayer.id !== playerId) {
+                colors.push(currPlayer.penguinColor)
+            }
+            return colors
+        }, [] as PenguinColor[])
     }
 
     /**

@@ -21,5 +21,7 @@ test:
 	${PRE} cd Player && npm test --silent
 	@echo "Running tests in Admin/"
 	${PRE} cd Admin && npm test --silent
+	@echo "Running tests in Remote/"
+	${PRE} cd Remote && npm test --silent
 
 .PHONY: all
