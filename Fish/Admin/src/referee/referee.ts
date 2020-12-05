@@ -250,14 +250,6 @@ class Referee {
 
         return results
     }
-
-    /**
-     * Returns the current phase of this game.
-     */
-    getGamePhase(): "penguinPlacement" | "playing" | "over" {
-        return this.game.getGameState().phase
-    }
-
     /**
      * Get game observers
      */

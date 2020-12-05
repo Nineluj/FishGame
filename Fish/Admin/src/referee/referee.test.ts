@@ -320,7 +320,6 @@ describe("Referee", () => {
             const ref = new Referee(allPlayers, getPlacementState().board)
 
             await ref.runGamePlay()
-            expect(ref.getGamePhase()).to.be.equal("over")
             expect(
                 ref.getPlayerStatuses().eliminatedPlayerIds.length
             ).to.be.equal(0)

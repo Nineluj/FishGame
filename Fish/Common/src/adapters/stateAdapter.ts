@@ -16,10 +16,7 @@ export const convertToOutputState = (gs: GameState): ExternalState => {
     }
 }
 
-export const deserializeState = (
-    externalState: ExternalState,
-    forcePhase?: GamePhase
-): GameState => {
+export const deserializeState = (externalState: ExternalState): GameState => {
     const internalPlayers = makePlayersFromTestInput(externalState.players)
     const occupiedTiles = internalPlayers.reduce(
         (acc, player) => acc.concat(player.penguins),
@@ -28,10 +25,6 @@ export const deserializeState = (
 
     const board = makeBoardFromTestInput(externalState.board, occupiedTiles)
     const gameState = createGameStateCustomBoard(internalPlayers, board)
-
-    if (forcePhase) {
-        gameState.phase = forcePhase
-    }
 
     return gameState
 }

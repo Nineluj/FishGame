@@ -301,8 +301,7 @@ const canMovePenguin = (
     if (!containsPoint(currentMovePlayer.penguins, origin)) {
         return {
             validMove: false,
-            errorMessage: `player must have a penguin at the origin
-        position to make a move`,
+            errorMessage: `player must have a penguin at the origin position to make a move`,
         }
     }
 

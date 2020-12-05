@@ -47,7 +47,6 @@ const runTestCase = (input: DepthState): Output => {
     const gs: GameState = {
         board,
         players,
-        phase: "playing",
     }
 
     const strat = getPenguinMaxMinMoveStrategy(depth, getSkipTurnStrategy())
