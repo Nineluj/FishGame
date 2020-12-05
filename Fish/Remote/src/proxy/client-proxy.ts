@@ -29,11 +29,17 @@ import {
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 import { debugPrint } from "../../../../10/Other/util"
 
+/**
+ * Class that knows how to delegate message tasks to the given player interface
+ */
 class Client {
     private playerInterface: PlayerInterface
+    /* Represents whether the game that the player is playing is over */
+    private isOver: boolean
 
     constructor(playerInterface: PlayerInterface) {
         this.playerInterface = playerInterface
+        this.isOver = false
     }
 
     async receive(data: any): Promise<any> {
@@ -125,7 +131,13 @@ class Client {
         assert(verify(data, endMessageSchema))
         const endMessage = data as EndMessage
         await this.playerInterface.notifyTournamentOver(endMessage[1][0])
+        this.isOver = true
+
         return "void"
+    }
+
+    gameIsOver(): boolean {
+        return this.isOver
     }
 }
 

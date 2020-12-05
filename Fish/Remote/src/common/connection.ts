@@ -1,9 +1,8 @@
 import net from "net"
 import { Client } from "../proxy/client-proxy"
-import { debugPrint } from "../../../../10/Other/util"
 const Parser = require("jsonparse")
 
-const PLAYER_CALL_TIMEOUT_MS = 2000 // TODO: change this back
+const PLAYER_CALL_TIMEOUT_MS = 1000
 
 /**
  * Represents a TCP connection wrapper which can send and receive data using JSON.
@@ -88,6 +87,10 @@ class CallbackConnection {
             if (this.stack.length == 0) {
                 const response = await client.receive(val)
                 self.sendResponse(response)
+
+                if (client.gameIsOver()) {
+                    self.close()
+                }
             }
         }
 
@@ -111,6 +114,7 @@ class CallbackConnection {
      */
     close(): void {
         this.tcpConnection.destroy()
+        process.exit(0)
     }
 }
 

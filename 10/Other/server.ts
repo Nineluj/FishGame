@@ -10,7 +10,7 @@ import {
 } from "../../Fish/Admin/src/manager/manager"
 import { createBoardWithDimensions } from "../../Fish/Common/src/adapters/boardAdapter"
 
-const MIN_PLAYERS_NEEDED = 4 // TODO: should be 5
+const MIN_PLAYERS_NEEDED = 5
 const MAX_PLAYERS_ALLOWED = 10
 
 const BOARD_WIDTH = 5
