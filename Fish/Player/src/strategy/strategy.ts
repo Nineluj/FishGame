@@ -179,8 +179,8 @@ const miniMax = (
 ): maximiniResult => {
     let player = getPlayerWhoseTurnItIs(node.gs)
     const isMaximizing = player.id === maximizingPlayerId
-
-    if (depth === -1 || node.gs.phase !== "playing") {
+    // TODO: revisit, need to check if the game is over?
+    if (depth === -1) {
         return {
             scoreAchieved: node.gs.players.filter(
                 (p) => p.id === maximizingPlayerId
@@ -222,10 +222,6 @@ const getPenguinMaxMinMoveStrategy = (
     fallbackStrategy: Strategy
 ): Strategy => ({
     getNextAction: (gs: GameState): Action => {
-        if (gs.phase === "over") {
-            return fallbackStrategy.getNextAction(gs)
-        }
-
         const root = createGameNode(gs)
         let player = getPlayerWhoseTurnItIs(gs)
 

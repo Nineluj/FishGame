@@ -85,16 +85,10 @@ const getAllPossibleMovesForTurn = (gs: GameState): Array<GameNode> => {
 
 /**
  * Creates a GameNode with the given starting state that can be used to find
- * the possible future states.
- * @param gs Starting gamestate
+ * the possible future states. Assumes the given GameState has penguins to move.
+ * @param gs Root gamestate
  */
 const createGameNode = (gs: GameState): GameNode => {
-    if (gs.phase === "penguinPlacement" || gs.phase === "over") {
-        throw new GamePhaseError(
-            "Cannot construct a game node for a game that hasn't begun or has already ended"
-        )
-    }
-
     return {
         action: createIdentityAction(),
         gs: gs,

@@ -3,6 +3,7 @@
 ## State Representation
 
 The game state is represented with a `GameState` object that has these fields:
+
 ```typescript
 {
     // Immutable object representing the state of the board
@@ -18,6 +19,7 @@ The game state is represented with a `GameState` object that has these fields:
 ```
 
 The board is an `Array<Array<Tile | Hole>>`, with a hole being `"hole"` and a Tile:
+
 ```typescript
 {
     // Is there a penguin on this tile?
@@ -26,11 +28,13 @@ The board is an `Array<Array<Tile | Hole>>`, with a hole being `"hole"` and a Ti
     fish: number
 }
 ```
+
 The coordinate system used is [odd-q](https://www.redblobgames.com/grids/hexagons/#coordinates). The position of the Tile
 or hole in the Array represents what x and y coordinate that tile or hole has on the board with the given coordinate system.
 The board type provides functions to create new versions of the boards without mutating the data of the given board.
 
 The data representation for player looks like:
+
 ```typescript
 {
     // unique identifier for this player
@@ -48,7 +52,7 @@ The data representation for player looks like:
 
 ## External Interface
 
-These are the methods that can be used to access and update a game state 
+These are the methods that can be used to access and update a game state
 
 ```typescript
 /**
@@ -64,12 +68,12 @@ getPlayerInformation(gs: GameState): Array<ReadOnlyPlayer>
 
 
 /**
- * Returns the current turn number 
+ * Returns the current turn number
  */
 getTurnNumber(gs: GameState): number
 
 /**
- * Gets a readonly copy of the board 
+ * Gets a readonly copy of the board
  */
 describeBoard(gs: GameState): ReadOnlyBoard
 
@@ -91,15 +95,16 @@ isGameOver(gs: GameState): boolean
 ```
 
 These methods will be needed by the referee:
+
 ```typescript
 /**
  * Is the path from the origin to the destination points valid
- */ 
+ */
 isValidPath(gs: GameState, origin: Position, dst: Position): boolean
 
 /**
  * Put down a penguin for the given player at the given position
- */ 
+ */
 placePenguin(gs: GameState, playerId: number, pos: Position)
 
 /**

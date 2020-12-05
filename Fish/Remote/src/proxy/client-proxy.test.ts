@@ -29,14 +29,10 @@ class TestPlayer implements PlayerInterface {
     async notifyBanned(reason: string): Promise<void> {
         throw new Error("Method not implemented.")
     }
-    // async getNextAction(gs: GameState): Promise<Action> {
-    //     this.output.write(gs.phase)
-    //     return createIdentityAction()
-    // }
-    getNextMove(gs: GameState): Promise<Action> {
+    async getNextMove(gs: GameState): Promise<Action> {
         throw new Error("Method not implemented.")
     }
-    getNextPlacement(gs: GameState): Promise<Action> {
+    async getNextPlacement(gs: GameState): Promise<Action> {
         throw new Error("Method not implemented.")
     }
     async notifyTournamentIsStarting(): Promise<void> {

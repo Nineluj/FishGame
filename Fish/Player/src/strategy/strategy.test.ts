@@ -182,7 +182,6 @@ describe("Player Strategy", () => {
             customGs = placeMultiple(
                 {
                     board: board,
-                    phase: "penguinPlacement",
                     players: [players[0], players[1]],
                 },
                 [
@@ -193,8 +192,6 @@ describe("Player Strategy", () => {
                 ],
                 ["p1", "p2"]
             )
-
-            customGs.phase = "playing"
         })
 
         it("handles best possible direct move, 1 step ahead planning", () => {
@@ -316,7 +313,6 @@ describe("Player Strategy", () => {
                         score: 0,
                     },
                 ],
-                phase: "playing",
             }
 
             const actual = getPenguinMaxMinMoveStrategy(

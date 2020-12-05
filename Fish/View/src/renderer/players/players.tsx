@@ -14,9 +14,6 @@ export const Players: React.FC<Props> = ({ gameState }) => {
     const currentTurnPlayerId = getPlayerWhoseTurnItIs(gameState).id
     return (
         <div>
-            <Typography variant="subtitle1">
-                Game Phase: {gameState.phase}
-            </Typography>
             <List>
                 {gameState.players.map((player: Player) => {
                     return (
