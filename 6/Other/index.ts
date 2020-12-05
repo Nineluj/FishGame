@@ -53,7 +53,7 @@ const runTestCase = (input: DepthState): Output => {
     const strat = getPenguinMaxMinMoveStrategy(depth, getSkipTurnStrategy())
     const responseAction = strat.getNextAction(gs)
 
-    if (responseAction.data.actionType === "skipTurn") {
+    if (responseAction.actionType === "skip") {
         return false
     }
 

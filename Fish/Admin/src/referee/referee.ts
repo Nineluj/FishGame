@@ -7,6 +7,7 @@ import {
 import { Action } from "../../../Common/src/models/action"
 import {
     createGameState,
+    createGameStateAfterElimination,
     createGameStateCustomBoard,
     getPlayerWhoseTurnItIs,
 } from "../../../Common/src/models/gameState/gameState"
@@ -20,6 +21,10 @@ import {
     didFail,
     didFailAsync,
 } from "../utils/communications"
+import {
+    createVerifiableGameState,
+    VerifiableGameState,
+} from "./verifiedGameState"
 
 // The order in which the referee will assign the colors to the players
 export const colorOrder: Array<PenguinColor> = [
@@ -62,25 +67,19 @@ interface GameObserver {
  *  - Players that error (throw Errors)
  *  - Players that submit invalid actions
  *
- * We leave the timeout feature to the tcp player to monitor. We trust the house players
- * not to time out. If a Player goes into an infinite loop, we will not be able to prevent that
+ * The referee cannot prevent a house player from stopping the game with
+ * an infinite loop.
  */
 class Referee {
+    // The object that the referee uses to store and update the game
+    // state
+    private game: VerifiableGameState
+
+    // The Ids of the players that have been eliminated in this game
+    private eliminatedPlayerIds: Set<string>
+
     // observers following this game
     private observers: Array<GameObserver>
-
-    // gameState keeps track of the current state of the game
-    private gameState: GameState
-
-    // initialGame doesn't change once set and keeps track of what the
-    // game was like at the very beginning
-    private initialGame: GameState
-
-    // keeps all the moves made in this game, including eliminationActions when a
-    // player gets eliminated for making a bad move
-    private history: Array<Action>
-
-    private eliminatedPlayerIds: Set<string>
 
     // references to the player objects that know how to play in a game of fish
     private players: Map<string, PlayerInterface>
@@ -99,16 +98,12 @@ class Referee {
     ) {
         const gamePlayers = Referee.createGamePlayers(players.length, playerIds)
 
-        if (board) {
-            this.initialGame = createGameStateCustomBoard(gamePlayers, board)
-        } else {
-            this.initialGame = createGameState(gamePlayers)
-        }
+        const initialState = board
+            ? createGameStateCustomBoard(gamePlayers, board)
+            : createGameState(gamePlayers)
 
-        this.gameState = this.initialGame
-
+        this.game = createVerifiableGameState(initialState)
         this.eliminatedPlayerIds = new Set()
-        this.history = []
         this.players = new Map()
 
         players.forEach((p, playerIndex) => {
@@ -144,7 +139,7 @@ class Referee {
      * that have been assigned for this game
      */
     private async notifyPlayersOfColorInformation() {
-        const models = this.initialGame.players
+        const models = this.game.getGameState().players
         const colors = models.map((playerModel) => playerModel.penguinColor)
 
         for (const playerModel of models) {
@@ -207,7 +202,7 @@ class Referee {
         eliminatedPlayerIds: Array<string>
     } {
         return {
-            players: this.gameState.players,
+            players: this.game.getGameState().players,
             eliminatedPlayerIds: Array.from(this.eliminatedPlayerIds),
         }
     }
@@ -217,7 +212,7 @@ class Referee {
      * Throws an error if it is called before the game is completed.
      */
     getPlayerResults(): GameResult {
-        if (this.gameState.phase !== "over") {
+        if (!this.game.isOver()) {
             throw new IllegalArgumentError(
                 "cannot get the winning players before the game is over"
             )
@@ -231,7 +226,7 @@ class Referee {
 
         let bestScore = 0
 
-        this.gameState.players.forEach((player) => {
+        this.game.getGameState().players.forEach((player) => {
             if (player.score > bestScore) {
                 results.losers = results.losers.concat(results.winners)
                 results.winners = [player.id]
@@ -248,17 +243,10 @@ class Referee {
     }
 
     /**
-     * Returns a replay of the game up until this point
-     */
-    getReplay(): Array<Action> {
-        return [...this.history]
-    }
-
-    /**
      * Returns the current phase of this game.
      */
     getGamePhase(): "penguinPlacement" | "playing" | "over" {
-        return this.gameState.phase
+        return this.game.getGameState().phase
     }
 
     /**
@@ -273,7 +261,7 @@ class Referee {
      * Handles invalid actions appropriately.
      */
     async runGameMovementPhase() {
-        while (this.gameState.phase === "playing") {
+        while (this.game.isMove()) {
             await this.playTurn()
         }
     }
@@ -282,7 +270,7 @@ class Referee {
      * Loop through the placement phase of the game. Requests the player placements for each turn.
      */
     async runPlacementPhase() {
-        while (this.gameState.phase === "penguinPlacement") {
+        while (this.game.isPlacement()) {
             await this.playTurn()
         }
     }
@@ -291,19 +279,12 @@ class Referee {
      * Plays a single turn and updates all the players of the changes in the game.
      */
     async playTurn() {
-        const nextToPlay = getPlayerWhoseTurnItIs(this.gameState)
-        await this.getPlayerActionOrEliminate(nextToPlay.id)
+        const nextToPlay = getPlayerWhoseTurnItIs(this.game.getGameState())
+        const newGameState = await this.getPlayerActionOrEliminate(
+            nextToPlay.id
+        )
 
-        this.notifyObserversNewGameState()
-    }
-
-    /**
-     * Get the last action of the the game.
-     * Used to alert players of the last action on the game state,
-     * and is only called after at least one action has been called.
-     */
-    private getLastAction(): Action {
-        return this.history[this.history.length - 1]
+        this.notifyObserversNewGameState(newGameState)
     }
 
     /**
@@ -326,23 +307,22 @@ class Referee {
         playerId: string,
         reason: string = "",
         notify: boolean = false
-    ): Promise<void> {
-        throw new Error("Not implemented!")
+    ): Promise<GameState> {
+        const newGs = createGameStateAfterElimination(
+            this.game.getGameState(),
+            playerId
+        )
+        this.game = createVerifiableGameState(newGs)
 
-        // const elimAction = createEliminatePlayerAction(playerId)
-        // this.history.push(elimAction)
-        // this.eliminatedPlayerIds.add(playerId)
-        //
-        // this.gameState = elimAction.apply(this.gameState)
-        //
-        // if (notify) {
-        //     // we don't care about any return value
-        //     callAsyncFunctionSafely(async () => {
-        //         await this.players.get(playerId)!.notifyBanned(reason)
-        //     })
-        // }
-        //
-        // this.players.delete(playerId)
+        this.eliminatedPlayerIds.add(playerId)
+        if (notify) {
+            callAsyncFunctionSafely(async () => {
+                await this.players.get(playerId)!.notifyBanned(reason)
+            })
+        }
+
+        this.players.delete(playerId)
+        return this.game.getGameState()
     }
 
     /**
@@ -350,43 +330,50 @@ class Referee {
      * Otherwise it removes the player from the game.
      * @param playerId the id of the player that will make an action
      */
-    private async getPlayerActionOrEliminate(playerId: string): Promise<void> {
+    private async getPlayerActionOrEliminate(
+        playerId: string
+    ): Promise<GameState> {
         const player = this.players.get(playerId)!
 
-        const maybePlayerAction = await callAsyncFunctionSafely(
+        const playerAction = await callAsyncFunctionSafely(
             async (): Promise<Action> =>
-                await player.getNextAction(this.gameState)
+                await player.getNextAction(this.game.getGameState())
         )
 
-        if (await didFailAsync(maybePlayerAction)) {
-            await this.kickPlayer(playerId)
-            return
+        if (await didFailAsync(playerAction)) {
+            return await this.kickPlayer(playerId)
         }
 
-        const playerAction = maybePlayerAction as Action
+        const maybeNewGame = this.game.useAction(playerAction as Action)
 
-        try {
-            this.gameState = playerAction.apply(this.gameState)
-            this.history.push(playerAction)
-        } catch (e) {
-            await this.kickPlayer(playerId, e.message, true)
+        if (!maybeNewGame) {
+            const newGameState = await this.kickPlayer(
+                playerId,
+                "bad action",
+                true
+            )
+            this.game = createVerifiableGameState(newGameState)
+        } else {
+            this.game = maybeNewGame
         }
+
+        return this.game.getGameState()
     }
 
     /**
      * Returns a read only copy of the current GameState.
      */
     getGameState(): GameState {
-        return this.gameState
+        return this.game.getGameState()
     }
 
     /**
      * Notifies the observers of a new game state safely and removes
      * them if they error while they are notified
      */
-    private notifyObserversNewGameState() {
+    private notifyObserversNewGameState(gs: GameState) {
         this.observers.forEach((go: GameObserver) => {
-            go.update(this.gameState).catch(() => this.removeObserver(go))
+            go.update(gs).catch(() => this.removeObserver(go))
         })
     }
 

@@ -29,7 +29,7 @@ The game state is modeled like a FSM as follows:
       placePenguin                  movePenguin
                                     OR skipTurn
 
-(note: placePenguin, movePeguin and skipTurn need to be called by the player
+(note: placePenguin, movePenguin and skipTurn need to be called by the player
 whose turn it is. Out of order actions will result in an exception being thrown)
 
 During penguinPlacement, GameState needs enough putPenguin calls until the
@@ -40,7 +40,7 @@ once the game is in a state in which no player can make any new moves. Calling
 advancePhase at that point will result in a new GameState indicating that the
 game is over.
 
-It is the referee's responsability to skip a player's turn if they cannot play.
+It is the referee's responsibility to skip a player's turn if they cannot play.
  */
 
 // A GamePhase represents the stage of the game.
@@ -483,6 +483,28 @@ const canAdvanceToPlaying = (gs: GameState): boolean => {
     return true
 }
 
+/**
+ * Creates a game state without the player with the given ID
+ */
+const createGameStateAfterElimination = (
+    gs: GameState,
+    playerId: string
+): GameState => {
+    const player = getPlayerById(gs, playerId)
+    const newBoard = [...gs.board]
+
+    player.penguins.forEach((point) => {
+        const oldTile = boardGet(newBoard, point) as Tile
+        boardSet(newBoard, point, makeUnoccupied(oldTile))
+    })
+
+    return {
+        board: newBoard,
+        phase: gs.phase,
+        players: gs.players.filter((p) => p.id !== playerId),
+    }
+}
+
 export {
     GameState,
     createGameState,
@@ -493,4 +515,5 @@ export {
     eliminatePlayer,
     skipTurn,
     getPlayerWhoseTurnItIs,
+    createGameStateAfterElimination,
 }
