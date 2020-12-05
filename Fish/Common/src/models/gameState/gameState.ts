@@ -365,6 +365,10 @@ export const canAdvanceToPlaying = (
  * Can the GameState's phase be advanced to the playing phase?
  */
 export const canAdvanceToOver = (gs: GameState): boolean => {
+    if (gs.players.length <= 1) {
+        return true
+    }
+
     // verify that no player can make a move
     for (let player of gs.players) {
         for (let pos of player.penguins) {

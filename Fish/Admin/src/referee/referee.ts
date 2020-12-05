@@ -262,7 +262,6 @@ class Referee {
      * Handles invalid actions appropriately.
      */
     async runGameMovementPhase() {
-        console.log(JSON.stringify(this.game.getGameState()))
         while (this.game.isMove()) {
             await this.playTurn()
         }
@@ -282,6 +281,10 @@ class Referee {
      */
     async playTurn() {
         const nextToPlay = getPlayerWhoseTurnItIs(this.game.getGameState())
+
+        if (nextToPlay === undefined) {
+            let a = 5
+        }
         const newGameState = await this.getPlayerActionOrEliminate(
             nextToPlay.id
         )

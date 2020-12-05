@@ -1,10 +1,7 @@
 import { GameState } from "../models/gameState"
 import { makeBoardFromTestInput, toOutputBoard } from "./boardAdapter"
 import { makePlayersFromTestInput, toOutputPlayer } from "./playerAdapter"
-import {
-    createGameStateCustomBoard,
-    GamePhase,
-} from "../models/gameState/gameState"
+import { createGameStateCustomBoard } from "../models/gameState/gameState"
 
 import { ExternalState } from "./types"
 import { Point } from "../models/point"
@@ -24,7 +21,5 @@ export const deserializeState = (externalState: ExternalState): GameState => {
     )
 
     const board = makeBoardFromTestInput(externalState.board, occupiedTiles)
-    const gameState = createGameStateCustomBoard(internalPlayers, board)
-
-    return gameState
+    return createGameStateCustomBoard(internalPlayers, board)
 }

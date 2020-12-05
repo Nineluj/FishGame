@@ -74,6 +74,8 @@ export class Placement implements VerifiableGameState {
         const newGs = eliminatePlayer(this.state, playerId)
         if (canAdvanceToPlaying(newGs, this.numPenguins)) {
             return new Moving(createGameNode(newGs))
+        } else if (canAdvanceToOver(newGs)) {
+            return new Over(newGs)
         } else {
             return new Placement(newGs, this.numPenguins)
         }
