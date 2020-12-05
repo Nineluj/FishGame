@@ -146,17 +146,37 @@ class Referee {
      */
     private async notifyPlayersOfColorInformation() {
         const models = this.initialGame.players
-        const colors = models.map((playerModel) => playerModel.penguinColor)
+        const allColors = models.map((playerModel) => playerModel.penguinColor)
 
         for (const playerModel of models) {
             const playerId = playerModel.id
-
+            const opponentColors = this.getOpponentColors(playerId, models)
             const playerInterface = this.players.get(playerId)!
             await this.callAndKickIfFail(async () => {
                 await playerInterface.notifyPlayAs(playerModel.penguinColor)
-                await playerInterface.notifyPlayWith(colors)
+                await playerInterface.notifyPlayWith(opponentColors)
             }, playerId)
         }
+    }
+
+    /**
+     * Get the other player's colors for this game.
+     * Do not include the give player's color in the output list.
+     */
+    private getOpponentColors(
+        playerId: string,
+        playersModels: Array<Player>
+    ): Array<PenguinColor> {
+        const opponentColors: Array<PenguinColor> = playersModels.reduce(
+            (colors, currPlayer) => {
+                if (currPlayer.id !== playerId) {
+                    colors.push(currPlayer.penguinColor)
+                }
+                return colors
+            },
+            [] as PenguinColor[]
+        )
+        return opponentColors
     }
 
     /**
