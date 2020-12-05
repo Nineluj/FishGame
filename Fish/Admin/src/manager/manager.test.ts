@@ -9,6 +9,7 @@ import {
     makeFunctionalFailWhich,
     makeGetNextActionErrorPlayer,
 } from "../referee/referee.test"
+import { createBoardWithDimensions } from "../../../Common/src/adapters/boardAdapter"
 
 class WinningErrorPlayer extends AIPlayer {
     async notifyTournamentOver(didIWin: boolean) {
@@ -544,7 +545,9 @@ describe("Tournament Manager", () => {
                 },
                 { id: "illegal dude", age: 10, ai: new IllegalActionPlayer() },
             ])
-            const tm = new TournamentManager(competitors)
+            const tm = new TournamentManager(competitors, () =>
+                createBoardWithDimensions(3, 5, 3)
+            )
             const result = await tm.runOneRound(competitors)
             const firstSetLosers = tm.getLosers()
 
