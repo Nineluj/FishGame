@@ -279,7 +279,7 @@ describe("Tournament Manager", () => {
             expect(result).to.have.length.greaterThan(2) // each group should produce at least one winner
         })
 
-        it("no players make it to the next round if they are all bad", async () => {
+        it("players that fail first don't make it to the next round", async () => {
             const cs = [
                 { id: "bad1", age: 1, ai: makeGetNextActionErrorPlayer() },
                 { id: "bad2", age: 2, ai: makeGetNextActionErrorPlayer() },
@@ -295,8 +295,9 @@ describe("Tournament Manager", () => {
             const manager = new TournamentManager(cs)
             const result = await manager.runGameForEachGroup(groups)
 
-            expect(result).to.have.lengthOf(0)
-            expect(manager.getFailures()).to.have.lengthOf(4)
+            expect(result[0].id).to.equal("bad2")
+            expect(result[1].id).to.equal("bad4")
+            expect(manager.getFailures()).to.have.lengthOf(2)
         })
 
         it("bad player doesn't make it to the second round", async () => {

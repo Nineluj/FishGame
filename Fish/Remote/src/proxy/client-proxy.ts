@@ -27,6 +27,7 @@ import {
     ExternalPosition,
 } from "../../../Common/src/adapters/types"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
+import { debugPrint } from "../../../../10/Other/util"
 
 class Client {
     private playerInterface: PlayerInterface
@@ -86,7 +87,10 @@ class Client {
     async handleSetupMessage(data: any): Promise<ExternalPosition> {
         assert(verify(data, setupMessageSchema))
         const setupMessage = data as SetupMessage
-        const state: GameState = deserializeState(setupMessage[1][0])
+        const state: GameState = deserializeState(
+            setupMessage[1][0],
+            "penguinPlacement"
+        )
         const position = (await this.playerInterface.getNextAction(state)).data
             .dst
         return convertToOutputLocation(position.x, position.y)
@@ -95,8 +99,18 @@ class Client {
     async handleTakeTurnMessage(data: any): Promise<ExternalAction> {
         assert(verify(data, takeTurnMessageSchema))
         const takeTurnMessage = data as TakeTurnMessage
-        const state: GameState = deserializeState(takeTurnMessage[1][0])
+        const state: GameState = deserializeState(
+            takeTurnMessage[1][0],
+            "playing"
+        )
+
         const action = await this.playerInterface.getNextAction(state)
+
+        if (action.data.actionType === "skipTurn") {
+            return false
+        } else if (action.data.actionType !== "move") {
+            debugPrint(JSON.stringify([action, state], null, 2))
+        }
 
         const origin = action.data.origin
         const dst = action.data.dst

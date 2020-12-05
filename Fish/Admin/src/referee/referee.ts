@@ -136,7 +136,7 @@ class Referee {
         await this.runPlacementPhase()
         await this.runGameMovementPhase()
 
-        this.notifyObserversGameOver().then()
+        this.notifyObserversGameOver()
         return this.getPlayerResults()
     }
 
@@ -295,7 +295,6 @@ class Referee {
         const nextToPlay = getPlayerWhoseTurnItIs(this.gameState)
         await this.getPlayerActionOrEliminate(nextToPlay.id)
 
-        await this.notifyPlayersOfNewMove(nextToPlay.id, this.getLastAction())
         this.notifyObserversNewGameState()
     }
 
@@ -306,23 +305,6 @@ class Referee {
      */
     private getLastAction(): Action {
         return this.history[this.history.length - 1]
-    }
-
-    /**
-     * Notify all the players except the current player about the last action
-     * taken in the game. Eliminates players if they fail to accept the
-     * notification. Does nothing when no moves have yet to be made.
-     */
-    async notifyPlayersOfNewMove(currentPlayerId: string, action: Action) {
-        for (const [playerId, playerInstance] of this.players) {
-            if (playerId === currentPlayerId) {
-                continue
-            }
-
-            await this.callAndKickIfFail(async () => {
-                await playerInstance.notifyOpponentAction(action)
-            }, playerId)
-        }
     }
 
     /**
@@ -360,8 +342,6 @@ class Referee {
         }
 
         this.players.delete(playerId)
-        // TODO: when should this be called?
-        await this.notifyPlayersOfNewMove(playerId, elimAction)
     }
 
     /**

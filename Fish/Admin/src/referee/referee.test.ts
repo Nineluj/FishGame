@@ -105,16 +105,6 @@ export class ErrorPlayer extends AIPlayer {
         }
     }
 
-    async notifyOpponentAction(action: Action): Promise<void> {
-        if (this.failWhich[4]) {
-            throw new IllegalArgumentError(
-                "error player does not like notifyOpponentAction"
-            )
-        } else {
-            return super.notifyOpponentAction(action)
-        }
-    }
-
     async notifyTournamentIsStarting(): Promise<void> {
         if (this.failWhich[5]) {
             throw new IllegalArgumentError(
@@ -441,14 +431,6 @@ describe("Referee", () => {
 
         it("puts player that fails on getNextAction into failures", async () => {
             const ref = await failInIthWay(3)
-
-            expect(ref.getPlayerStatuses().eliminatedPlayerIds).to.contain(
-                "errorP"
-            )
-        })
-
-        it("puts player that fails on notifyOpponentAction into failures", async () => {
-            const ref = await failInIthWay(4)
 
             expect(ref.getPlayerStatuses().eliminatedPlayerIds).to.contain(
                 "errorP"

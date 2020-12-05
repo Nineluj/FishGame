@@ -19,7 +19,6 @@ const consoleWriteable = {
  */
 const parsePortAddress = (): { port: number; ip: string } => {
     const args = process.argv.slice(2)
-    console.log("parsing args", args)
     if (args.length > 2 || args.length === 0) {
         panic("Wrong number of arguments")
     }
@@ -41,7 +40,7 @@ const runClient = () => {
     socket.write(createName())
     const player = new AIPlayer(consoleWriteable, DEPTH)
     const client = new Client(player)
-    new CallbackConnection(socket, client.receive)
+    new CallbackConnection(socket, client)
 }
 
 /**

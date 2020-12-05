@@ -28,11 +28,6 @@ export interface PlayerInterface {
     notifyBanned(reason: string): Promise<void>
 
     /**
-     * Notifies the player of an action that was taken by an opponent
-     */
-    notifyOpponentAction(action: Action): Promise<void>
-
-    /**
      * Asks the player for its next action. The player can assume that it is their turn.
      */
     getNextAction(gs: GameState): Promise<Action>

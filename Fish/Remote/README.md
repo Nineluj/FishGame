@@ -18,4 +18,4 @@ Remote/
 -   Added `notifyPlayingAs` to PlayerInterface
 -   Added `notifyPlayingWith` to PlayerInterface
 -   Added `convertToOutputState` harness adapter
--   Changed `updateGameState` -> `notifyOpponentAction`
+-   Got rid of `updateGameState` 

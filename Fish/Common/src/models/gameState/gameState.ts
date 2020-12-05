@@ -1,4 +1,4 @@
-import { Player, putPenguin } from "../player"
+import { changePenguinPosition, Player, putPenguin } from "../player"
 import {
     Board,
     boardGet,
@@ -9,10 +9,10 @@ import {
 import { IllegalArgumentError } from "../errors/illegalArgumentError"
 import { GameStateActionError } from "../errors/gameStateActionError"
 import { InvalidMoveError } from "../errors/invalidMoveError"
-import { changePenguinPosition } from "../player"
 import { containsPoint, Point } from "../point"
 import { Tile } from "../tile"
 import update from "immutability-helper"
+import { makeUnoccupied } from "../board/board"
 
 /*
 The game state is modeled like a FSM as follows:
@@ -47,7 +47,7 @@ It is the referee's responsability to skip a player's turn if they cannot play.
 // - penguinPlacement when players are placing their penguin on the board
 // - playing when the players are moving penguins
 // - over when no player can move a penguin
-type GamePhase = "penguinPlacement" | "playing" | "over"
+export type GamePhase = "penguinPlacement" | "playing" | "over"
 
 /**
  * Represents the state necessary for an entire game of Fish
@@ -103,19 +103,17 @@ const createGameStateCustomBoard = (
             `Expecting 2-4 players to create a game, got ${players.length}`
         )
     }
-    const totalPenguins = players.reduce(
-        (count, player) => count + player.penguins.length,
-        0
+
+    const allPenguinsPlaced = players.every(
+        (player) =>
+            player.penguins.length ===
+            PENGUIN_PLACEMENTS_NEEDED_PER_PLAYER - players.length
     )
+
     return {
         board: board,
-        phase:
-            totalPenguins ===
-            players.length *
-                (PENGUIN_PLACEMENTS_NEEDED_PER_PLAYER - players.length)
-                ? "playing"
-                : "penguinPlacement",
-        players: players, //sortPlayersByAgeAsc(players),
+        phase: allPenguinsPlaced ? "playing" : "penguinPlacement",
+        players: players,
     }
 }
 
@@ -419,16 +417,30 @@ const skipTurn = (gameState: GameState, playerId: string): GameState => {
 
 /**
  * Eliminates the player with the given ID from the game
+ * TODO: test
  */
 const eliminatePlayer = (gameState: GameState, playerId: string): GameState => {
-    const newState: GamePhase = canAdvanceToOver(gameState) ? "over" : "playing"
+    const newGs = { ...gameState }
+    const newBoard = [...gameState.board]
 
-    return update(gameState, {
-        players: (arr) => arr.filter((player) => player.id !== playerId),
-        phase: {
-            $set: newState,
-        },
+    // mark the player's tiles as unoccupied
+    getPlayerById(gameState, playerId).penguins.forEach((point) => {
+        const oldTile = boardGet(newBoard, point) as Tile
+        boardSet(newBoard, point, makeUnoccupied(oldTile))
     })
+
+    newGs.board = newBoard
+    newGs.players = gameState.players.filter((p) => p.id !== playerId)
+
+    if (canAdvanceToPlaying(newGs)) {
+        newGs.phase = "playing"
+    }
+
+    if (newGs.players.length === 1 || canAdvanceToOver(newGs)) {
+        newGs.phase = "over"
+    }
+
+    return newGs
 }
 
 /**

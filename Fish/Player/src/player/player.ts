@@ -67,6 +67,4 @@ export class AIPlayer implements PlayerInterface {
     async notifyPlayAs(color: PenguinColor): Promise<void> {}
 
     async notifyPlayWith(opponentColors: Array<PenguinColor>): Promise<void> {}
-
-    async notifyOpponentAction(action: Action): Promise<void> {}
 }

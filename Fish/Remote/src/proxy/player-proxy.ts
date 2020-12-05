@@ -33,16 +33,13 @@ import {
 } from "../../../Common/src/adapters/types"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 import { Point } from "../../../Common/src/models/point"
+import { debugPrint } from "../../../../10/Other/util"
 
 class PlayerProxy implements PlayerInterface {
     private connection: Connection
-    private playerEliminatedSinceLastCall: boolean
-    private actionHistory: Array<ExternalAction>
 
     constructor(connection: Connection) {
         this.connection = connection
-        this.playerEliminatedSinceLastCall = false
-        this.actionHistory = []
     }
 
     private async sendAndReceive(msg: Message): Promise<any> {
@@ -89,26 +86,10 @@ class PlayerProxy implements PlayerInterface {
         this.connection.close()
     }
 
-    async notifyOpponentAction(action: Action): Promise<void> {
-        if (action.data.actionType === "eliminatePlayer") {
-            this.playerEliminatedSinceLastCall = true
-        } else if (action.data.actionType === "move") {
-            const origin = action.data.origin as Point
-            const dst = action.data.dst as Point
-
-            // TODO: check that arguments to convert are passed in this order
-            this.actionHistory.push([
-                convertToOutputLocation(origin.x, origin.y),
-                convertToOutputLocation(dst.x, dst.y),
-            ])
-        } else if (action.data.actionType === "skipTurn") {
-            this.actionHistory.push(false)
-        }
-    }
-
     private async getNextPenguinPlacement(gs: GameState): Promise<Action> {
-        const msg: SetupMessage = ["setup", [convertToOutputState(gs)]]
-        const result = this.sendAndReceive(msg)
+        const outState = convertToOutputState(gs)
+        const msg: SetupMessage = ["setup", [outState]]
+        const result = await this.sendAndReceive(msg)
 
         const position = externalPositionFromAny(result)
 
@@ -153,29 +134,16 @@ class PlayerProxy implements PlayerInterface {
         return createMoveAction(playerId, p1, p2)
     }
 
-    private getHistory(): Array<ExternalAction> {
-        if (this.playerEliminatedSinceLastCall) {
-            return []
-        }
-
-        return this.actionHistory
-    }
-
-    private resetHistory(): void {
-        this.playerEliminatedSinceLastCall = false
-        this.actionHistory = []
-    }
-
     private async getNextPenguinMove(gs: GameState): Promise<Action> {
+        // not reporting the list of actions, only the new gameState
         const msg: TakeTurnMessage = [
             "take-turn",
-            [convertToOutputState(gs), this.getHistory()],
+            [convertToOutputState(gs), []],
         ]
 
         const response = await this.sendAndReceive(msg)
         const playerId = getPlayerWhoseTurnItIs(gs).id
 
-        this.resetHistory()
         return PlayerProxy.getMoveActionFromResponse(response, playerId)
     }
 

@@ -1,7 +1,9 @@
 import net from "net"
+import { Client } from "../proxy/client-proxy"
+import { debugPrint } from "../../../../10/Other/util"
 const Parser = require("jsonparse")
 
-const PLAYER_CALL_TIMEOUT_MS = 1000
+const PLAYER_CALL_TIMEOUT_MS = 2000 // TODO: change this back
 
 /**
  * Represents a TCP connection wrapper which can send and receive data using JSON.
@@ -24,14 +26,22 @@ class Connection {
      */
     async send(method: Array<any>): Promise<any> {
         return new Promise((resolve, reject) => {
+            const cleanup = () => {
+                this.tcpConnection.removeAllListeners()
+            }
+
             const json = JSON.stringify(method)
 
             this.tcpConnection.on("timeout", () => {
+                cleanup()
                 reject()
             })
+
+            const self = this.tcpConnection
             this.tcpConnection.on("data", (body) => {
                 this.jsonParser.onValue = function (val: any) {
                     if (this.stack.length == 0) {
+                        cleanup()
                         resolve(val)
                     }
                 }
@@ -69,15 +79,15 @@ class CallbackConnection {
     private tcpConnection: net.Socket
     private jsonParser: any
 
-    constructor(tcpConnection: net.Socket, fn: (a: any) => Promise<any>) {
+    constructor(tcpConnection: net.Socket, client: Client) {
         this.tcpConnection = tcpConnection
         this.jsonParser = new Parser()
 
-        const sendResponse = this.sendResponse
+        const self = this
         this.jsonParser.onValue = async function (val: any) {
             if (this.stack.length == 0) {
-                const response = await fn(val)
-                sendResponse(response)
+                const response = await client.receive(val)
+                self.sendResponse(response)
             }
         }
 
