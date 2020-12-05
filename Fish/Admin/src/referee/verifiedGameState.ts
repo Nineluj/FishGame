@@ -100,9 +100,9 @@ export class Moving implements VerifiableGameState {
             const outcome = completeAction(this.node, action)
             const outcomeGs = outcome.gs
             if (canAdvanceToOver(outcomeGs)) {
-                new Over(outcomeGs)
+                return new Over(outcomeGs)
             } else {
-                new Moving(outcome)
+                return new Moving(outcome)
             }
         } catch {}
 

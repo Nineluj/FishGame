@@ -250,14 +250,6 @@ class Referee {
 
         return results
     }
-
-    /**
-     * Returns the current phase of this game.
-     */
-    getGamePhase(): "penguinPlacement" | "playing" | "over" {
-        return this.game.getGameState().phase
-    }
-
     /**
      * Get game observers
      */
@@ -270,6 +262,7 @@ class Referee {
      * Handles invalid actions appropriately.
      */
     async runGameMovementPhase() {
+        console.log(JSON.stringify(this.game.getGameState()))
         while (this.game.isMove()) {
             await this.playTurn()
         }

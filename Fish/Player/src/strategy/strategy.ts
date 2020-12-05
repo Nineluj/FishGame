@@ -181,18 +181,23 @@ const miniMax = (
     let player = getPlayerWhoseTurnItIs(node.gs)
     const futures = node.children()
 
+    if (depth === -1) {
+        return {
+            scoreAchieved: node.gs.players.filter(
+                (p) => p.id === maximizingPlayerId
+            )[0].score,
+            moves: [],
+        }
+    }
+
     const isMaximizing = player.id === maximizingPlayerId
     const compareFunc = isMaximizing ? greaterThan : lessThan
 
     let best: maximiniResult = {
-        scoreAchieved: node.gs.players.filter(
-            (p) => p.id === maximizingPlayerId
-        )[0].score,
+        scoreAchieved: isMaximizing
+            ? Number.NEGATIVE_INFINITY
+            : Number.POSITIVE_INFINITY,
         moves: [],
-    }
-
-    if (depth === -1) {
-        return best
     }
 
     for (let future of futures) {

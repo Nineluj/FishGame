@@ -93,7 +93,6 @@ describe("Game State", () => {
 
         it("can be created with a valid correctly sized array of players", () => {
             const actual = createGameState([player2, player1, player3])
-\
             expect(actual.players.length).to.equal(3)
             expect(actual.players[0].id).to.equal("bar")
         })
@@ -154,7 +153,10 @@ describe("Game State", () => {
         it("can't move penguin in placePenguin phase", () => {
             expect(() => {
                 movePenguin(gs, "p1", { x: 0, y: 0 }, { x: 1, y: 0 })
-            }).to.throw(GameStateActionError, "expected playing phase")
+            }).to.throw(
+                InvalidMoveError,
+                "player must have a penguin at the origin position to make a move"
+            )
         })
 
         /* Tests for the transition from penguinPlacement and playing */
@@ -194,7 +196,10 @@ describe("Game State", () => {
                     ],
                     ["p1", "p2", "p3"]
                 )
-            }).to.throw(GameStateActionError, "expected penguinPlacement phase")
+            }).to.throw(
+                GameStateActionError,
+                "cannot place more than 3 penguins per player"
+            )
         })
     })
 
@@ -395,7 +400,6 @@ describe("Game State", () => {
             })
 
             cState = skipTurn(cState, "p3")
-
         })
     })
 })

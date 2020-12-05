@@ -72,7 +72,6 @@ const runTest = (input: TestData) => {
     const gs: GameState = {
         board,
         players,
-        phase: "playing",
     }
 
     const result = findSuitableMove(gs)
