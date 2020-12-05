@@ -163,6 +163,7 @@ type maximiniResult = { scoreAchieved: number; moves: Array<Action> }
 const lessThan = (a: number, b: number): boolean => a < b
 const greaterThan = (a: number, b: number): boolean => a > b
 
+// TODO: fix this using test harness 6
 /**
  * Uses the minimax algorithm as described here: https://en.wikipedia.org/wiki/Minimax#Pseudocode
  * In which the player chooses their maximum score that they can achieve given that all the other players
@@ -178,27 +179,23 @@ const miniMax = (
     maximizingPlayerId: string
 ): maximiniResult => {
     let player = getPlayerWhoseTurnItIs(node.gs)
-    const isMaximizing = player.id === maximizingPlayerId
-    // TODO: revisit, need to check if the game is over?
-    if (depth === -1) {
-        return {
-            scoreAchieved: node.gs.players.filter(
-                (p) => p.id === maximizingPlayerId
-            )[0].score,
-            moves: [],
-        }
-    }
+    const futures = node.children()
 
+    const isMaximizing = player.id === maximizingPlayerId
     const compareFunc = isMaximizing ? greaterThan : lessThan
 
     let best: maximiniResult = {
-        scoreAchieved: isMaximizing
-            ? Number.NEGATIVE_INFINITY
-            : Number.POSITIVE_INFINITY,
+        scoreAchieved: node.gs.players.filter(
+            (p) => p.id === maximizingPlayerId
+        )[0].score,
         moves: [],
     }
 
-    for (let future of node.children()) {
+    if (depth === -1) {
+        return best
+    }
+
+    for (let future of futures) {
         const subCall = miniMax(
             future,
             isMaximizing ? depth - 1 : depth,

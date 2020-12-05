@@ -9,7 +9,6 @@ import {
     actionsEqual,
 } from "../action/action"
 import { GameStateActionError } from "../errors/gameStateActionError"
-import { GamePhaseError } from "../errors/gamePhaseError"
 
 /*
  * GameNode represents a possible GameState, the action that led to it, and potential future moves
@@ -71,7 +70,6 @@ const getAllPossibleMovesForTurn = (gs: GameState): Array<GameNode> => {
         })
     })
 
-    // The player skips their turn
     const skipAction = createSkipTurnAction(currentPlayer.id)
     const resultingState = skipAction.apply(gs)
     futureStates.push({
