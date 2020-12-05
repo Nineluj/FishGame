@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ "$#" -ne 2 ] && [ "$#" -ne 3 ]; then
+    echo "Illegal number of parameters"
+    exit
+fi
+
 for _ in $(seq 1 "$1")
     do
         cd Other && npm run --silent client -- "$2" "$3" &

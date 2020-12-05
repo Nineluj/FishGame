@@ -9,6 +9,7 @@ import { isDeepStrictEqual } from "util"
 import {
     AIPlayer,
     DEFAULT_MOVES_AHEAD,
+    Writeable,
 } from "../../../Player/src/player/player"
 import { PlayerInterface } from "../../../Common/player-interface"
 import { Action } from "../../../Common/src/models/action"
@@ -22,6 +23,7 @@ import {
     getSkipTurnStrategy,
     getPenguinPlacementStrategy,
 } from "../../../Player/src/strategy/strategy"
+import { PenguinColor } from "../../../Common/src/models/player"
 
 const playerAI1 = new AIPlayer()
 const playerAI2 = new AIPlayer()
@@ -29,22 +31,98 @@ const playerAI3 = new AIPlayer()
 
 const allPlayers: Array<PlayerInterface> = [playerAI1, playerAI2, playerAI3]
 
+const functionsCanFailNum = 7
+export const makeFunctionalFailWhich = () =>
+    Array(functionsCanFailNum).fill(false)
+export const makeGetNextActionErrorPlayer = (): ErrorPlayer => {
+    const fw = makeFunctionalFailWhich()
+    fw[3] = true
+    return new ErrorPlayer(fw)
+}
+
 /**
- * Player that always throws errors for all of its methods
+ * Player that always throws errors for on select methods. Failure is based
+ * on which fields in the given boolean array are set to true. Indexes:
+ * - 0 for notifyBanned
+ * - 1 for notifyPlayAs
+ * - 2 for notifyPlayWith
+ * - 3 for getNextAction
+ * - 4 for notifyOpponentAction
+ * - 5 for notifyTournamentStarting
+ * - 6 for notifyTournamentOver
+ * Behaves the same as an AIPlayer if all the fields are false
  */
 export class ErrorPlayer extends AIPlayer {
-    notifyBanned(s: string) {
-        throw new IllegalArgumentError("sir this is a Wendies")
+    failWhich: boolean[]
+
+    constructor(failWhich: boolean[], output?: Writeable) {
+        if (output) {
+            super(output)
+        } else {
+            super()
+        }
+
+        this.failWhich = failWhich
     }
 
-    getNextAction(gs: GameState): Action {
-        throw new IllegalArgumentError(
-            "I don't know how to handle a game state"
-        )
+    async notifyBanned(s: string) {
+        if (this.failWhich[0]) {
+            throw new IllegalArgumentError(
+                "error player does not like notifyBanned"
+            )
+        } else {
+            return super.notifyBanned(s)
+        }
     }
 
-    updateGameState(gs: GameState) {
-        throw new IllegalArgumentError("what is a game state?")
+    async notifyPlayAs(pc: PenguinColor) {
+        if (this.failWhich[1]) {
+            throw new IllegalArgumentError(
+                "error player does not like notifyPlayAs"
+            )
+        } else {
+            return super.notifyPlayAs(pc)
+        }
+    }
+
+    async notifyPlayWith(playerColors: PenguinColor[]) {
+        if (this.failWhich[2]) {
+            throw new IllegalArgumentError(
+                "error player does not like notifyPlayWith"
+            )
+        } else {
+            return super.notifyPlayWith(playerColors)
+        }
+    }
+
+    async getNextAction(gs: GameState): Promise<Action> {
+        if (this.failWhich[3]) {
+            throw new IllegalArgumentError(
+                "error player does not like getNextAction"
+            )
+        } else {
+            return super.getNextAction(gs)
+        }
+    }
+
+    async notifyTournamentIsStarting(): Promise<void> {
+        if (this.failWhich[5]) {
+            throw new IllegalArgumentError(
+                "error player does not like notifyTournamentIsStarting"
+            )
+        } else {
+            return super.notifyTournamentIsStarting()
+        }
+    }
+
+    async notifyTournamentOver(didIWin: boolean): Promise<void> {
+        if (this.failWhich[6]) {
+            throw new IllegalArgumentError(
+                "error player does not like notifyTournamentOver"
+            )
+        } else {
+            return super.notifyTournamentOver(didIWin)
+        }
     }
 }
 
@@ -52,13 +130,25 @@ export class ErrorPlayer extends AIPlayer {
  * Player that generates an invalid move when getNextAction is called
  */
 export class IllegalActionPlayer extends AIPlayer {
-    notifyBanned(s: string) {}
+    async notifyBanned(s: string) {}
 
-    getNextAction(gs: GameState): Action {
+    async getNextAction(gs: GameState): Promise<Action> {
         return createMoveAction("red", { x: 0, y: 0 }, { x: 6, y: 1 })
     }
 
     updateGameState(gs: GameState) {}
+}
+
+class NotifyBannedCrasher extends ErrorPlayer {
+    constructor() {
+        const failWhich = makeFunctionalFailWhich()
+        failWhich[0] = true
+        super(failWhich)
+    }
+
+    async getNextAction(gs: GameState): Promise<Action> {
+        return new IllegalActionPlayer().getNextAction(gs)
+    }
 }
 
 /**
@@ -203,28 +293,28 @@ describe("Referee", () => {
             expect(ref.getGamePhase()).to.equal("penguinPlacement")
         })
 
-        it("Returns correct gamePhase on a game in the playing phase", () => {
+        it("Returns correct gamePhase on a game in the playing phase", async () => {
             const ref = new Referee(allPlayers, getPlacementState().board)
-            ref.runPlacementPhase()
+            await ref.runPlacementPhase()
             expect(ref.getGamePhase()).to.equal("playing")
         })
 
-        it("Returns correct gamePhase on a game in the over phase", () => {
+        it("Returns correct gamePhase on a game in the over phase", async () => {
             const ref = new Referee(allPlayers, getPlayingState().board)
-            ref.runGamePlay()
+            await ref.runGamePlay()
             expect(ref.getGamePhase()).to.equal("over")
         })
     })
 
     describe("#getReplay", () => {
-        it("Returns correct first part of a replay", () => {
+        it("Returns correct first part of a replay", async () => {
             const ref = new Referee(allPlayers, getPlacementState().board)
             const initialState = ref.getGameState()
             const placementStrategy = getPenguinPlacementStrategy(
                 getSkipTurnStrategy()
             )
 
-            ref.runGamePlay()
+            await ref.runGamePlay()
 
             const firstActionFromReplay = ref.getReplay()[0]
             const actionFromStrategy = placementStrategy.getNextAction(
@@ -235,9 +325,9 @@ describe("Referee", () => {
                 .be.true
         })
 
-        it("Returns correct second part of a replay", () => {
+        it("Returns correct second part of a replay", async () => {
             const ref = new Referee(allPlayers, getPlacementState().board)
-            ref.runPlacementPhase()
+            await ref.runPlacementPhase()
 
             const actionsCount = ref.getReplay().length
             const startOfPlayingGameState = ref.getGameState()
@@ -247,7 +337,7 @@ describe("Referee", () => {
                 getSkipTurnStrategy()
             )
 
-            ref.runGameMovementPhase()
+            await ref.runGameMovementPhase()
 
             const firstMoveActionFromReplay = ref.getReplay()[actionsCount]
             const actionFromStrategy = playingStrategy.getNextAction(
@@ -260,13 +350,17 @@ describe("Referee", () => {
     })
 
     describe("#getPlayerStatuses", () => {
-        it("Returns both unbanned and banned players correctly", () => {
+        it("Returns both unbanned and banned players correctly", async () => {
             const ref = new Referee(
-                [playerAI1, new ErrorPlayer(), playerAI2],
+                [
+                    playerAI1,
+                    new ErrorPlayer([true, true, true, true]),
+                    playerAI2,
+                ],
                 getPlacementState().board
             )
 
-            ref.runGamePlay()
+            await ref.runGamePlay()
             const result = ref.getPlayerStatuses()
             expect(result.players).to.have.lengthOf(2)
             expect(result.eliminatedPlayerIds).to.have.lengthOf(1)
@@ -275,15 +369,72 @@ describe("Referee", () => {
     })
 
     describe("#runGamePlay", () => {
-        it("runs through an entire game", () => {
+        it("runs through an entire game", async () => {
             const ref = new Referee(allPlayers, getPlacementState().board)
 
-            ref.runGamePlay()
+            await ref.runGamePlay()
             expect(ref.getGamePhase()).to.be.equal("over")
             expect(
                 ref.getPlayerStatuses().eliminatedPlayerIds.length
             ).to.be.equal(0)
             expect(ref.getPlayerStatuses().players[0].score).to.be.equal(4)
+        })
+    })
+
+    describe("#with failing players", () => {
+        // Testing for failures
+        it("player that misbehaves on notifyBanned is handled", async () => {
+            const ref = new Referee(
+                [playerAI1, new NotifyBannedCrasher(), playerAI2],
+                getPlacementState().board,
+                ["p1", "errorP", "p3"]
+            )
+
+            await ref.runGamePlay()
+
+            expect(ref.getPlayerStatuses().eliminatedPlayerIds).to.contain(
+                "errorP"
+            )
+        })
+
+        // sets up a game with a referee and a player that will fail in a
+        // given way. See ErrorPlayer to see the ways in which these failures occur
+        const failInIthWay = async (i: number): Promise<Referee> => {
+            let failWay = Array(functionsCanFailNum).fill(false)
+            failWay[i] = true
+
+            const ref = new Referee( // error player [1] is playAs, [2] is playWith
+                [playerAI1, new ErrorPlayer(failWay), playerAI2],
+                getPlacementState().board,
+                ["p1", "errorP", "p3"]
+            )
+
+            await ref.runGamePlay()
+            return ref
+        }
+
+        it("puts player that fails to accept color into failures", async () => {
+            const ref = await failInIthWay(1)
+
+            expect(ref.getPlayerStatuses().eliminatedPlayerIds).to.contain(
+                "errorP"
+            )
+        })
+
+        it("puts player that fails to accept all the colors for this game into failures", async () => {
+            const ref = await failInIthWay(2)
+
+            expect(ref.getPlayerStatuses().eliminatedPlayerIds).to.contain(
+                "errorP"
+            )
+        })
+
+        it("puts player that fails on getNextAction into failures", async () => {
+            const ref = await failInIthWay(3)
+
+            expect(ref.getPlayerStatuses().eliminatedPlayerIds).to.contain(
+                "errorP"
+            )
         })
     })
 
@@ -316,7 +467,7 @@ describe("Referee", () => {
             const observer = new ErroringObserver()
             ref.registerGameObserver(observer)
             expect(ref.getGameObservers().length).to.be.equal(1)
-            ref.playTurn()
+            await ref.playTurn()
 
             setTimeout(() => expect(ref.getGameObservers()).to.be.empty, 300)
         })

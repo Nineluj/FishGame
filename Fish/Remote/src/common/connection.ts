@@ -1,4 +1,5 @@
 import net from "net"
+import { Client } from "../proxy/client-proxy"
 const Parser = require("jsonparse")
 
 const PLAYER_CALL_TIMEOUT_MS = 1000
@@ -24,14 +25,22 @@ class Connection {
      */
     async send(method: Array<any>): Promise<any> {
         return new Promise((resolve, reject) => {
+            const cleanup = () => {
+                this.tcpConnection.removeAllListeners()
+            }
+
             const json = JSON.stringify(method)
 
             this.tcpConnection.on("timeout", () => {
+                cleanup()
                 reject()
             })
+
+            const self = this.tcpConnection
             this.tcpConnection.on("data", (body) => {
                 this.jsonParser.onValue = function (val: any) {
                     if (this.stack.length == 0) {
+                        cleanup()
                         resolve(val)
                     }
                 }
@@ -69,14 +78,19 @@ class CallbackConnection {
     private tcpConnection: net.Socket
     private jsonParser: any
 
-    constructor(tcpConnection: net.Socket, fn: (a: any) => any) {
+    constructor(tcpConnection: net.Socket, client: Client) {
         this.tcpConnection = tcpConnection
         this.jsonParser = new Parser()
 
-        this.jsonParser.onValue = function (val: any) {
+        const self = this
+        this.jsonParser.onValue = async function (val: any) {
             if (this.stack.length == 0) {
-                const response = fn(val)
-                this.sendResponse(response)
+                const response = await client.receive(val)
+                self.sendResponse(response)
+
+                if (client.gameIsOver()) {
+                    self.close()
+                }
             }
         }
 
@@ -100,6 +114,7 @@ class CallbackConnection {
      */
     close(): void {
         this.tcpConnection.destroy()
+        process.exit(0)
     }
 }
 

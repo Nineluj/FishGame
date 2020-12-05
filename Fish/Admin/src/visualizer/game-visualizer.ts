@@ -3,6 +3,7 @@ import { GameState } from "../../../Common/src/models/gameState"
 import { AIPlayer } from "../../../Player/src/player/player"
 import { PlayerInterface } from "../../../Common/player-interface"
 import { createBoard } from "../../../Common/src/models/board"
+import { createBoardWithDimensions } from "../../../Common/src/adapters/boardAdapter"
 
 type Notify = (gs: GameState) => Promise<void>
 
@@ -46,6 +47,7 @@ const runGameWithVisualizer = async (
 
     const ref = new Referee(
         aiPlayers,
+        // createBoardWithDimensions(5, 5, 2)
         createBoard(25, { randomizeFishPerTile: true })
     )
 

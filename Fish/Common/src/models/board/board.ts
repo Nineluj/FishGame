@@ -197,6 +197,16 @@ const getCoordinatesOfNextUnoccupiedTileToTheRight = (
     return false
 }
 
+/**
+ * Creates a copy of the given tile that is marked as unoccupied
+ */
+const makeUnoccupied = (tile: Tile): Tile => {
+    return {
+        occupied: false,
+        fish: tile.fish,
+    }
+}
+
 // Default option configuration for creating a board with createBoard
 const defaultCreateBoardOptions = {
     holes: [],
@@ -286,4 +296,5 @@ export {
     getReachableTilesFrom,
     getCoordinatesOfNextUnoccupiedTileToTheRight,
     getNumberOfTilesOnBoard,
+    makeUnoccupied,
 }

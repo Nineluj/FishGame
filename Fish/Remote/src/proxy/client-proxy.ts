@@ -27,16 +27,23 @@ import {
     ExternalPosition,
 } from "../../../Common/src/adapters/types"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
+import { debugPrint } from "../../../../10/Other/util"
 
+/**
+ * Class that knows how to delegate message tasks to the given player interface
+ */
 class Client {
     private playerInterface: PlayerInterface
+    /* Represents whether the game that the player is playing is over */
+    private isOver: boolean
 
     constructor(playerInterface: PlayerInterface) {
         this.playerInterface = playerInterface
+        this.isOver = false
     }
 
-    receive(data: any): any {
-        // TODO: maybe not crash here?
+    async receive(data: any): Promise<any> {
+        // client crash is fine, we can sue the server
         assert(verify(data, messageSchema))
 
         switch (data[0]) {
@@ -59,56 +66,78 @@ class Client {
         }
     }
 
-    handleStartMessage(data: any): VoidResponse {
+    async handleStartMessage(data: any): Promise<VoidResponse> {
         assert(verify(data, startMessageSchema))
         const startMessage = data as StartMessage
 
         if (startMessage[1][0]) {
-            this.playerInterface.notifyTournamentIsStarting()
+            await this.playerInterface.notifyTournamentIsStarting()
         }
         return "void"
     }
 
-    handlePlayingAsMessage(data: any): VoidResponse {
+    async handlePlayingAsMessage(data: any): Promise<VoidResponse> {
         assert(verify(data, playingAsMessageSchema))
         const playingAsMessage = data as PlayingAsMessage
-        this.playerInterface.notifyPlayAs(playingAsMessage[1][0])
+        await this.playerInterface.notifyPlayAs(playingAsMessage[1][0])
         return "void"
     }
 
-    handlePlayingWithMessage(data: any): VoidResponse {
+    async handlePlayingWithMessage(data: any): Promise<VoidResponse> {
         assert(verify(data, playingWithMessageSchema))
         const playingWithMessage = data as PlayingWithMessage
-        this.playerInterface.notifyPlayWith(playingWithMessage[1][0])
+        await this.playerInterface.notifyPlayWith(playingWithMessage[1][0])
         return "void"
     }
 
-    handleSetupMessage(data: any): ExternalPosition {
+    async handleSetupMessage(data: any): Promise<ExternalPosition> {
         assert(verify(data, setupMessageSchema))
         const setupMessage = data as SetupMessage
-        const state: GameState = deserializeState(setupMessage[1][0])
-        const position = this.playerInterface.getNextAction(state).data.dst
+        const state: GameState = deserializeState(
+            setupMessage[1][0],
+            "penguinPlacement"
+        )
+        const position = (await this.playerInterface.getNextAction(state)).data
+            .dst
         return convertToOutputLocation(position.x, position.y)
     }
 
-    handleTakeTurnMessage(data: any): ExternalAction {
+    async handleTakeTurnMessage(data: any): Promise<ExternalAction> {
         assert(verify(data, takeTurnMessageSchema))
         const takeTurnMessage = data as TakeTurnMessage
-        const state: GameState = deserializeState(takeTurnMessage[1][0])
-        const action = this.playerInterface.getNextAction(state)
+        const state: GameState = deserializeState(
+            takeTurnMessage[1][0],
+            "playing"
+        )
+
+        const action = await this.playerInterface.getNextAction(state)
+
+        if (action.data.actionType === "skipTurn") {
+            return false
+        } else if (action.data.actionType !== "move") {
+            debugPrint(JSON.stringify([action, state], null, 2))
+        }
+
         const origin = action.data.origin
         const dst = action.data.dst
+
         return [
             convertToOutputLocation(origin.x, origin.y),
             convertToOutputLocation(dst.x, dst.y),
         ]
     }
 
-    handleEndMessage(data: any): VoidResponse {
+    async handleEndMessage(data: any): Promise<VoidResponse> {
         assert(verify(data, endMessageSchema))
         const endMessage = data as EndMessage
-        this.playerInterface.notifyTournamentOver(endMessage[1][0])
+        await this.playerInterface.notifyTournamentOver(endMessage[1][0])
+        this.isOver = true
+
         return "void"
+    }
+
+    gameIsOver(): boolean {
+        return this.isOver
     }
 }
 

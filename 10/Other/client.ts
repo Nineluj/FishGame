@@ -1,5 +1,5 @@
 import { Socket } from "net"
-import { panic } from "./util"
+import { debugPrint, panic, setDebugPrintPrefix } from "./util"
 
 import { CallbackConnection } from "../../Fish/Remote/src/common/connection"
 import { Client } from "../../Fish/Remote/src/proxy/client-proxy"
@@ -19,7 +19,6 @@ const consoleWriteable = {
  */
 const parsePortAddress = (): { port: number; ip: string } => {
     const args = process.argv.slice(2)
-    console.log("parsing args", args)
     if (args.length > 2 || args.length === 0) {
         panic("Wrong number of arguments")
     }
@@ -31,8 +30,9 @@ const parsePortAddress = (): { port: number; ip: string } => {
 }
 
 const runClient = () => {
-    console.log("running client")
-    console.log("created name ", createName())
+    const name = createName()
+    setDebugPrintPrefix(`${name}>`)
+    debugPrint("Started client")
 
     const portAddress = parsePortAddress()
     const socket = new Socket()
@@ -40,7 +40,7 @@ const runClient = () => {
     socket.write(createName())
     const player = new AIPlayer(consoleWriteable, DEPTH)
     const client = new Client(player)
-    new CallbackConnection(socket, client.receive)
+    new CallbackConnection(socket, client)
 }
 
 /**
@@ -55,4 +55,6 @@ const createName = () => {
     return name
 }
 
-runClient()
+if (require.main === module) {
+    runClient()
+}
