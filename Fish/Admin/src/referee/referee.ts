@@ -11,7 +11,6 @@ import {
     getPlayerWhoseTurnItIs,
 } from "../../../Common/src/models/gameState/gameState"
 import { PlayerInterface } from "../../../Common/player-interface"
-import { createEliminatePlayerAction } from "../../../Common/src/models/action/action"
 import { Board } from "../../../Common/src/models/board"
 import { createPlayer } from "../../../Common/src/models/testHelpers/testHelpers"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
@@ -328,20 +327,22 @@ class Referee {
         reason: string = "",
         notify: boolean = false
     ): Promise<void> {
-        const elimAction = createEliminatePlayerAction(playerId)
-        this.history.push(elimAction)
-        this.eliminatedPlayerIds.add(playerId)
+        throw new Error("Not implemented!")
 
-        this.gameState = elimAction.apply(this.gameState)
-
-        if (notify) {
-            // we don't care about any return value
-            callAsyncFunctionSafely(async () => {
-                await this.players.get(playerId)!.notifyBanned(reason)
-            })
-        }
-
-        this.players.delete(playerId)
+        // const elimAction = createEliminatePlayerAction(playerId)
+        // this.history.push(elimAction)
+        // this.eliminatedPlayerIds.add(playerId)
+        //
+        // this.gameState = elimAction.apply(this.gameState)
+        //
+        // if (notify) {
+        //     // we don't care about any return value
+        //     callAsyncFunctionSafely(async () => {
+        //         await this.players.get(playerId)!.notifyBanned(reason)
+        //     })
+        // }
+        //
+        // this.players.delete(playerId)
     }
 
     /**

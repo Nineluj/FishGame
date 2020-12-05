@@ -5,7 +5,6 @@ import {
     createMoveAction,
     createSkipTurnAction,
     createPlacePenguinAction,
-    createEliminatePlayerAction,
 } from "./action"
 
 describe("Actions", () => {
@@ -28,7 +27,6 @@ describe("Actions", () => {
                 createMoveAction("p1", point1, point2),
                 createSkipTurnAction("p1"),
                 createPlacePenguinAction("p1", point1),
-                createEliminatePlayerAction("p1"),
             ]
 
             for (let i = 0; i < actions.length; i++) {
@@ -43,15 +41,6 @@ describe("Actions", () => {
                 actionsEqual(
                     createSkipTurnAction("p1"),
                     createSkipTurnAction("p3")
-                )
-            ).to.be.false
-        })
-
-        it("eliminate actions for different ids are not equal", () => {
-            expect(
-                actionsEqual(
-                    createEliminatePlayerAction("p1"),
-                    createEliminatePlayerAction("p3")
                 )
             ).to.be.false
         })
@@ -107,13 +96,6 @@ describe("Actions", () => {
                 actionsEqual(
                     createPlacePenguinAction("aaa", point1),
                     createPlacePenguinAction("aaa", point1)
-                )
-            ).to.be.true
-
-            expect(
-                actionsEqual(
-                    createEliminatePlayerAction("p2"),
-                    createEliminatePlayerAction("p2")
                 )
             ).to.be.true
         })

@@ -93,7 +93,7 @@ describe("Player Strategy", () => {
             const sts = getSkipTurnStrategy()
             const action = sts.getNextAction(gs)
 
-            expect(action.data.actionType).to.equal("skipTurn")
+            expect(action.actionType).to.equal("skip")
             expect(action.data.playerId).to.equal("p1")
         })
     })
@@ -104,7 +104,6 @@ describe("Player Strategy", () => {
             const gs = getPlacementState()
 
             const expectedActionData = {
-                actionType: "put",
                 playerId: "p1",
                 dst: { x: 0, y: 0 },
             }
@@ -113,11 +112,11 @@ describe("Player Strategy", () => {
 
             expect(isDeepStrictEqual(firstAction.data, expectedActionData)).to
                 .be.true
+            expect(firstAction.actionType).to.equal("place")
 
             const gs2 = firstAction.apply(gs)
 
             const expectedActionData2 = {
-                actionType: "put",
                 playerId: "p2",
                 dst: { x: 2, y: 0 },
             }
@@ -125,26 +124,29 @@ describe("Player Strategy", () => {
             const secondAction = strategy.getNextAction(gs2)
             expect(isDeepStrictEqual(secondAction.data, expectedActionData2)).to
                 .be.true
+            expect(secondAction.actionType).to.equal("place")
 
             const gs3 = secondAction.apply(gs2)
             const expectedActionData3 = {
-                actionType: "put",
                 playerId: "p3",
                 dst: { x: 4, y: 0 },
             }
+
             const thirdAction = strategy.getNextAction(gs3)
             expect(isDeepStrictEqual(thirdAction.data, expectedActionData3)).to
                 .be.true
+            expect(thirdAction.actionType).to.equal("place")
 
             const gs4 = thirdAction.apply(gs3)
             const expectedActionData4 = {
-                actionType: "put",
                 playerId: "p1",
                 dst: { x: 1, y: 0 },
             }
+
             const fourthAction = strategy.getNextAction(gs4)
             expect(isDeepStrictEqual(fourthAction.data, expectedActionData4)).to
                 .be.true
+            expect(fourthAction.actionType).to.equal("place")
         })
 
         it("Returns a skip turn action when game is not in penguin placement phase", () => {
@@ -152,7 +154,6 @@ describe("Player Strategy", () => {
             const gs = getPlayingState()
 
             const expectedActionData = {
-                actionType: "skipTurn",
                 playerId: "p1",
             }
 
@@ -160,6 +161,7 @@ describe("Player Strategy", () => {
 
             expect(isDeepStrictEqual(action.data, expectedActionData)).to.be
                 .true
+            expect(action.actionType).to.equal("skip")
         })
     })
 
@@ -170,8 +172,8 @@ describe("Player Strategy", () => {
                 getPenguinMaxMinMoveStrategy(
                     3,
                     getSkipTurnStrategy()
-                ).getNextAction(overGs).data.actionType
-            ).to.equal("skipTurn")
+                ).getNextAction(overGs).actionType
+            ).to.equal("skip")
         })
 
         // create objects for next tests
@@ -212,7 +214,7 @@ describe("Player Strategy", () => {
                 1,
                 getSkipTurnStrategy()
             ).getNextAction(customGs)
-            expect(nextAction.data.actionType).to.equal("move")
+            expect(nextAction.actionType).to.equal("move")
             const reachedState = nextAction.apply(customGs)
 
             expect(

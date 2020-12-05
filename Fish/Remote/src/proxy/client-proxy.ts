@@ -112,9 +112,9 @@ class Client {
 
         const action = await this.playerInterface.getNextAction(state)
 
-        if (action.data.actionType === "skipTurn") {
+        if (action.actionType === "skip") {
             return false
-        } else if (action.data.actionType !== "move") {
+        } else if (action.actionType !== "move") {
             debugPrint(JSON.stringify([action, state], null, 2))
         }
 

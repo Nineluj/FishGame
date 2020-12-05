@@ -8,6 +8,8 @@ import {
 import { Point } from "../point"
 import { isDeepStrictEqual } from "util"
 
+type ActionType = "identity" | "place" | "move" | "skip"
+
 /**
  * An Action is an event that changes/produces a new game state. An Action represents an player event in the game
  * (ie. move penguin, take turn, skip turn).
@@ -19,6 +21,8 @@ import { isDeepStrictEqual } from "util"
 interface Action {
     // Data related to the action itself (ie. move destination, penguin placement, etc)
     // Data is largely used for object equality.
+    actionType: ActionType
+
     data: any
     // Apply represents how the action applies to the given game state. For example,
     //in a move player action apply returns the game state result of the making the move
@@ -30,7 +34,7 @@ interface Action {
  * two actions would have the same effect
  */
 const actionsEqual = (a1: Action, a2: Action): boolean =>
-    isDeepStrictEqual(a1.data, a2.data)
+    a1.actionType === a2.actionType && isDeepStrictEqual(a1.data, a2.data)
 
 /**
  * Creates an identity action which is an action that returns
@@ -38,9 +42,8 @@ const actionsEqual = (a1: Action, a2: Action): boolean =>
  * that lead to the initial GameState in a game tree.
  */
 const createIdentityAction = (): Action => ({
-    data: {
-        actionType: "identity",
-    },
+    actionType: "identity",
+    data: {},
     apply: (gs: GameState) => ({ ...gs }),
 })
 
@@ -48,8 +51,8 @@ const createIdentityAction = (): Action => ({
  * Creates an action for placing a penguin at a given position
  */
 const createPlacePenguinAction = (playerId: string, dst: Point): Action => ({
+    actionType: "place",
     data: {
-        actionType: "put",
         playerId,
         dst: { x: dst.x, y: dst.y },
     },
@@ -64,8 +67,8 @@ const createMoveAction = (
     origin: Point,
     destination: Point
 ): Action => ({
+    actionType: "move",
     data: {
-        actionType: "move",
         playerId,
         origin: { x: origin.x, y: origin.y },
         dst: { x: destination.x, y: destination.y },
@@ -78,24 +81,11 @@ const createMoveAction = (
  * This should only happen if a player cannot make moves
  */
 const createSkipTurnAction = (playerId: string): Action => ({
+    actionType: "skip",
     data: {
-        actionType: "skipTurn",
         playerId,
     },
     apply: (gs: GameState) => skipTurn(gs, playerId),
-})
-
-/**
- * Creates an action that eliminates the player from the game. This is used
- * by the referee when a player cheats or behaves wrong
- * @param playerId The player to be terminated
- */
-const createEliminatePlayerAction = (playerId: string): Action => ({
-    data: {
-        actionType: "eliminatePlayer",
-        playerId,
-    },
-    apply: (gs: GameState) => eliminatePlayer(gs, playerId),
 })
 
 export {
@@ -105,5 +95,4 @@ export {
     createPlacePenguinAction,
     createMoveAction,
     createSkipTurnAction,
-    createEliminatePlayerAction,
 }

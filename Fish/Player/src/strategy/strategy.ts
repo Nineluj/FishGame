@@ -112,7 +112,7 @@ const tiebreakMoves = (moves: Array<Action>): Action => {
     let minAction = moves[0]
 
     for (let m of moves) {
-        if (m.data.actionType === undefined || m.data.actionType !== "move") {
+        if (m.actionType !== "move") {
             throw new IllegalArgumentError(
                 "tiebreakMoves given a non-move action"
             )
@@ -257,7 +257,7 @@ const getPenguinMaxMinMoveStrategy = (
         } else {
             // favor non-skip actions
             return tiebreakMoves(
-                best.actions.filter((act) => act.data.actionType !== "skipTurn")
+                best.actions.filter((act) => act.actionType !== "skip")
             )
         }
     },

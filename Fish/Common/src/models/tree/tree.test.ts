@@ -103,7 +103,7 @@ describe("Game Tree", () => {
                 },
             }
 
-            expect(gameNode.action.data.actionType).to.equal("identity")
+            expect(gameNode.action.actionType).to.equal("identity")
             expect(isDeepStrictEqual(expected.gs, gameNode.gs)).to.equal(true)
             expect(gameNode.children().length).to.equal(7)
 
@@ -123,6 +123,7 @@ describe("Game Tree", () => {
             const gameNode = createGameNode(getPlayingState())
             expect(() => {
                 completeAction(gameNode, {
+                    actionType: "move",
                     data: "foo",
                     apply: (gs: GameState) => {
                         return "bar" as any
