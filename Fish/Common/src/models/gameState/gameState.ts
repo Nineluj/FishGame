@@ -416,29 +416,25 @@ const skipTurn = (gameState: GameState, playerId: string): GameState => {
 }
 
 /**
- * Can the GameState's phase be advanced to the over phase?
+ * Can the GameState's phase be advanced to the playing phase?
  */
-const canAdvanceToPlaying = (gs: GameState): boolean => {
-    if (gs.phase !== "penguinPlacement") {
-        return false
-    }
-
+export const canAdvanceToPlaying = (
+    gs: GameState,
+    numPenguins: number
+): boolean => {
     // check that all the players have placed the necessary number of penguins
     for (let player of gs.players) {
-        if (
-            player.penguins.length !== getNumberOfPenguinsToPlacePerPlayer(gs)
-        ) {
+        if (player.penguins.length !== numPenguins) {
             return false
         }
     }
-
     return true
 }
 
 /**
  * Can the GameState's phase be advanced to the playing phase?
  */
-const canAdvanceToOver = (gs: GameState): boolean => {
+export const canAdvanceToOver = (gs: GameState): boolean => {
     if (gs.phase !== "playing") {
         return false
     }
@@ -492,4 +488,5 @@ export {
     eliminatePlayer,
     skipTurn,
     getPlayerWhoseTurnItIs,
+    PENGUIN_PLACEMENTS_NEEDED_PER_PLAYER,
 }

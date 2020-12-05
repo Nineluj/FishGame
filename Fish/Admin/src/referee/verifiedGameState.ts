@@ -5,6 +5,11 @@ import {
     GameNode,
 } from "../../../Common/src/models/tree/tree"
 import { GameState } from "../../../Common/src/models/gameState"
+import {
+    canAdvanceToOver,
+    canAdvanceToPlaying,
+    eliminatePlayer,
+} from "../../../Common/src/models/gameState/gameState"
 
 /**
  * A VerifiableGameState knows how to handle actions
@@ -20,29 +25,17 @@ interface VerifiableGameState {
     isMove(): boolean
     // Get the underlying game state
     getGameState(): GameState
+    // Kick a player out of the game state
+    kickPlayer(playerId: string): VerifiableGameState
 }
 
-const createVerifiableGameState = (gs: GameState): VerifiableGameState => {
-    if (gs.players.length <= 1) {
-        return new Over(gs)
-    }
-
-    switch (gs.phase) {
-        case "penguinPlacement":
-            return new Placement(gs)
-        case "playing":
-            const gn = createGameNode(gs)
-            return new Moving(gn)
-        case "over":
-            return new Over(gs)
-    }
-}
-
-class Placement implements VerifiableGameState {
+export class Placement implements VerifiableGameState {
     private readonly state: GameState
+    private numPenguins: number
 
-    constructor(gs: GameState) {
+    constructor(gs: GameState, numPenguins: number) {
         this.state = gs
+        this.numPenguins = numPenguins
     }
 
     isOver() {
@@ -60,11 +53,11 @@ class Placement implements VerifiableGameState {
 
         try {
             const outcome = action.apply(this.state)
-            if (outcome.phase === "penguinPlacement") {
-                return new Placement(outcome)
-            } else if (outcome.phase === "playing") {
+            if (canAdvanceToPlaying(outcome, this.numPenguins)) {
                 const gn = createGameNode(outcome)
                 return new Moving(gn)
+            } else {
+                return new Placement(outcome, this.numPenguins)
             }
         } catch {}
         return false
@@ -77,9 +70,17 @@ class Placement implements VerifiableGameState {
     isPlacement(): boolean {
         return true
     }
+    kickPlayer(playerId: string): VerifiableGameState {
+        const newGs = eliminatePlayer(this.state, playerId)
+        if (canAdvanceToPlaying(newGs, this.numPenguins)) {
+            return new Moving(createGameNode(newGs))
+        } else {
+            return new Placement(newGs, this.numPenguins)
+        }
+    }
 }
 
-class Moving implements VerifiableGameState {
+export class Moving implements VerifiableGameState {
     private readonly node: GameNode
 
     constructor(gameNode: GameNode) {
@@ -97,12 +98,11 @@ class Moving implements VerifiableGameState {
     useAction(action: Action): VerifiableGameState | false {
         try {
             const outcome = completeAction(this.node, action)
-            const outcomePhase = outcome.gs.phase
-
-            if (outcomePhase === "playing") {
-                return new Moving(outcome)
-            } else if (outcomePhase === "over") {
-                return new Over(outcome.gs)
+            const outcomeGs = outcome.gs
+            if (canAdvanceToOver(outcomeGs)) {
+                new Over(outcomeGs)
+            } else {
+                new Moving(outcome)
             }
         } catch {}
 
@@ -116,9 +116,18 @@ class Moving implements VerifiableGameState {
     isPlacement(): boolean {
         return false
     }
+
+    kickPlayer(playerId: string): VerifiableGameState {
+        const newGs = eliminatePlayer(this.getGameState(), playerId)
+        if (canAdvanceToOver(newGs)) {
+            return new Over(newGs)
+        } else {
+            return new Moving(createGameNode(newGs))
+        }
+    }
 }
 
-class Over implements VerifiableGameState {
+export class Over implements VerifiableGameState {
     private readonly state: GameState
 
     constructor(gs: GameState) {
@@ -144,6 +153,11 @@ class Over implements VerifiableGameState {
     isMove(): boolean {
         return false
     }
+
+    kickPlayer(playerId: string): VerifiableGameState {
+        const newGs = eliminatePlayer(this.state, playerId)
+        return new Over(newGs)
+    }
 }
 
-export { createVerifiableGameState, VerifiableGameState }
+export { VerifiableGameState }

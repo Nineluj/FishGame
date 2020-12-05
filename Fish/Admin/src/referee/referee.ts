@@ -8,18 +8,16 @@ import { Action } from "../../../Common/src/models/action"
 import {
     createGameState,
     createGameStateCustomBoard,
-    eliminatePlayer,
     getPlayerWhoseTurnItIs,
+    PENGUIN_PLACEMENTS_NEEDED_PER_PLAYER,
 } from "../../../Common/src/models/gameState/gameState"
 import { PlayerInterface } from "../../../Common/player-interface"
 import { Board } from "../../../Common/src/models/board"
 import { createPlayer } from "../../../Common/src/models/testHelpers/testHelpers"
 import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalArgumentError"
 import { callAsyncFunctionSafely, didFailAsync } from "../utils/communications"
-import {
-    createVerifiableGameState,
-    VerifiableGameState,
-} from "./verifiedGameState"
+import { Over, Placement, VerifiableGameState } from "./verifiedGameState"
+import { timeStamp } from "console"
 
 // The order in which the referee will assign the colors to the players
 export const colorOrder: Array<PenguinColor> = [
@@ -96,8 +94,9 @@ class Referee {
         const initialState = board
             ? createGameStateCustomBoard(gamePlayers, board)
             : createGameState(gamePlayers)
-
-        this.game = createVerifiableGameState(initialState)
+        const numPenguins =
+            PENGUIN_PLACEMENTS_NEEDED_PER_PLAYER - gamePlayers.length
+        this.game = new Placement(initialState, numPenguins)
         this.eliminatedPlayerIds = new Set()
         this.players = new Map()
 
@@ -318,8 +317,7 @@ class Referee {
         reason: string = "",
         notify: boolean = false
     ): Promise<GameState> {
-        const newGs = eliminatePlayer(this.game.getGameState(), playerId)
-        this.game = createVerifiableGameState(newGs)
+        this.game = this.game.kickPlayer(playerId)
 
         this.eliminatedPlayerIds.add(playerId)
         if (notify) {
@@ -361,12 +359,7 @@ class Referee {
         const maybeNewGame = this.game.useAction(playerAction as Action)
 
         if (!maybeNewGame) {
-            const newGameState = await this.kickPlayer(
-                playerId,
-                "bad action",
-                true
-            )
-            this.game = createVerifiableGameState(newGameState)
+            return this.kickPlayer(playerId, "bad action", true)
         } else {
             this.game = maybeNewGame
         }
