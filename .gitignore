@@ -9,3 +9,5 @@ playground/
 */**fest**
 ignore/
 **.DS_Store
+**/.nyc_output
+**/fest/

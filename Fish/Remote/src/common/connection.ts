@@ -1,9 +1,10 @@
 import net from "net"
 import { Client } from "../proxy/client-proxy"
 import { debugPrint } from "../../../../10/Other/util"
+import { TimeoutError } from "../../../Common/src/models/errors/timeoutError"
 const Parser = require("jsonparse")
 
-const PLAYER_CALL_TIMEOUT_MS = 3000
+export const PLAYER_CALL_TIMEOUT_MS = 3000
 
 /**
  * Represents a TCP connection wrapper which can send and receive data using JSON.
@@ -15,6 +16,7 @@ class Connection {
 
     constructor(tcpConnection: net.Socket) {
         this.tcpConnection = tcpConnection
+        this.tcpConnection.setEncoding("ascii")
         this.jsonParser = new Parser()
     }
 
@@ -36,10 +38,9 @@ class Connection {
             this.tcpConnection.on("timeout", () => {
                 debugPrint("Client took to long to respond, giving up")
                 cleanup()
-                reject()
+                reject(new TimeoutError("Client took too long to respond"))
             })
 
-            const self = this.tcpConnection
             this.tcpConnection.on("data", (body) => {
                 this.jsonParser.onValue = function (val: any) {
                     if (this.stack.length == 0) {
@@ -53,17 +54,6 @@ class Connection {
             this.tcpConnection.write(json)
             this.tcpConnection.setTimeout(PLAYER_CALL_TIMEOUT_MS)
         })
-    }
-
-    /**
-     * Method to send a type data through this connection,
-     * does not expect a response.
-     *
-     * @param data JSON data to send
-     */
-    sendNoResponse(data: any) {
-        const json = JSON.stringify(data)
-        this.tcpConnection.write(json)
     }
 
     close(): void {
@@ -83,6 +73,7 @@ class CallbackConnection {
 
     constructor(tcpConnection: net.Socket, client: Client) {
         this.tcpConnection = tcpConnection
+        this.tcpConnection.setEncoding("ascii")
         this.jsonParser = new Parser()
 
         const self = this
@@ -100,6 +91,7 @@ class CallbackConnection {
         this.tcpConnection.on("data", (body) => {
             this.jsonParser.write(body)
         })
+
         this.tcpConnection.on("close", () => {
             debugPrint("Connection was unexpectedly closed")
         })

@@ -1,3 +1,8 @@
+/*
+File containing schemas for the JSON messages that get sent between
+the client and servers
+*/
+
 const messageSchema = {
     $schema: "http://json-schema.org/draft-07/schema#",
     additionalItems: {

@@ -31,7 +31,7 @@ import { Client } from "./client-proxy"
 /**
  * Test player used to test client receive and dispatch methods.
  */
-class TestPlayer implements PlayerInterface {
+export class TestPlayer implements PlayerInterface {
     output: Writeable
 
     constructor(writable: Writeable) {
