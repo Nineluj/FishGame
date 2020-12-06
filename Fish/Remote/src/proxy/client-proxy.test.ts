@@ -155,7 +155,7 @@ describe("Client", () => {
         })
         it("bad message format", async () => {
             const message = ["start", true]
-            await expect(client.receive(message))
+            await expect(client.receive(message)).to.be.rejected
         })
     })
 })
