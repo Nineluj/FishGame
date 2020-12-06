@@ -157,5 +157,13 @@ describe("Client", () => {
             const message = ["start", true]
             await expect(client.receive(message)).to.be.rejected
         })
+        it("bad start message format", async () => {
+            const message = ["start", ["a string"]]
+            await expect(client.receive(message)).to.be.rejected
+        })
+        it("bad take turn message format", async () => {
+            const message = ["take-turn", [extState, [[0, 0]]]]
+            await expect(client.receive(message)).to.be.rejected
+        })
     })
 })
