@@ -66,6 +66,14 @@ class Client {
         }
     }
 
+    /**
+     * All handler methods below verify the message schema and format.
+     * If messages pass verification, they are deserialized then passed
+     * to the remote player in this connection.
+     *
+     * @param data  The data that was received.
+     */
+
     async handleStartMessage(data: any): Promise<VoidResponse> {
         assert(verify(data, startMessageSchema))
         const startMessage = data as StartMessage
@@ -130,6 +138,10 @@ class Client {
         return "void"
     }
 
+    /**
+     * Is the tournament over? If so, this method is used by the client's
+     * connection to decide to close the TCP connection.
+     **/
     gameIsOver(): boolean {
         return this.isOver
     }

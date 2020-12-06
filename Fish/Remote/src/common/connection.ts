@@ -20,6 +20,7 @@ class Connection {
 
     /**
      * Method to send a type of Message, and expect a response from client.
+     * Listens for player response within the PLAYER_CALL_TIMEOUT_MS
      *
      * @param method Message sent from server to client
      * @returns the client response

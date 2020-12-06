@@ -29,6 +29,15 @@ import {
 } from "../../../Common/src/adapters/types"
 import { debugPrint } from "../../../../10/Other/util"
 
+/**
+ * Represents a player proxy which enables remote players to play
+ * games of Fish over TCP connection. Implements the PlayerInterface
+ * to enable tournament manager and referee to communicate.
+ *
+ * Constructor takes an instance of Connection which enables Messages
+ * to be sent over to remote players, and to listen to responses from player.
+ * Serializes and deserializes messages going to and coming from remote player.
+ */
 class PlayerProxy implements PlayerInterface {
     private connection: Connection
 
