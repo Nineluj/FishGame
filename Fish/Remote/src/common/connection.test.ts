@@ -8,12 +8,10 @@ import Mitm from "mitm"
 import { expect } from "chai"
 import { Client } from "../proxy/client-proxy"
 import { TestPlayer } from "../proxy/client-proxy.test"
-import { Writeable } from "../../../Player/src/player/player"
-import { PlayerInterface } from "../../../Common/player-interface"
 
 let mitm = Mitm()
 
-const setupMitm = (delay: number, onClose?: () => void) => {
+export const setupMitm = (delay: number, onClose?: () => void) => {
     mitm = Mitm()
     mitm.on("connection", (socket) => {
         socket.on("data", (data) => {
@@ -29,7 +27,7 @@ const setupMitm = (delay: number, onClose?: () => void) => {
     })
 }
 
-const delay = (t: number, v?: any): Promise<any> =>
+export const delay = (t: number, v?: any): Promise<any> =>
     new Promise(function (resolve) {
         setTimeout(resolve.bind(null, v), t)
     })
@@ -42,7 +40,7 @@ const setupMitmFast = () => {
     setupMitm(0)
 }
 
-const stopMitm = () => {
+export const stopMitm = () => {
     mitm.disable()
 }
 
