@@ -18,6 +18,9 @@ import { IllegalArgumentError } from "../../../Common/src/models/errors/illegalA
 import { callAsyncFunctionSafely, didFailAsync } from "../utils/communications"
 import { Over, Placement, VerifiableGameState } from "./verifiedGameState"
 import { timeStamp } from "console"
+import { debugPrint } from "../../../../10/Other/util"
+import { convertToOutputState } from "../../../Common/src/adapters/stateAdapter"
+import { convertToOutputLocation } from "../../../Common/src/adapters/boardAdapter"
 
 // The order in which the referee will assign the colors to the players
 export const colorOrder: Array<PenguinColor> = [
@@ -281,10 +284,6 @@ class Referee {
      */
     async playTurn() {
         const nextToPlay = getPlayerWhoseTurnItIs(this.game.getGameState())
-
-        if (nextToPlay === undefined) {
-            let a = 5
-        }
         const newGameState = await this.getPlayerActionOrEliminate(
             nextToPlay.id
         )
@@ -349,13 +348,37 @@ class Referee {
         )
 
         if (await didFailAsync(playerAction)) {
+            // debugPrint(
+            //     JSON.stringify([
+            //         "Bad Move",
+            //         playerId,
+            //         this.game.isMove(),
+            //         this.game.getGameState().players,
+            //         convertToOutputState(this.game.getGameState()),
+            //         // this.game,
+            //         playerAction,
+            //     ])
+            // )
             return await this.kickPlayer(playerId)
         }
 
         const maybeNewGame = this.game.useAction(playerAction as Action)
 
         if (!maybeNewGame) {
-            return this.kickPlayer(playerId, "bad action", true)
+            // const pa = playerAction as Action
+            // const or = pa.data.origin
+            // const dst = pa.data.dst
+            // debugPrint(
+            //     JSON.stringify([
+            //         "Illegal Move",
+            //         convertToOutputState(this.game.getGameState()),
+            //         convertToOutputLocation(or.x, or.y),
+            //         convertToOutputLocation(dst.x, dst.y),
+            //         playerAction,
+            //     ])
+            // )
+            let a = 5
+            return await this.kickPlayer(playerId, "bad action", true)
         } else {
             this.game = maybeNewGame
         }

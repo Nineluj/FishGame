@@ -120,7 +120,7 @@ export class Moving implements VerifiableGameState {
     }
 
     kickPlayer(playerId: string): VerifiableGameState {
-        const newGs = eliminatePlayer(this.getGameState(), playerId)
+        const newGs = eliminatePlayer(this.node.gs, playerId)
         if (canAdvanceToOver(newGs)) {
             return new Over(newGs)
         } else {

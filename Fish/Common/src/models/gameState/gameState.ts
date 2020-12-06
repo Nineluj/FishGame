@@ -386,12 +386,12 @@ export const canAdvanceToOver = (gs: GameState): boolean => {
  */
 const eliminatePlayer = (gameState: GameState, playerId: string): GameState => {
     const newGs = { ...gameState }
-    const newBoard = [...gameState.board]
+    let newBoard = [...gameState.board]
 
     // mark the player's tiles as unoccupied
     getPlayerById(gameState, playerId).penguins.forEach((point) => {
         const oldTile = boardGet(newBoard, point) as Tile
-        boardSet(newBoard, point, makeUnoccupied(oldTile))
+        newBoard = boardSet(newBoard, point, makeUnoccupied(oldTile))
     })
 
     newGs.board = newBoard

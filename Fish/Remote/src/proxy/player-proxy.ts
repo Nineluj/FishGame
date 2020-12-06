@@ -27,6 +27,7 @@ import {
     externalActionFromAny,
     externalPositionFromAny,
 } from "../../../Common/src/adapters/types"
+import { debugPrint } from "../../../../10/Other/util"
 
 class PlayerProxy implements PlayerInterface {
     private connection: Connection
@@ -54,6 +55,7 @@ class PlayerProxy implements PlayerInterface {
      */
     private static assertVoid(val: any) {
         if (val !== "void") {
+            debugPrint("Client returned non-void value")
             throw new IllegalResponseError(
                 `expecting start to return void, got ${val}`
             )
@@ -76,6 +78,7 @@ class PlayerProxy implements PlayerInterface {
     }
 
     async notifyBanned(reason: string) {
+        debugPrint(`Player was banned for reason (${reason})`)
         this.connection.close()
     }
 

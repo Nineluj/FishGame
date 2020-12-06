@@ -6,7 +6,7 @@ import {
     SocketWithName,
 } from "./server"
 
-const INITIAL_WAITING_PERIOD_MS = 30000 // 30s
+const INITIAL_WAITING_PERIOD_MS = 8000 // 30s TODO: change this back
 const PLAYER_NAME_WAIT_MS = 10000
 const ROUNDS_TO_RUN = 2
 

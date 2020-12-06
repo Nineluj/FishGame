@@ -1,8 +1,9 @@
 import net from "net"
 import { Client } from "../proxy/client-proxy"
+import { debugPrint } from "../../../../10/Other/util"
 const Parser = require("jsonparse")
 
-const PLAYER_CALL_TIMEOUT_MS = 1000
+const PLAYER_CALL_TIMEOUT_MS = 3000
 
 /**
  * Represents a TCP connection wrapper which can send and receive data using JSON.
@@ -32,6 +33,7 @@ class Connection {
             const json = JSON.stringify(method)
 
             this.tcpConnection.on("timeout", () => {
+                debugPrint("Client took to long to respond, giving up")
                 cleanup()
                 reject()
             })
@@ -97,6 +99,9 @@ class CallbackConnection {
         this.tcpConnection.on("data", (body) => {
             this.jsonParser.write(body)
         })
+        this.tcpConnection.on("close", () => {
+            debugPrint("Connection was unexpectedly closed")
+        })
     }
 
     /**
@@ -113,6 +118,7 @@ class CallbackConnection {
      * Close this TCP connection.
      */
     close(): void {
+        debugPrint("Closing connection and stopping")
         this.tcpConnection.destroy()
         process.exit(0)
     }
