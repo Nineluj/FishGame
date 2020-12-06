@@ -74,6 +74,8 @@ export class Placement implements VerifiableGameState {
         const newGs = eliminatePlayer(this.state, playerId)
         if (canAdvanceToPlaying(newGs, this.numPenguins)) {
             return new Moving(createGameNode(newGs))
+        } else if (canAdvanceToOver(newGs)) {
+            return new Over(newGs)
         } else {
             return new Placement(newGs, this.numPenguins)
         }
@@ -100,9 +102,9 @@ export class Moving implements VerifiableGameState {
             const outcome = completeAction(this.node, action)
             const outcomeGs = outcome.gs
             if (canAdvanceToOver(outcomeGs)) {
-                new Over(outcomeGs)
+                return new Over(outcomeGs)
             } else {
-                new Moving(outcome)
+                return new Moving(outcome)
             }
         } catch {}
 
@@ -118,7 +120,7 @@ export class Moving implements VerifiableGameState {
     }
 
     kickPlayer(playerId: string): VerifiableGameState {
-        const newGs = eliminatePlayer(this.getGameState(), playerId)
+        const newGs = eliminatePlayer(this.node.gs, playerId)
         if (canAdvanceToOver(newGs)) {
             return new Over(newGs)
         } else {

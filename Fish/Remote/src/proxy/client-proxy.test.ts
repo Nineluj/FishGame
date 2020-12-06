@@ -1,12 +1,30 @@
-import { expect } from "chai"
-import { Message, VoidResponse } from "src/common/types"
+const chai = require("chai")
+const chaiAsPromised = require("chai-as-promised")
+const expect = chai.expect
+chai.use(chaiAsPromised)
+import {
+    EndMessage,
+    Message,
+    PlayingAsMessage,
+    PlayingWithMessage,
+    SetupMessage,
+    StartMessage,
+    TakeTurnMessage,
+} from "src/common/types"
 import { isDeepStrictEqual } from "util"
 import { PlayerInterface } from "../../../Common/player-interface"
-import { deserializeState } from "../../../Common/src/adapters/stateAdapter"
+import {
+    ExternalPlayer,
+    ExternalState,
+} from "../../../Common/src/adapters/types"
 import { Action } from "../../../Common/src/models/action"
-import { createIdentityAction } from "../../../Common/src/models/action/action"
+import {
+    createMoveAction,
+    createPlacePenguinAction,
+} from "../../../Common/src/models/action/action"
 import { GameState } from "../../../Common/src/models/gameState"
 import { PenguinColor } from "../../../Common/src/models/player"
+import { Point } from "../../../Common/src/models/point"
 import { Writeable } from "../../../Player/src/player/player"
 import { Client } from "./client-proxy"
 
@@ -29,16 +47,16 @@ class TestPlayer implements PlayerInterface {
     async notifyBanned(reason: string): Promise<void> {
         throw new Error("Method not implemented.")
     }
-    // async getNextAction(gs: GameState): Promise<Action> {
-    //     this.output.write(gs.phase)
-    //     return createIdentityAction()
-    // }
-    getNextMove(gs: GameState): Promise<Action> {
-        throw new Error("Method not implemented.")
+    async getNextMove(gs: GameState): Promise<Action> {
+        const origin: Point = { x: 0, y: 0 }
+        const dest: Point = { x: 1, y: 0 }
+        return createMoveAction("id", origin, dest)
     }
-    getNextPlacement(gs: GameState): Promise<Action> {
-        throw new Error("Method not implemented.")
+    async getNextPlacement(gs: GameState): Promise<Action> {
+        const origin: Point = { x: 0, y: 0 }
+        return createPlacePenguinAction("id", origin)
     }
+
     async notifyTournamentIsStarting(): Promise<void> {
         this.output.write("start")
     }
@@ -56,6 +74,21 @@ describe("Client", () => {
     let client: Client
     let playerData: string
 
+    // TESTING UTILS FOR MESSAGES
+    const extPlayer: ExternalPlayer = {
+        color: "white",
+        score: 0,
+        places: [],
+    }
+    const boardArr: Array<Array<number>> = [
+        [2, 2, 2, 2],
+        [2, 2, 2, 2],
+    ]
+    const extState: ExternalState = {
+        players: [extPlayer, extPlayer, extPlayer],
+        board: boardArr,
+    }
+
     beforeEach(function () {
         playerData = ""
         const customWriter = {
@@ -66,10 +99,12 @@ describe("Client", () => {
         remotePlayer = new TestPlayer(customWriter)
         client = new Client(remotePlayer)
     })
+
+    // SUCCESSFUL RECEIVE MESSAGES --------------------------------------------
     describe("#successfully receive messages", () => {
         it("_start_ message successfully received", async () => {
             const startStr = "start"
-            const message: Message = [startStr, [true]]
+            const message: StartMessage = [startStr, [true]]
             const response = await client.receive(message)
             expect(playerData).to.be.equal(startStr)
             expectVoid(response)
@@ -77,7 +112,7 @@ describe("Client", () => {
         it("_playing-as_ message successfully received", async () => {
             const playingStr = "playing-as"
             const color = "red"
-            const message: Message = [playingStr, [color]]
+            const message: PlayingAsMessage = [playingStr, [color]]
             const response = await client.receive(message)
 
             expect(playerData).to.be.equal(`${playingStr} ${color}`)
@@ -86,27 +121,41 @@ describe("Client", () => {
         it("_playing-with_ message successfully received", async () => {
             const playingStr = "playing-with"
             const color = "white"
-            const message: Message = [playingStr, [[color]]]
+            const message: PlayingWithMessage = [playingStr, [[color]]]
             const response = await client.receive(message)
-
             expect(playerData).to.be.equal(`${playingStr} ${color}`)
             expectVoid(response)
         })
-        // it("_setup_ message successfully received", () => {
-        //     const message: Message = ["setup", []]
-        //     client.receive(message)
-        // })
-        // it("_take-turn_ message successfully received", () => {
-        //     const message: Message = ["take-turn", []]
-        //     client.receive(message)
-        // })
+        it("_setup_ message successfully received", async () => {
+            const message: SetupMessage = ["setup", [extState]]
+            const response = await client.receive(message)
+            isDeepStrictEqual(response, [0, 0])
+        })
+        it("_take-turn_ message successfully received", async () => {
+            const message: TakeTurnMessage = ["take-turn", [extState, []]]
+            const response = await client.receive(message)
+            isDeepStrictEqual(response, [
+                [0, 0],
+                [1, 0],
+            ])
+        })
         it("_end_ message successfully received", async () => {
             const endStr = "end"
-            const message: Message = [endStr, [true]]
+            const message: EndMessage = [endStr, [true]]
             const response = await client.receive(message)
-
-            expect(playerData).to.be.equal(`end won: true`)
             expectVoid(response)
+        })
+    })
+    // FAILED RECEIVE MESSAGES ------------------------------------------------
+    describe("#failed to receive messages", () => {
+        it("non existent message type", async () => {
+            const badStr = "bad"
+            const message: Message = [badStr, []]
+            await expect(client.receive(message)).to.be.rejected
+        })
+        it("bad message format", async () => {
+            const message = ["start", true]
+            await expect(client.receive(message))
         })
     })
 })

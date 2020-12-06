@@ -9,7 +9,6 @@ import {
     actionsEqual,
 } from "../action/action"
 import { GameStateActionError } from "../errors/gameStateActionError"
-import { GamePhaseError } from "../errors/gamePhaseError"
 
 /*
  * GameNode represents a possible GameState, the action that led to it, and potential future moves
@@ -71,7 +70,6 @@ const getAllPossibleMovesForTurn = (gs: GameState): Array<GameNode> => {
         })
     })
 
-    // The player skips their turn
     const skipAction = createSkipTurnAction(currentPlayer.id)
     const resultingState = skipAction.apply(gs)
     futureStates.push({
@@ -85,16 +83,10 @@ const getAllPossibleMovesForTurn = (gs: GameState): Array<GameNode> => {
 
 /**
  * Creates a GameNode with the given starting state that can be used to find
- * the possible future states.
- * @param gs Starting gamestate
+ * the possible future states. Assumes the given GameState has penguins to move.
+ * @param gs Root gamestate
  */
 const createGameNode = (gs: GameState): GameNode => {
-    if (gs.phase === "penguinPlacement" || gs.phase === "over") {
-        throw new GamePhaseError(
-            "Cannot construct a game node for a game that hasn't begun or has already ended"
-        )
-    }
-
     return {
         action: createIdentityAction(),
         gs: gs,

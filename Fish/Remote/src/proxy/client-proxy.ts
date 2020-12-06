@@ -93,10 +93,7 @@ class Client {
     async handleSetupMessage(data: any): Promise<ExternalPosition> {
         assert(verify(data, setupMessageSchema))
         const setupMessage = data as SetupMessage
-        const state: GameState = deserializeState(
-            setupMessage[1][0],
-            "penguinPlacement"
-        )
+        const state: GameState = deserializeState(setupMessage[1][0])
         const position = (await this.playerInterface.getNextPlacement(state))
             .data.dst
         return convertToOutputLocation(position.x, position.y)
@@ -104,18 +101,15 @@ class Client {
 
     async handleTakeTurnMessage(data: any): Promise<ExternalAction> {
         assert(verify(data, takeTurnMessageSchema))
+
+        debugPrint("Responding to take turn")
         const takeTurnMessage = data as TakeTurnMessage
-        const state: GameState = deserializeState(
-            takeTurnMessage[1][0],
-            "playing"
-        )
+        const state: GameState = deserializeState(takeTurnMessage[1][0])
 
         const action = await this.playerInterface.getNextMove(state)
 
         if (action.actionType === "skip") {
             return false
-        } else if (action.actionType !== "move") {
-            debugPrint(JSON.stringify([action, state], null, 2))
         }
 
         const origin = action.data.origin

@@ -89,6 +89,7 @@ const makeServer = (port: number): net.Server => {
 }
 
 const printTournamentResults = (results: ServerTournamentResults) => {
+    debugPrint(JSON.stringify(results))
     console.log(
         JSON.stringify([results.winnerIds.length, results.failureIds.length])
     )

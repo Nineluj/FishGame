@@ -93,8 +93,6 @@ describe("Game State", () => {
 
         it("can be created with a valid correctly sized array of players", () => {
             const actual = createGameState([player2, player1, player3])
-
-            expect(actual.phase).to.equal("penguinPlacement")
             expect(actual.players.length).to.equal(3)
             expect(actual.players[0].id).to.equal("bar")
         })
@@ -155,7 +153,10 @@ describe("Game State", () => {
         it("can't move penguin in placePenguin phase", () => {
             expect(() => {
                 movePenguin(gs, "p1", { x: 0, y: 0 }, { x: 1, y: 0 })
-            }).to.throw(GameStateActionError, "expected playing phase")
+            }).to.throw(
+                InvalidMoveError,
+                "player must have a penguin at the origin position to make a move"
+            )
         })
 
         /* Tests for the transition from penguinPlacement and playing */
@@ -175,7 +176,6 @@ describe("Game State", () => {
                 ],
                 ["p1", "p2", "p3"]
             )
-            expect(placedAllPenguins.phase).to.equal("playing")
         })
 
         it("prevents too many penguins from being placed", () => {
@@ -196,7 +196,10 @@ describe("Game State", () => {
                     ],
                     ["p1", "p2", "p3"]
                 )
-            }).to.throw(GameStateActionError, "expected penguinPlacement phase")
+            }).to.throw(
+                GameStateActionError,
+                "cannot place more than 3 penguins per player"
+            )
         })
     })
 
@@ -251,10 +254,6 @@ describe("Game State", () => {
     //     describe(">eliminating a player when they should be the one last to place a penguin", () => {
     //         gs = getPlayingMinusOne()
     //         const newGs = eliminatePlayer(gs, "p3")
-    //
-    //         it("changes the game phase", () => {
-    //             expect(newGs.phase).to.equal("playing")
-    //         })
     //
     //         it("the original positions of the player's penguins are marked as unoccupied", () => {
     //             getPlayerById(gs, "p3").penguins.forEach((point) => {
@@ -387,14 +386,6 @@ describe("Game State", () => {
             )
         })
 
-        it("allows players to play until the game is over", () => {
-            // this is a helper that plays through a game, by placing all penguins and making moves, until the game is over
-            // this tests the canAdvanceToOver
-            const cState = getOverState()
-
-            expect(cState.phase).to.equal("over")
-        })
-
         it("stays in playing phase until the game is over", () => {
             let cState = getPlayingState()
             let moves = [
@@ -409,8 +400,6 @@ describe("Game State", () => {
             })
 
             cState = skipTurn(cState, "p3")
-
-            expect(cState.phase).to.be.equal("playing")
         })
     })
 })

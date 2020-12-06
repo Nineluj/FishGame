@@ -275,7 +275,6 @@ describe("Referee", () => {
                         { fish: 1, occupied: false },
                     ],
                 ],
-                phase: "penguinPlacement",
                 players: [
                     { id: "red", penguinColor: "red", penguins: [], score: 0 },
                     {
@@ -296,68 +295,6 @@ describe("Referee", () => {
             expect(isDeepStrictEqual(ref.getGameState(), expected)).to.be.true
         })
     })
-
-    describe("#getGamePhase", () => {
-        it("Returns correct initial gamePhase on a new game", () => {
-            const ref = new Referee(allPlayers)
-            expect(ref.getGamePhase()).to.equal("penguinPlacement")
-        })
-
-        it("Returns correct gamePhase on a game in the playing phase", async () => {
-            const ref = new Referee(allPlayers, getPlacementState().board)
-            await ref.runPlacementPhase()
-            expect(ref.getGamePhase()).to.equal("playing")
-        })
-
-        it("Returns correct gamePhase on a game in the over phase", async () => {
-            const ref = new Referee(allPlayers, getPlacementState().board)
-            await ref.runGamePlay()
-            expect(ref.getGamePhase()).to.equal("over")
-        })
-    })
-
-    // describe("#getReplay", () => {
-    //     it("Returns correct first part of a replay", async () => {
-    //         const ref = new Referee(allPlayers, getPlacementState().board)
-    //         const initialState = ref.getGameState()
-    //         const placementStrategy = getPenguinPlacementStrategy(
-    //             getSkipTurnStrategy()
-    //         )
-    //
-    //         await ref.runGamePlay()
-    //
-    //         const firstActionFromReplay = ref.getReplay()[0]
-    //         const actionFromStrategy = placementStrategy.getNextAction(
-    //             initialState
-    //         )
-    //
-    //         expect(actionsEqual(firstActionFromReplay, actionFromStrategy)).to
-    //             .be.true
-    //     })
-    //
-    //     it("Returns correct second part of a replay", async () => {
-    //         const ref = new Referee(allPlayers, getPlacementState().board)
-    //         await ref.runPlacementPhase()
-    //
-    //         const actionsCount = ref.getReplay().length
-    //         const startOfPlayingGameState = ref.getGameState()
-    //
-    //         const playingStrategy = getPenguinMaxMinMoveStrategy(
-    //             DEFAULT_MOVES_AHEAD,
-    //             getSkipTurnStrategy()
-    //         )
-    //
-    //         await ref.runGameMovementPhase()
-    //
-    //         const firstMoveActionFromReplay = ref.getReplay()[actionsCount]
-    //         const actionFromStrategy = playingStrategy.getNextAction(
-    //             startOfPlayingGameState
-    //         )
-    //
-    //         expect(actionsEqual(firstMoveActionFromReplay, actionFromStrategy))
-    //             .to.be.true
-    //     })
-    // })
 
     describe("#getPlayerStatuses", () => {
         it("Returns both unbanned and banned players correctly", async () => {
@@ -383,7 +320,6 @@ describe("Referee", () => {
             const ref = new Referee(allPlayers, getPlacementState().board)
 
             await ref.runGamePlay()
-            expect(ref.getGamePhase()).to.be.equal("over")
             expect(
                 ref.getPlayerStatuses().eliminatedPlayerIds.length
             ).to.be.equal(0)

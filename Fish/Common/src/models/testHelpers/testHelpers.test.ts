@@ -11,23 +11,6 @@ import { boardGet, boardHas, getNumberOfTilesOnBoard } from "../board"
 import { Tile } from "../tile"
 
 describe("Test helpers", () => {
-    describe("#getPlacementState", () => {
-        it("has the correct phase", () => {
-            expect(getPlacementState().phase).to.equal("penguinPlacement")
-        })
-    })
-    describe("#getPlayingState", () => {
-        it("has the correct phase", () => {
-            expect(getPlayingState().phase).to.equal("playing")
-        })
-    })
-
-    describe("#getOverState", () => {
-        it("has the correct phase", () => {
-            expect(getOverState().phase).to.equal("over")
-        })
-    })
-
     describe("#placeMultiple", () => {
         it("does nothing with empty list", () => {
             expect(

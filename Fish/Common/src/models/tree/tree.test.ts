@@ -1,37 +1,36 @@
 import { expect } from "chai"
 import { createGameNode, completeAction, applyToAllFutureStates } from "./tree"
-import { createGameState, GameState } from "../gameState/gameState"
+import { GameState } from "../gameState/gameState"
 import { getPlayingState } from "../testHelpers"
-import { GamePhaseError } from "../errors/gamePhaseError"
-import { createPlayer, getOverState } from "../testHelpers/testHelpers"
 import { isDeepStrictEqual } from "util"
 import { GameStateActionError } from "../errors/gameStateActionError"
 import { createMoveAction } from "../action/action"
-import { InvalidMoveError } from "../errors/invalidMoveError"
 
 describe("Game Tree", () => {
     describe("#creation", () => {
-        it("cannot be created with a game that has not started yet", () => {
-            expect(() => {
-                createGameNode(
-                    createGameState([
-                        createPlayer("red", "foo"),
-                        createPlayer("black", "bar"),
-                        createPlayer("brown", "baz"),
-                    ])
-                )
-            }).to.throw(
-                GamePhaseError,
-                "Cannot construct a game node for a game that hasn't begun or has already ended"
-            )
-        })
+        // TODO: test not able to create GameNode when game is still in starting phase
+        // or it i has ended
+        // it("cannot be created with a game that has not started yet", () => {
+        //     expect(() => {
+        //         createGameNode(
+        //             createGameState([
+        //                 createPlayer("red", "foo"),
+        //                 createPlayer("black", "bar"),
+        //                 createPlayer("brown", "baz"),
+        //             ])
+        //         )
+        //     }).to.throw(
+        //         GamePhaseError,
+        //         "Cannot construct a game node for a game that hasn't begun or has already ended"
+        //     )
+        // })
 
-        it("cannot be created with a game that has already ended", () => {
-            const gs = getOverState()
-            expect(() => {
-                createGameNode(gs)
-            }).to.throw(GamePhaseError, "ended")
-        })
+        // it("cannot be created with a game that has already ended", () => {
+        //     const gs = getOverState()
+        //     expect(() => {
+        //         createGameNode(gs)
+        //     }).to.throw(GamePhaseError, "ended")
+        // })
 
         it("can be created for a game that is in the playing phase", () => {
             const gameNode = createGameNode(getPlayingState())
@@ -67,7 +66,6 @@ describe("Game Tree", () => {
                             { fish: 2, occupied: false },
                         ],
                     ],
-                    phase: "playing",
                     players: [
                         {
                             id: "p1",
@@ -167,7 +165,6 @@ describe("Game Tree", () => {
                         { fish: 2, occupied: false },
                     ],
                 ],
-                phase: "playing",
                 players: [
                     {
                         id: "p2",

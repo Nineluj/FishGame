@@ -163,6 +163,7 @@ type maximiniResult = { scoreAchieved: number; moves: Array<Action> }
 const lessThan = (a: number, b: number): boolean => a < b
 const greaterThan = (a: number, b: number): boolean => a > b
 
+// TODO: fix this using test harness 6
 /**
  * Uses the minimax algorithm as described here: https://en.wikipedia.org/wiki/Minimax#Pseudocode
  * In which the player chooses their maximum score that they can achieve given that all the other players
@@ -178,9 +179,9 @@ const miniMax = (
     maximizingPlayerId: string
 ): maximiniResult => {
     let player = getPlayerWhoseTurnItIs(node.gs)
-    const isMaximizing = player.id === maximizingPlayerId
+    const futures = node.children()
 
-    if (depth === -1 || node.gs.phase !== "playing") {
+    if (depth === -1) {
         return {
             scoreAchieved: node.gs.players.filter(
                 (p) => p.id === maximizingPlayerId
@@ -189,6 +190,7 @@ const miniMax = (
         }
     }
 
+    const isMaximizing = player.id === maximizingPlayerId
     const compareFunc = isMaximizing ? greaterThan : lessThan
 
     let best: maximiniResult = {
@@ -198,7 +200,7 @@ const miniMax = (
         moves: [],
     }
 
-    for (let future of node.children()) {
+    for (let future of futures) {
         const subCall = miniMax(
             future,
             isMaximizing ? depth - 1 : depth,
@@ -222,10 +224,6 @@ const getPenguinMaxMinMoveStrategy = (
     fallbackStrategy: Strategy
 ): Strategy => ({
     getNextAction: (gs: GameState): Action => {
-        if (gs.phase === "over") {
-            return fallbackStrategy.getNextAction(gs)
-        }
-
         const root = createGameNode(gs)
         let player = getPlayerWhoseTurnItIs(gs)
 

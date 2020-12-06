@@ -43,23 +43,12 @@ game is over.
 It is the referee's responsibility to skip a player's turn if they cannot play.
  */
 
-// A GamePhase represents the stage of the game.
-// - penguinPlacement when players are placing their penguin on the board
-// - playing when the players are moving penguins
-// - over when no player can move a penguin
-export type GamePhase = "penguinPlacement" | "playing" | "over"
-
 /**
  * Represents the state necessary for an entire game of Fish
  */
 interface GameState {
     /** The collection of tiles and holes that make up the board */
     board: Board
-    /**
-     * Current phase of the game, operations on game state may be prohibited based on phase
-     * This is always updated after a move. if the state is over, that means no penguins can be moved
-     */
-    phase: GamePhase
     /**
      * Players are players in the game in the order they will take turns.
      * After the state is updated (by a move, a skip, a placement), the order will rotate.
@@ -103,16 +92,8 @@ const createGameStateCustomBoard = (
             `Expecting 2-4 players to create a game, got ${players.length}`
         )
     }
-
-    const allPenguinsPlaced = players.every(
-        (player) =>
-            player.penguins.length ===
-            PENGUIN_PLACEMENTS_NEEDED_PER_PLAYER - players.length
-    )
-
     return {
         board: board,
-        phase: allPenguinsPlaced ? "playing" : "penguinPlacement",
         players: players,
     }
 }
@@ -176,15 +157,8 @@ const placePenguin = (
         },
     })
 
-    const newPhase: GamePhase = canAdvanceToPlaying(newGameState)
-        ? "playing"
-        : "penguinPlacement"
-
     // Use update to get a new version of the game state without mutating anything
-    return {
-        ...newGameState,
-        phase: newPhase,
-    }
+    return newGameState
 }
 
 const validatePenguinPlacement = (
@@ -192,13 +166,6 @@ const validatePenguinPlacement = (
     destination: Point,
     playerId: string
 ) => {
-    // check the phase
-    if (gameState.phase !== "penguinPlacement") {
-        throw new GameStateActionError(
-            `placePenguin expected penguinPlacement phase, got ${gameState.phase}`
-        )
-    }
-
     validatePlacementPosition(gameState.board, destination)
     validatePlayer(gameState, playerId)
 }
@@ -256,12 +223,6 @@ const movePenguin = (
     origin: Point,
     dst: Point
 ): GameState => {
-    if (gameState.phase !== "playing") {
-        throw new GameStateActionError(
-            `movePenguin expected playing phase, got ${gameState.phase}`
-        )
-    }
-
     const { validMove, errorMessage } = canMovePenguin(
         gameState,
         playerId,
@@ -308,17 +269,6 @@ const movePenguin = (
         },
     })
 
-    const newState: GamePhase = canAdvanceToOver(updatedGameState)
-        ? "over"
-        : "playing"
-
-    if (newState === "over") {
-        return {
-            ...updatedGameState,
-            phase: "over",
-        }
-    }
-
     // update and return the new game state
     return updatedGameState
 }
@@ -336,13 +286,6 @@ const canMovePenguin = (
     origin: Point,
     dst: Point
 ): { validMove: boolean; errorMessage?: string } => {
-    if (gameState.phase !== "playing") {
-        return {
-            validMove: false,
-            errorMessage: `canMovePenguin expected playing phase, got ${gameState.phase}`,
-        }
-    }
-
     // Check if it's an out of turn move
     const currentMovePlayer = getPlayerWhoseTurnItIs(gameState)
 
@@ -358,8 +301,7 @@ const canMovePenguin = (
     if (!containsPoint(currentMovePlayer.penguins, origin)) {
         return {
             validMove: false,
-            errorMessage: `player must have a penguin at the origin
-        position to make a move`,
+            errorMessage: `player must have a penguin at the origin position to make a move`,
         }
     }
 
@@ -390,27 +332,15 @@ const arrayRotate = (arr: Array<any>) => {
  * @param playerId Player whose turn will be skipped
  */
 const skipTurn = (gameState: GameState, playerId: string): GameState => {
-    if (gameState.phase !== "playing") {
-        throw new GameStateActionError(
-            `skipTurn expected playing phase, got ${gameState.phase}`
-        )
-    }
-
     const nextPlayer = getPlayerWhoseTurnItIs(gameState)
     if (playerId !== nextPlayer.id) {
         throw new IllegalArgumentError(
             `cannot skip turn of ${playerId}, expecting ${nextPlayer.id} to play`
         )
     }
-
-    const newState: GamePhase = canAdvanceToOver(gameState) ? "over" : "playing"
-
     return update(gameState, {
         players: {
             $apply: arrayRotate,
-        },
-        phase: {
-            $set: newState,
         },
     })
 }
@@ -435,8 +365,8 @@ export const canAdvanceToPlaying = (
  * Can the GameState's phase be advanced to the playing phase?
  */
 export const canAdvanceToOver = (gs: GameState): boolean => {
-    if (gs.phase !== "playing") {
-        return false
+    if (gs.players.length <= 1) {
+        return true
     }
 
     // verify that no player can make a move
@@ -456,24 +386,16 @@ export const canAdvanceToOver = (gs: GameState): boolean => {
  */
 const eliminatePlayer = (gameState: GameState, playerId: string): GameState => {
     const newGs = { ...gameState }
-    const newBoard = [...gameState.board]
+    let newBoard = [...gameState.board]
 
     // mark the player's tiles as unoccupied
     getPlayerById(gameState, playerId).penguins.forEach((point) => {
         const oldTile = boardGet(newBoard, point) as Tile
-        boardSet(newBoard, point, makeUnoccupied(oldTile))
+        newBoard = boardSet(newBoard, point, makeUnoccupied(oldTile))
     })
 
     newGs.board = newBoard
     newGs.players = gameState.players.filter((p) => p.id !== playerId)
-
-    if (canAdvanceToPlaying(newGs)) {
-        newGs.phase = "playing"
-    }
-
-    if (newGs.players.length <= 1 || canAdvanceToOver(newGs)) {
-        newGs.phase = "over"
-    }
 
     return newGs
 }

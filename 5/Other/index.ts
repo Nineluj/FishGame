@@ -79,9 +79,6 @@ const findSuitableMove = (
     gs: GameState,
     targetLocation: Point
 ): false | Action => {
-    if (gs.phase === "over") {
-        return false
-    }
     const neighbors = getNeighboringPoints(targetLocation)
     const tree = createGameNode(gs)
     const potentialMoves = tree.children()
@@ -122,7 +119,6 @@ const runTestCase = (input: MoveResponseQuery): Output => {
     const gs: GameState = {
         board,
         players,
-        phase: "playing",
     }
 
     const newGs = movePenguin(
