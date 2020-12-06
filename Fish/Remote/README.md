@@ -19,7 +19,7 @@ Remote/
 
 Note: All \*.test.ts files are test files for the respective components.
 
-### Changes
+### Changes outside of `Remote/`
 
 -   Added `notifyPlayingAs` to PlayerInterface
 -   Added `notifyPlayingWith` to PlayerInterface
