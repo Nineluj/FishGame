@@ -7,7 +7,7 @@ const panic = (message: string): void => {
     process.exit(-1)
 }
 
-const printDebug = !!process.env.DEBUG
+const printDebug = !!process.env.TENAHA_FISH_DEBUG
 let printPrefix = { prefix: ">" }
 
 const setDebugPrintPrefix = (prefix: string): void => {

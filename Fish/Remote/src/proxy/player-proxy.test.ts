@@ -41,7 +41,7 @@ class MockConnection extends Connection {
 
 describe("Player Proxy", () => {
     before(() => setupMitm(0))
-    after(stopMitm)
+    after(() => stopMitm())
 
     describe("#constructor", () => {
         it("Can be created with a connection", () => {
