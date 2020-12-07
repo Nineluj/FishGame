@@ -6,7 +6,7 @@ import { Client } from "../../Fish/Remote/src/proxy/client-proxy"
 import { AIPlayer } from "../../Fish/Player/src/player/player"
 
 const DEFAULT_IP_ADDRESS = "127.0.0.1"
-const DEPTH = 2
+const DEPTH = 1
 
 const consoleWriteable = {
     write(s: string): void {
