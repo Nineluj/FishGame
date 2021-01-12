@@ -28,9 +28,7 @@ export type SocketWithName = {
 }
 
 /**
- * Completes all the tasks for the server:
- * - Get players in a waiting room
- * -
+ * Completes all the tasks for the server
  */
 const run = async (port: number) => {
     const server = makeServer(port)

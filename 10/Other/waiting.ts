@@ -5,6 +5,7 @@ import {
     MIN_PLAYERS_NEEDED,
     SocketWithName,
 } from "./server"
+import { parseJsonFromStreamAsync } from "../../Fish/Common/src/adapters/parseJson"
 
 const INITIAL_WAITING_PERIOD_MS = 30000
 const PLAYER_NAME_WAIT_MS = 10000
@@ -62,30 +63,27 @@ const runWaitingRoom = async (
     return new Promise((resolve) => {
         const clients: Array<SocketWithName> = []
 
-        const connectionListener = server.on(
-            "connection",
-            (conn: net.Socket) => {
-                tryRegisterClient(conn)
-                    .then((sockAndName) => {
-                        debugPrint("New client registered")
-                        clients.push(sockAndName)
+        server.on("connection", (conn: net.Socket) => {
+            tryRegisterClient(conn)
+                .then((sockAndName) => {
+                    debugPrint("New client registered")
+                    clients.push(sockAndName)
 
-                        if (clients.length === waitForNumPlayers) {
-                            debugPrint(
-                                `Got enough players in waiting room. Closing it.`
-                            )
+                    if (clients.length === waitForNumPlayers) {
+                        debugPrint(
+                            `Got enough players in waiting room. Closing it.`
+                        )
 
-                            // Closing prevents new connections
-                            server.close()
-                            resolve(clients)
-                        }
-                    })
-                    .catch((err) => {
-                        debugPrint(`Didn't register client, reason: ${err}`)
-                        conn.destroy()
-                    })
-            }
-        )
+                        // Closing prevents new connections
+                        server.close()
+                        resolve(clients)
+                    }
+                })
+                .catch((err) => {
+                    debugPrint(`Didn't register client, reason: ${err}`)
+                    conn.destroy()
+                })
+        })
 
         setTimeout(() => {
             resolve(clients)
